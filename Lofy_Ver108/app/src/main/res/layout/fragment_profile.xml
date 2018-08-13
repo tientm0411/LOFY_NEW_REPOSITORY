@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="#FFF0CC"
+tools:context=".controller.ProfileFragment">
+
+<android.support.percent.PercentRelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1">
+
+    <Button
+        android:id="@+id/btn_profile_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:fontFamily="serif"
+        android:text="@string/btn_fragment_profile_logout"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_marginTopPercent="80%" />
+
+</android.support.percent.PercentRelativeLayout>
+</LinearLayout>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFF0CC"
+    android:orientation="vertical"
+    tools:context=".controller.JoinGroupFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="3"
+                android:background="@drawable/custom_view_shadow"
+                android:gravity="center"
+                android:text="@string/tv_fragment_join_group_goupCode"
+                android:textAllCaps="false"
+                android:textColor="@color/fontColor"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/join_ci_enter_code"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="4dp"
+                android:layout_weight="7" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/join_btn_join_send_request"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@android:drawable/dialog_holo_light_frame"
+            android:text="@string/btn_fragment_join_group_join"
+            android:textAllCaps="false"
+            android:textColor="@color/fontColor" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="3"
+                android:background="@drawable/custom_view_shadow"
+                android:gravity="center"
+                android:text="@string/tv_fragment_join_group_selectColor"
+                android:textAllCaps="false"
+                android:textColor="@color/fontColor"
+                android:textSize="15dp"
+                android:textStyle="" />
+
+            <TextView
+                android:id="@+id/join_tv_color_picker"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="4"
+                android:background="#FF0000"
+                android:hint="NA"
+                android:padding="10dp"
+                android:textColorHint="#FF0000"
+
+                />
+
+            <Button
+                android:id="@+id/join_btn_color_picker_member"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="3"
+                android:background="@android:drawable/dialog_holo_light_frame"
+                android:text="@string/btn_fragment_join_group_yourColor"
+                android:textAllCaps="false"
+                android:textColor="#FF0000"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="3"
+                android:background="@drawable/custom_view_shadow"
+                android:gravity="center"
+                android:text="@string/tv_fragment_join_group_groupName"
+                android:textAllCaps="false"
+                android:textColor="@color/fontColor"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_join_group_name"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="4dp"
+                android:layout_weight="7"
+                android:gravity="center"
+                android:text="@string/tv_fragment_join_group_name"
+                android:textAllCaps="false"
+                android:textColor="@color/fontColor"
+                android:textSize="24dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:text="@string/tv_fragment_join_group_leader"
+            android:textColor="@color/fontColor"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
+
+        <ListView
+            android:id="@+id/lv_join_host"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="#D2D2D2"
+            android:divider="#FFCC00"
+            android:padding="2dp"
+            android:scrollbars="vertical"
+            android:stackFromBottom="false"></ListView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:text="@string/tv_fragment_join_group_vice"
+            android:textColor="@color/fontColor"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
+
+        <ListView
+            android:id="@+id/lv_join_vice"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="#D2D2D2"
+            android:divider="#FFCC00"
+            android:padding="2dp"
+            android:scrollbars="vertical"
+            android:stackFromBottom="false"></ListView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:text="@string/tv_fragment_join_group_member"
+            android:textColor="@color/fontColor"
+            android:textSize="12dp"
+            android:textStyle="bold|italic" />
+
+        <ListView
+            android:id="@+id/lv_join_member"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="#D2D2D2"
+            android:divider="#FFCC00"
+            android:padding="2dp"
+            android:scrollbars="vertical"
+            android:stackFromBottom="false"></ListView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.github.clans.fab.FloatingActionMenu
+                android:id="@+id/floating_menu_create_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="11dp"
+                android:layout_marginLeft="11dp"
+                android:layout_marginRight="11dp"
+                fab:menu_animationDelayPerItem="55"
+                fab:menu_buttonSpacing="0dp"
+                fab:menu_colorNormal="#da3c2f"
+                fab:menu_colorPressed="#dc4b3f"
+                fab:menu_colorRipple="#99d4d4d4"
+                fab:menu_fab_label="Floating Social Icons"
+                fab:menu_fab_size="normal"
+                fab:menu_icon="@drawable/fab_add"
+                fab:menu_labels_colorNormal="#333"
+                fab:menu_labels_colorPressed="#444"
+                fab:menu_labels_colorRipple="#66efecec"
+                fab:menu_labels_cornerRadius="3dp"
+                fab:menu_labels_ellipsize="none"
+                fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+                fab:menu_labels_margin="0dp"
+                fab:menu_labels_maxLines="-1"
+                fab:menu_labels_padding="8dp"
+                fab:menu_labels_position="left"
+                fab:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+                fab:menu_labels_showShadow="true"
+                fab:menu_labels_singleLine="false"
+                fab:menu_labels_textColor="#f2f1f1"
+                fab:menu_labels_textSize="15sp"
+                fab:menu_openDirection="up"
+                fab:menu_shadowColor="#66aff198"
+                fab:menu_shadowRadius="4dp"
+                fab:menu_shadowXOffset="1dp"
+                fab:menu_shadowYOffset="4dp"
+                fab:menu_showShadow="true">
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_facebook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="FaceBook"
+                    fab:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_twitter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="Twitter"
+                    fab:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_linkdin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="Linkdi"
+                    fab:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_google_plus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="Google Plus"
+                    fab:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_instagram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="Instagram"
+                    fab:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/floating_youtube"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_app"
+                    app:fab_label="Youtube"
+                    fab:fab_size="mini" />
+
+            </com.github.clans.fab.FloatingActionMenu>
+        </RelativeLayout>
+    </LinearLayout>
+</ScrollView>

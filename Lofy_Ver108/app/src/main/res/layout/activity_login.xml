@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".controller.LoginActivity">
+
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            app:layout_heightPercent="25%"
+            app:layout_marginTopPercent="20%"
+            app:layout_widthPercent="25%"
+            app:srcCompat="@drawable/ic_app_logo" />
+
+        <TextView
+            android:id="@+id/editText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:background="@null"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:text="@string/tv_activity_login_logo"
+            android:textColor="@color/fontColor"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_marginTopPercent="45%" />
+
+        <TextView
+            android:id="@+id/editText3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:background="@null"
+            android:ems="10"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:text="@string/tv_activity_login_slogan"
+            android:textColor="@color/fontColor"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_marginTopPercent="51%" />
+
+        <Button
+            android:id="@+id/btn_login_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:fontFamily="serif"
+            android:text="@string/btn_activity_login_login"
+            android:textAllCaps="false"
+            android:textSize="20sp"
+            app:layout_marginTopPercent="80%" />
+    </android.support.percent.PercentRelativeLayout>
+
+
+</LinearLayout>

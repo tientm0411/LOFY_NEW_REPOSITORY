@@ -1,0 +1,95 @@
+<resources>
+    <string name="app_name">Lofy_Ver108</string>
+    <string name="facebook_app_id">722937248097860</string>
+    <string name="fb_login_protocol_scheme">fb722937248097860</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <!--activity_login-->
+    <string name="tv_activity_login_logo">LOFY</string>
+    <string name="tv_activity_login_slogan">"''To Travel is To Live''"</string>
+    <string name="btn_activity_login_login">> Login to Facebook</string>
+    <!--activity_dialog_confirm_exit_group-->
+    <string name="tv_activity_dialog_confirm_exit_group_confirm">Bạn đang ở một nhóm khác !</string>
+    <string name="btn_activity_dialog_confirm_exit_group_go_current">Đi tới nhóm hiện tại</string>
+    <string name="btn_activity_dialog_confirm_exit_group_quit_group">Thoát nhóm hiện tại</string>
+    <!--mapsActivity-->
+    <string name="btn_mapsActivity_findPath">FIND PATH</string>
+    <string name="tv_mapsActivity_distance">0 km</string>
+    <string name="tv_mapsActivity_duration">0 min</string>
+    <!--dialog_confirm_remove_member-->
+    <string name="tv_dialog_remove_member_removeMember">Xóa Thành Viên?</string>
+    <string name="btn_dialog_remove_member_confirm_delete">Xóa</string>
+    <string name="tv_dialog_remove_member_confirm_cancel">Hủy</string>
+    <!--dialog_create_member_list-->
+    <string name="btn_dialog_create_member_list_view_profile">Xem trang cá nhân</string>
+    <string name="btn_dialog_create_member_list_remove_member">Xóa thành viên</string>
+    <string name="btn_dialog_create_member_list_set_vice">Đặt làm phó đoàn</string>
+    <string name="btn_dialog_create_member_list_set_host">Đặt làm trưởng đoàn</string>
+    <!--dialog_notify_icon-->
+    <string name="tv_dialog_notify_icon_warningTable">Bảng cảnh báo</string>
+    <string name="btn_dialog_notify_icon_police">Công an</string>
+    <string name="btn_dialog_notify_icon_accident">Tai nạn</string>
+    <string name="btn_dialog_notify_icon_contructtion_arena">Công trường</string>
+    <string name="btn_dialog_notify_icon_gas_station">Trạm xăng</string>
+    <string name="btn_dialog_notify_icon_health">Sức khoẻ</string>
+    <string name="btn_dialog_notify_icon_lost">Bị lạc</string>
+    <string name="btn_dialog_notify_icon_mountant_road">Đường núi</string>
+    <string name="btn_dialog_notify_icon_natural_landscape">Cảnh đẹp</string>
+    <string name="btn_dialog_notify_icon_repair">Sửa chữa</string>
+    <string name="btn_dialog_notify_icon_stop">Dừng khẩn cấp</string>
+    <string name="btn_dialog_notify_icon_stop_point">Xin dừng</string>
+    <string name="btn_dialog_notify_icon_sum_up">Tập trung</string>
+    <string name="btn_dialog_notify_icon_traffic_jam">Tắc đường</string>
+    <string name="btn_dialog_notify_icon_train">Có tàu</string>
+    <string name="btn_dialog_notify_icon_weather">Thời tiết xấu</string>
+    <string name="btn_dialog_notify_icon_wild_animal">Động vật</string>
+
+
+    <!--dialog_set_member_confirm_set_vice-->
+    <string name="tv_dialog_set_member_confirm_set_vice_set_vice">Đặt làm phó đoàn</string>
+    <string name="btn_dialog_set_member_confirm_set_vice_confirm_set_vice">Xác nhận</string>
+    <string name="btn_dialog_set_member_confirm_set_vice_cancel_set_vice">Hủy</string>
+    <!--fragment_create_group-->
+    <string name="tv_fragment_create_group_groupCode">Mã nhóm</string>
+    <string name="tv_fragment_create_group_groupName">Tên nhóm</string>
+    <string name="tv_fragment_create_group_markerColor">Màu marker</string>
+    <string name="btn_fragment_create_group_choose_color_marker">Chọn màu</string>
+    <string name="btn_fragment_create_group_create_group">Tạo</string>
+    <string name="tv_fragment_create_group_request">Yêu cầu</string>
+    <string name="tv_fragment_create_group_vice">Phó đoàn</string>
+    <string name="tv_fragment_create_group_member">Thành viên</string>
+    <!--fragment_current_group-->
+    <string name="btn_fragment_current_group_go_old_group">Đi tới nhóm hiện tại</string>
+    <string name="btn_fragment_current_group_quit_group">Rời khỏi nhóm hiện tại</string>
+    <!--fragment_home-->
+    <string name="tv_fragment_home_appName">LOFY</string>
+    <string name="btn_fragment_home_profile">Trang cá nhân</string>
+    <string name="btn_fragment_home_current_group">Nhóm hiện tại</string>
+    <string name="btn_fragment_home_create">Tạo một nhóm</string>
+    <string name="btn_fragment_home_join">Tham gia nhóm</string>
+    <string name="btn_fragment_home_about">Thông tin</string>
+    <string name="tv_fragment_home_slogan">"''To Travel is To Live''"</string>
+    <!--fragment_join_group-->
+    <string name="tv_fragment_join_group_goupCode">Mã nhóm</string>
+    <string name="btn_fragment_join_group_join">Tham gia</string>
+    <string name="tv_fragment_join_group_selectColor">Chọn màu</string>
+    <string name="btn_fragment_join_group_yourColor">Màu của bạn</string>
+    <string name="tv_fragment_join_group_groupName">Tên nhóm</string>
+    <string name="tv_fragment_join_group_name">Tên</string>
+    <string name="tv_fragment_join_group_leader">Trưởng đoàn</string>
+    <string name="tv_fragment_join_group_vice">Phó đoàn</string>
+    <string name="tv_fragment_join_group_member">Thành viên</string>
+    <!--fragment_profile-->
+    <string name="btn_fragment_profile_logout">> Đăng xuất Facebook</string>
+    <!--item_join_member-->
+    <string name="tv_item_join_member_nameMember">Thành viên</string>
+    <!--item_member-->
+    <string name="tv_item_member_nameMember">Thành viên</string>
+    <!--item_user_request-->
+    <string name="tv_item_user_request_userName">Người dùng</string>
+
+</resources>

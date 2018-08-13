@@ -1,0 +1,1 @@
+include ':app', ':colorpicker-library-1.1.8-javadoc', ':colorpicker-library-1.1.8'

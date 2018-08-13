@@ -1,0 +1,351 @@
+{
+  "project_info": {
+    "project_number": "297650161454",
+    "firebase_url": "https://lofyversion106.firebaseio.com",
+    "project_id": "lofyversion106",
+    "storage_bucket": "lofyversion106.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:39c38b6024b48d74",
+        "android_client_info": {
+          "package_name": "com.delaroystudios.emailpasswordauth"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-arso7n3js9kdc304hl4d0nesscju4qo8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.delaroystudios.emailpasswordauth",
+            "certificate_hash": "dc70a38aebe2efef2b6939b737422fd4d36c7bdc"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:adb21a4cd5166a14",
+        "android_client_info": {
+          "package_name": "lofy.fpt.edu.vn.lofy109"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-t629p0tpvauhof2194aim7ofmqsfna38.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy109",
+            "certificate_hash": "e44608d7b17d113af2956dbef0a30fabd13089e5"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:267910d84bc400ca",
+        "android_client_info": {
+          "package_name": "lofy.fpt.edu.vn.lofy_ver108"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-bo17i01emds90usltjkr3adaknpgp23p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_ver108",
+            "certificate_hash": "3a01827fdc753c371a7aed684002f079459ca849"
+          }
+        },
+        {
+          "client_id": "297650161454-1fmhedf453i3jeilekaqflf5igeuure2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_ver108",
+            "certificate_hash": "7d242b099ffcc2da9a56be08518a7a2a7223a6bf"
+          }
+        },
+        {
+          "client_id": "297650161454-lqhtoh7l585kjetp770e6279j3kfrj28.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_ver108",
+            "certificate_hash": "dc70a38aebe2efef2b6939b737422fd4d36c7bdc"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:285054935e1eb9a7",
+        "android_client_info": {
+          "package_name": "lofy.fpt.edu.vn.lofy_ver_107"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-6ankmh6eb0voro8er1bo84tnerlgtflg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_ver_107",
+            "certificate_hash": "11c423217bfbd4d859f87a4ed2b451ff48f33107"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:323e3685218050ab",
+        "android_client_info": {
+          "package_name": "lofy.fpt.edu.vn.lofy_version106"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-2o6mcr0ja9jcsbddpjggs3cknmmffrud.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_version106",
+            "certificate_hash": "dc70a38aebe2efef2b6939b737422fd4d36c7bdc"
+          }
+        },
+        {
+          "client_id": "297650161454-onm5p5r1f577t5u35qtq7q9h0786148r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_version106",
+            "certificate_hash": "aa29d15925cb151ecb02b080fbf60fa4b52c99b0"
+          }
+        },
+        {
+          "client_id": "297650161454-gceic3r8efn6ohb98u516gil16p6bq5k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.lofy_version106",
+            "certificate_hash": "e44608d7b17d113af2956dbef0a30fabd13089e5"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:24eda48e0c5c6aed",
+        "android_client_info": {
+          "package_name": "lofy.fpt.edu.vn.loginlayout"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-i8m916dp0m6p0vat8igmuk48mdm4hfjj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lofy.fpt.edu.vn.loginlayout",
+            "certificate_hash": "dc70a38aebe2efef2b6939b737422fd4d36c7bdc"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:297650161454:android:2c27cae464b2b81f",
+        "android_client_info": {
+          "package_name": "net.simplifiedcoding.firebasephoneauthexample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "297650161454-sb8dln2v7ihbauvhnpl9jaqmb9o461so.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.simplifiedcoding.firebasephoneauthexample",
+            "certificate_hash": "dc70a38aebe2efef2b6939b737422fd4d36c7bdc"
+          }
+        },
+        {
+          "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY4du_uwnBpdFDVLu4oyY9cRmG5jmGXZE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "297650161454-2o22et9lg14tb9p0d5g03v1vmdiobuuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
