@@ -9,12 +9,14 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -40,10 +42,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,11 +57,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.karan.churi.PermissionManager.PermissionManager;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
+import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
+import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
+import lofy.fpt.edu.vn.lofy_ver108.Modules.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.business.ImageLoadTask;
+import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
+import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
+import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -64,18 +78,21 @@ import static android.content.Context.LOCATION_SERVICE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapGroupFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener {
+public class MapGroupFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener, DirectionFinderListener {
     private View rootView;
     private GoogleMap mMap;
+    private Circle mapCircle;
     private FloatingActionButton fabNoti;
 
     private SharedPreferences mSharedPreferences;
     private String groupID = "";
+    private String userID = "";
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference notiRef;
     private DatabaseReference groupRef;
     private DatabaseReference userRef;
     private DatabaseReference groupUserRef;
+    private MapMethod mapMethod;
 
     private PermissionManager permissionManager;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -85,10 +102,19 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     private Marker mMarker;
     private ArrayList<Marker> alMarkerNoti; // list marker noti
-
+    private ArrayList<Marker> alMarkerMember; // list marker member
+    private ArrayList<GroupUser> alGroupUser; // list group user
+    private ArrayList<User> alUser; // list user
+private String ciCode;
+    private List<Polyline> polylinePaths = new ArrayList<>();
+    private List<List> sumPaths = new ArrayList<>();
+    private List<List> sumRoutes = new ArrayList<>();
+    private List<Route> routes = new ArrayList<>();
     public MapGroupFragment() {
     }
-
+    public void setCode(String code) {
+        ciCode = code;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -100,6 +126,13 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         askGrantLocationPermission(); // ask grant location permisstion
         initGoogleAPIClient();//Init Google API Client
         checkPermissions();//Check Permission
+
+        Intent intent = new Intent(rootView.getContext(), GPS_Service.class);
+        rootView.getContext().startService(intent);
+        PowerManager mgr = (PowerManager) rootView.getContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+        wakeLock.acquire();
+
         return rootView;
     }
 
@@ -115,10 +148,31 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
-
-
+        userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
+        mapMethod = new MapMethod(rootView.getContext());
+        mapCircle = null;
         alMarkerNoti = new ArrayList<>();
+        final DatabaseReference newRef=groupRef.child(groupID);
+        final DirectionFinder directionFinder = new DirectionFinder(this, "", "", null, "");
+        newRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                directionFinder.setOrigin(dataSnapshot.child("start_Lat").getValue().toString() + "," + dataSnapshot.child("start_Long").getValue().toString());
+                directionFinder.setDestination(dataSnapshot.child("end_Lat").getValue().toString() + "," + dataSnapshot.child("end_Long").getValue().toString());
+                try {
+                    directionFinder.execute();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -176,9 +230,10 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnMarkerDragListener(this);
         loadMarkerNoti(googleMap);
+        loadLocationMember(googleMap);
     }
 
-    private ArrayList<Notification> alNoti;
+    private ArrayList<Notification> alNoti; // list noti
 
     // load marker noti
     private void loadMarkerNoti(final GoogleMap googleMap) {
@@ -198,7 +253,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         }
                     }
                 }
-                Log.d("NOTI_SIZE :", String.valueOf(alNoti.size()));
                 if (!alNoti.isEmpty() && alNoti.size() > 0) {
                     // mMarker = null;
                     for (int i = 0; i < alNoti.size(); i++) {
@@ -207,11 +261,82 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         alMarkerNoti.add(new ImageLoadTask().retriveMarkerNoti());
                     }
                 }
-                Log.d("NOTI_SIZE_2 :", alMarkerNoti.size() + "");
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    // load location member
+    private void loadLocationMember(final GoogleMap googleMap) {
+        alGroupUser = new ArrayList<>();
+        alMarkerMember = new ArrayList<>();
+        alUser = new ArrayList<>();
+        groupUserRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alGroupUser.clear();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        GroupUser groupUser = ds.getValue(GroupUser.class);
+                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
+                            alGroupUser.add(groupUser);
+                        }
+                    }
+                    Log.d("alGroupUser: ", alGroupUser.size() + " ");
+                    userRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            alUser.clear();
+                            if (dataSnapshot.hasChildren()) {
+                                if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
+                                    for (int i = 0; i < alMarkerMember.size() - 1; i++) {
+                                        // alMarkerMember.get(i).setVisible(true);
+                                        alMarkerMember.get(i).remove();
+                                    }
+                                }
+                                alMarkerMember.clear();
+                                LatLng lng;
+                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                    User u = ds.getValue(User.class);
+                                    for (int i = 0; i < alGroupUser.size(); i++) {
+                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
+                                            alUser.add(u);
+                                        }
+                                    }
+                                }
+                                Log.d("alUser: ", alUser.size() + " ");
+                                Log.d("userID--", userID + ": ");
+                                if (!alUser.isEmpty() && alUser.size() > 0) {
+                                    for (int i = 0; i < alUser.size(); i++) {
+                                        if (!alUser.get(i).getUserId().equals(userID)) {
+                                            lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
+                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
+                                                    .position(lng)
+                                                    .title(alUser.get(i).getUserName()));
+                                            alMarkerMember.add(markerMem);
+                                        }
+                                        if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
+                                            mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
+                                        }
+                                    }
+                                    Log.d("alMarkerMember: ", alMarkerMember.size() + " ");
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -421,13 +546,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     @Override
     public void onMarkerDragStart(Marker marker) {
-        if(alMarkerNoti.size()>0){
-            for(int i = 0; i <alMarkerNoti.size();i++){
-                if(alMarkerNoti.get(i).equals(marker)){
-                    marker.remove();
-                }
-            }
-        }
+        marker.remove();
     }
 
     @Override
@@ -438,5 +557,136 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     @Override
     public void onMarkerDragEnd(Marker marker) {
 
+    }
+    @Override
+    public void onDirectionFinderStart() {
+
+    }
+
+    @Override
+    public void onDirectionFinderSuccess(List<Route> routes) {
+        int minDistanceIndex = 0;
+        int minDistance = Integer.MAX_VALUE;
+        for (Route route : routes) {
+            // get min distance
+            int distance = route.distance.value;
+            if (distance < minDistance) {
+                minDistance = distance;
+                minDistanceIndex = routes.indexOf(route);
+            }
+        }
+
+        Log.d("123", minDistance + "");
+
+        for (final Route route : routes) {
+            LatLng camCover = new LatLng(route.startLocation.latitude, route.endLocation.longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camCover, 7));
+
+//            originMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+//                    .title(route.startAddress)
+//                    .position(route.startLocation)));
+//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+//                    .title(route.endAddress)
+//                    .position(route.endLocation)));
+//            PolylineOptions polylineOptions = new PolylineOptions().
+//                    geodesic(true).
+//                    color(Color.BLUE).
+//                    width(18);
+//            PolylineOptions polylineOptionsGray = new PolylineOptions().
+//                    geodesic(true).
+//                    color(Color.GRAY).
+//                    width(14);
+            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true);
+
+            if (routes.indexOf(route) != minDistanceIndex) {
+                for (int i = 0; i < route.points.size(); i++) {
+                    polylineOptions.add(route.points.get(i)).color(Color.GRAY).width(14).zIndex(9);
+                }
+            } else {
+                for (int i = 0; i < route.points.size(); i++) {
+                    polylineOptions.add(route.points.get(i)).color(Color.BLUE).width(18).zIndex(10);
+                }
+
+
+            }
+
+            Polyline polyline = mMap.addPolyline(polylineOptions);
+            polylinePaths.add(polyline);
+            polyline.setClickable(true);
+
+
+//            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+//                @Override
+//                public void onPolylineClick(Polyline polyline) {
+//                    // make color
+////                    blueId[0] = polyline.getId();
+////                    for (int i = 0; i < polylinePaths.size(); i++) {
+////                        if (!blueId[0].equals(polylinePaths.get(i).getId())) {
+////                            polylinePaths.get(i).setColor(Color.GRAY);
+////                            polylinePaths.get(i).setZIndex(9);
+////                            polylinePaths.get(i).setWidth(14);
+////                        } else {
+////                            polyline.setColor(Color.BLUE);
+////                            polylinePaths.get(i).setZIndex(10);
+////                            polyline.setWidth(18);
+////                            Log.d("polyid", polyline.getId());
+////                        }
+////                    }
+//                    for (int i = 0; i < polylinePaths.size(); i++) {
+//                        if (polyline.getId().equals(polylinePaths.get(i).getId())) {
+//                            polyline.setColor(Color.BLUE);
+//                            polylinePaths.get(i).setWidth(18);
+//                            polylinePaths.get(i).setZIndex(10);
+//                        } else {
+//                            polylinePaths.get(i).setColor(Color.GRAY);
+//                            polylinePaths.get(i).setWidth(14);
+//                            polylinePaths.get(i).setZIndex(9);
+//
+//                        }
+//                    }
+//
+//                    Log.d("poliId", polyline.getId());
+//                }
+//            });
+//                final String[] polyId = {""};
+            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+                @Override
+                public void onPolylineClick(Polyline polyline) {
+                    // make color
+//                        polyId[0] = polyline.getId();
+//                    for (int u = 0; u < sumPaths.size(); u++) {
+//                        Log.d("sumpaths", sumPaths.size() + "");
+//                    }
+                    String id = polyline.getId();
+                    for (int u = 0; u < sumPaths.size(); u++) {
+                        List<Polyline> containedOne = new ArrayList<>();
+                        polylinePaths = sumPaths.get(u);
+                        for (int i = 0; i < polylinePaths.size(); i++) {
+                            if (id.equals(polylinePaths.get(i).getId())) {
+                                containedOne = polylinePaths;
+                            }
+                        }
+                        for (int i = 0; i < polylinePaths.size(); i++) {
+                            if (id.equals(polylinePaths.get(i).getId())) {
+                                polyline.setColor(Color.BLUE);
+                                polyline.setZIndex(10);
+                                polyline.setWidth(18);
+
+//                                if (durations.containsKey(id) && distances.containsKey(id)) {
+//                                    ((TextView) findViewById(R.id.tv_map_duration)).setText(durations.get(id));
+//                                    ((TextView) findViewById(R.id.tv_map_distance)).setText(distances.get(id));
+//                                }
+                            } else if (!id.equals(polylinePaths.get(i).getId()) && containedOne.equals(polylinePaths)) {
+                                polylinePaths.get(i).setColor(Color.GRAY);
+                                polylinePaths.get(i).setZIndex(9);
+                                polylinePaths.get(i).setWidth(14);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 }

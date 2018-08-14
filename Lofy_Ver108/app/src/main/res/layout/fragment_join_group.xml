@@ -244,51 +244,19 @@
                 fab:menu_showShadow="true">
 
                 <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_facebook"
+                    android:id="@+id/fab_join_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_app"
-                    app:fab_label="FaceBook"
+                    app:fab_label="Bắt đầu"
                     fab:fab_size="mini" />
 
                 <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_twitter"
+                    android:id="@+id/fab_join_quit_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_app"
-                    app:fab_label="Twitter"
-                    fab:fab_size="mini" />
-
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_linkdin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_app"
-                    app:fab_label="Linkdi"
-                    fab:fab_size="mini" />
-
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_google_plus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_app"
-                    app:fab_label="Google Plus"
-                    fab:fab_size="mini" />
-
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_instagram"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_app"
-                    app:fab_label="Instagram"
-                    fab:fab_size="mini" />
-
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/floating_youtube"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_app"
-                    app:fab_label="Youtube"
+                    app:fab_label="Rời khỏi nhóm"
                     fab:fab_size="mini" />
 
             </com.github.clans.fab.FloatingActionMenu>

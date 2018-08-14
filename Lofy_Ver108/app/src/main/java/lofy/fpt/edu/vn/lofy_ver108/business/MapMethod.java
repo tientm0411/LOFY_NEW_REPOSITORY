@@ -24,9 +24,10 @@ public class MapMethod {
     private static final int REQUEST_LOCATION = 1111;
     private static final int PROXIMITY_RADIUS = 5000;
     private LocationManager locationManager;
+
     public MapMethod(Context mContext) {
-    this.mContext=mContext;
-    locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        this.mContext = mContext;
+        locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
     }
 
     // get location from address
@@ -39,13 +40,14 @@ public class MapMethod {
             if (address == null) {
                 return null;
             }
-              Address location = address.get(0);
+            Address location = address.get(0);
             p1 = new LatLng(location.getLatitude(), location.getLongitude());
         } catch (IOException ex) {
             ex.printStackTrace();
         }
         return p1;
     }
+
     // get distance A----B
     public double getDistance(LatLng LatLng1, LatLng LatLng2) {
         double distance = 0;
@@ -93,7 +95,7 @@ public class MapMethod {
             // for ActivityCompat#requestPermissions for more details.
             return null;
         }
-        LocationManager lm = (LocationManager)mContext.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (location != null) {
             double latti = location.getLatitude();
@@ -102,13 +104,14 @@ public class MapMethod {
         }
         return myLatLng;
     }
+
     // get my current LatLng
     public LatLng getMyLocation() {
         LatLng myLatLng = null;
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
                 (mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity)mContext,
+            ActivityCompat.requestPermissions((Activity) mContext,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -134,17 +137,16 @@ public class MapMethod {
         return myLatLng;
     }
 
-    public String getUrl(double latitude , double longitude , String nearbyPlace)
-    {
+    public String getUrl(double latitude, double longitude, String nearbyPlace) {
 
         StringBuilder googlePlaceUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlaceUrl.append("location="+latitude+","+longitude);
-        googlePlaceUrl.append("&radius="+PROXIMITY_RADIUS);
-        googlePlaceUrl.append("&type="+nearbyPlace);
+        googlePlaceUrl.append("location=" + latitude + "," + longitude);
+        googlePlaceUrl.append("&radius=" + PROXIMITY_RADIUS);
+        googlePlaceUrl.append("&type=" + nearbyPlace);
         googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key="+"AIzaSyBLEPBRfw7sMb73Mr88L91Jqh3tuE4mKsE");
+        googlePlaceUrl.append("&key=" + "AIzaSyBLEPBRfw7sMb73Mr88L91Jqh3tuE4mKsE");
 
-        Log.d("MapsActivity", "url = "+googlePlaceUrl.toString());
+        Log.d("MapsActivity", "url = " + googlePlaceUrl.toString());
 
         return googlePlaceUrl.toString();
     }

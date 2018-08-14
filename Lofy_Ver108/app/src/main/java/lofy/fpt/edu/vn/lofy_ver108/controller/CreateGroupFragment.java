@@ -558,6 +558,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 break;
             case R.id.fab_create_set_track:
                 intent = new Intent(rootView.getContext(), MapsActivity.class);
+                intent.putExtra("groupId", groupID);
                 startActivity(intent);
                 break;
             case R.id.fab_create_start:
@@ -569,6 +570,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 //                        .addToBackStack(null)
 //                        .commit();
                 intent = new Intent(rootView.getContext(), StartActivity.class);
+                intent.putExtra("groupId", groupID);
                 startActivity(intent);
                 break;
             case R.id.fab_create_delete_group:
