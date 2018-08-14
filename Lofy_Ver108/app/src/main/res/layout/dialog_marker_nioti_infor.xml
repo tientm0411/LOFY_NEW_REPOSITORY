@@ -25,6 +25,18 @@
         android:textColor="#05395c"
         />
     <TextView
+        android:id="@+id/tv_dg_noti_infor_noti_member"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Member"
+        android:textSize="14sp"
+        android:textStyle="bold|italic"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_margin="16dp"
+        android:textColor="#05395c"
+        />
+    <TextView
         android:id="@+id/tv_dg_noti_infor_noti_mess"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

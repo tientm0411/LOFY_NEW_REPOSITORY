@@ -3,8 +3,10 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -22,17 +24,15 @@ import java.util.Date;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.business.AppFunctions;
+import lofy.fpt.edu.vn.lofy_ver108.business.BitmapLoadTask;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 
 public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
     private Context mContext;
-    private int mIcon;
+    private String mUrlIcon;
     private String mNotiName;
     private Location mLocation;
 
-    private String notiName;
-    public static final String KEY_NOTI = "key_noti";
-    private LatLng iconLatLng;
 
     private SharedPreferences mSharedPreferences;
     private FirebaseDatabase mFirebaseDatabase;
@@ -55,11 +55,11 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
     private EditText edtMess;
 
 
-    public DialogConfirmSetMarkerNoti(@NonNull Context context,String notiName, int icon, Location location) {
+    public DialogConfirmSetMarkerNoti(@NonNull Context context,String notiName,String urlIcon, Location location) {
         super(context);
         mContext = context;
         mNotiName= notiName;
-        mIcon=icon;
+        mUrlIcon=urlIcon;
         mLocation = location;
         initView();
     }
@@ -87,7 +87,8 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         notiRef = mFirebaseDatabase.getReference("notifications");
 
-        ivIcon.setImageResource(mIcon);
+        BitmapLoadTask bitmapLoadTask = new BitmapLoadTask(mContext,mUrlIcon,ivIcon);
+        bitmapLoadTask.execute();
         tvNameNoti.setText(mNotiName);
     }
 
@@ -110,9 +111,8 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
         if(!groupID.equals("NA")){
                     String notiID = userID + appFunctions.randomString(6);
                     Date currentTime = Calendar.getInstance().getTime();
-                    iconLatLng= new LatLng(mLocation.getLatitude(),mLocation.getLongitude());
                     Notification notification = new Notification(notiID,mNotiName,groupID,userID,"icon",currentTime.toString(),
-                            "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_noti%2Fic_police.png?alt=media&token=5d9bf761-1655-421b-8556-312f8aae8314",notiName, mLocation.getLatitude(),mLocation.getLongitude(),edtMess.getText().toString());
+                           mUrlIcon,mNotiName, mLocation.getLatitude(),mLocation.getLongitude(),edtMess.getText().toString());
                     notiRef.child(notiID).setValue(notification);
                 }else{
             Toast.makeText(mContext, "Bạn cần tham gia nhóm trước !", Toast.LENGTH_SHORT).show();
