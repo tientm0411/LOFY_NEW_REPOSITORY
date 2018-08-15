@@ -45,11 +45,11 @@ dependencies {
     implementation('com.github.nkzawa:socket.io-client:0.4.1') {
         exclude group: 'org.json', module: 'json'
     }
-    implementation 'com.google.firebase:firebase-database:9.4.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.github.karanchuri:Permissionmanager:0.1.0'
 
 //    implementation 'com.koushikdutta.ion:ion:2.2.1'
+    implementation 'com.google.firebase:firebase-database:9.4.0'
 }
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->

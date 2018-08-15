@@ -79,7 +79,7 @@ public class QueryFirebase implements SharedPreferences.OnSharedPreferenceChange
             colorList.add("#FFF6BC");
             colorList.add("#FFD3BC");
             Group group = new Group(groupID, groupName, "NA",
-                    "NA", 0.0, 0.0, 0.0, 0.0, "open", colorList);
+                    "NA", 0.0, 0.0, 0.0, 0.0, "open", colorList,null,null);
             groupRef.child(groupID).setValue(group);
 
             // set groupId for sharefreference

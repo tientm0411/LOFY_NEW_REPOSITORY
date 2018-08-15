@@ -77,7 +77,9 @@ public class MapMethod {
         circleOptions.strokeWidth(3);
         if (mMap != null) {
             mapCircle = mMap.addCircle(circleOptions);
+            Log.d("showCircleToGoogleMap", "Ping 1");
         }
+        Log.d("showCircleToGoogleMap", "Ping 2");
         return mapCircle;
     }
 

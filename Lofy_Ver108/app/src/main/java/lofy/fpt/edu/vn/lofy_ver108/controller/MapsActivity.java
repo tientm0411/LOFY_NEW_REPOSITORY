@@ -110,6 +110,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
     private String ciCode;
+    private List<LatLng> listRest=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -511,6 +512,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     .title("Thêm điểm dừng?")
                     .snippet("Có phải bạn muốn thêm điểm dừng?"));
             tenMarkers.add(myMarker);
+            listRest.add(myMarker.getPosition());
         } else {
             // Number of markers is 10, just update the last one's position
             myMarker.setPosition(latLng);
@@ -601,10 +603,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     listArc.add(routeArc);
                     Date currentTime = Calendar.getInstance().getTime();
                     newRef.child("start_Date").setValue(currentTime.toString());
-                    newRef.child("start_Lat").setValue(listArc.get(i).startLocation.latitude);
-                    newRef.child("start_Long").setValue(listArc.get(i).startLocation.longitude);
-                    newRef.child("end_Lat").setValue(listArc.get(i).endLocation.latitude);
-                    newRef.child("end_Long").setValue(listArc.get(i).endLocation.longitude);
+                    newRef.child("start_Lat").setValue(routeArc.startLocation.latitude);
+                    newRef.child("start_Long").setValue(routeArc.startLocation.longitude);
+                    newRef.child("end_Lat").setValue(routeArc.endLocation.latitude);
+                    newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
+                    newRef.child("paths").setValue(listArc);
+                    newRef.child("restPoints").setValue(listRest);
+                    Toast.makeText(this, "Đặt lộ trình thành công!!!giờ bạn có thể bắt đầu.", Toast.LENGTH_SHORT).show();
                 }
             }
         }

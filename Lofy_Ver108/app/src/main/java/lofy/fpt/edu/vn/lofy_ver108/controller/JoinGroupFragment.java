@@ -413,7 +413,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                         if (group.getGroupId().toString().toUpperCase().equals(mCode.toUpperCase())) {
                             UserRequest userRequest = new UserRequest(userID, mCode.toUpperCase());
                             userRequestRef.child(urKey).setValue(userRequest);
-                            Toast.makeText(rootView.getContext(), "Vui lòng đợi chấp nhận !", Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(rootView.getContext(), "Vui lòng đợi chấp nhận !", Toast.LENGTH_SHORT).show();
                             mCount++;
                             break;
 //                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -432,7 +432,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                         }
                     }
                     if (mCount > 0) {
-                        Toast.makeText(rootView.getContext(), "Nhóm không tồn tại !", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(rootView.getContext(), "Nhóm không tồn tại !", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     userRequestRef.removeEventListener(this);

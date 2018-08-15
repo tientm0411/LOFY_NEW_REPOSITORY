@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -86,6 +88,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     private SharedPreferences mSharedPreferences;
     private String groupID = "";
+    private List<Marker> tenMarkers = new ArrayList<>();
     private String userID = "";
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference notiRef;
@@ -105,16 +108,19 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private ArrayList<Marker> alMarkerMember; // list marker member
     private ArrayList<GroupUser> alGroupUser; // list group user
     private ArrayList<User> alUser; // list user
-private String ciCode;
+    private String ciCode;
     private List<Polyline> polylinePaths = new ArrayList<>();
     private List<List> sumPaths = new ArrayList<>();
     private List<List> sumRoutes = new ArrayList<>();
     private List<Route> routes = new ArrayList<>();
+
     public MapGroupFragment() {
     }
+
     public void setCode(String code) {
         ciCode = code;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -152,18 +158,58 @@ private String ciCode;
         mapMethod = new MapMethod(rootView.getContext());
         mapCircle = null;
         alMarkerNoti = new ArrayList<>();
-        final DatabaseReference newRef=groupRef.child(groupID);
+        final DatabaseReference newRef = groupRef.child(groupID);
         final DirectionFinder directionFinder = new DirectionFinder(this, "", "", null, "");
         newRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+//                directionFinder.setOrigin(dataSnapshot.child("start_Lat").getValue().toString() + "," + dataSnapshot.child("start_Long").getValue().toString());
+//                directionFinder.setDestination(dataSnapshot.child("end_Lat").getValue().toString() + "," + dataSnapshot.child("end_Long").getValue().toString());
+//                try {
+//                    directionFinder.execute();
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+                List<List> listLatLng = new ArrayList<>();
+                // Result will be holded Here
+                for (DataSnapshot dsp : dataSnapshot.child("paths").getChildren()) {
+                    for (DataSnapshot dsp2 : dsp.child("points").getChildren()) {
+                        List<String> point = new ArrayList<>();
+                        for (DataSnapshot dsp3 : dsp2.getChildren()) {
+                            point.add(String.valueOf(dsp3.getValue())); //add result into array list
+                        }
+                        listLatLng.add(point);
+                    }
+                }
+                Log.d("childcount", listLatLng + "");
+                PolylineOptions polylineOptions = new PolylineOptions().geodesic(true);
+                for (int i = 0; i < listLatLng.size(); i++) {
+                    String[] latlong = listLatLng.get(i).toString().split(",");
+                    double latitude = Double.parseDouble(latlong[0].trim().substring(1));
+                    double longitude = Double.parseDouble(latlong[1].trim().substring(0, latlong[1].length() - 2));
+                    LatLng point = new LatLng(latitude, longitude);
+                    polylineOptions.add(point).color(Color.BLUE).zIndex(10).width(20);
+                }
+                Polyline polyline = mMap.addPolyline(polylineOptions);
+                polylinePaths.add(polyline);
+                Log.d("hasagi", polyline + "");
+                polyline.setClickable(true);
 
-                directionFinder.setOrigin(dataSnapshot.child("start_Lat").getValue().toString() + "," + dataSnapshot.child("start_Long").getValue().toString());
-                directionFinder.setDestination(dataSnapshot.child("end_Lat").getValue().toString() + "," + dataSnapshot.child("end_Long").getValue().toString());
-                try {
-                    directionFinder.execute();
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                List<List> listMarker = new ArrayList<>();
+                for (DataSnapshot dsp : dataSnapshot.child("restPoints").getChildren()) {
+                    List<String> point = new ArrayList<>();
+                    for (DataSnapshot dsp2 : dsp.getChildren()) {
+                        point.add(String.valueOf(dsp2.getValue())); //add result into array list
+                    }
+                    listMarker.add(point);
+                }
+                for (int i = 0; i < listMarker.size(); i++) {
+                    String[] latlong = listMarker.get(i).toString().split(",");
+                    double latitude = Double.parseDouble(latlong[0].trim().substring(1));
+                    double longitude = Double.parseDouble(latlong[1].trim().substring(0, latlong[1].length() - 2));
+                    LatLng point = new LatLng(latitude, longitude);
+                    Marker myMarker = mMap.addMarker(new MarkerOptions().position(point).title("Rest here!!!"));
+                    tenMarkers.add(myMarker);
                 }
             }
 
@@ -173,6 +219,10 @@ private String ciCode;
 
             }
         });
+
+        loadLocationMember(mMap);
+
+
     }
 
     @Override
@@ -230,7 +280,6 @@ private String ciCode;
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnMarkerDragListener(this);
         loadMarkerNoti(googleMap);
-        loadLocationMember(googleMap);
     }
 
     private ArrayList<Notification> alNoti; // list noti
@@ -271,74 +320,88 @@ private String ciCode;
 
     // load location member
     private void loadLocationMember(final GoogleMap googleMap) {
-        alGroupUser = new ArrayList<>();
-        alMarkerMember = new ArrayList<>();
-        alUser = new ArrayList<>();
-        groupUserRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChildren()) {
-                    alGroupUser.clear();
-                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                        GroupUser groupUser = ds.getValue(GroupUser.class);
-                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
-                            alGroupUser.add(groupUser);
-                        }
-                    }
-                    Log.d("alGroupUser: ", alGroupUser.size() + " ");
-                    userRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            alUser.clear();
-                            if (dataSnapshot.hasChildren()) {
-                                if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
-                                    for (int i = 0; i < alMarkerMember.size() - 1; i++) {
-                                        // alMarkerMember.get(i).setVisible(true);
-                                        alMarkerMember.get(i).remove();
-                                    }
-                                }
-                                alMarkerMember.clear();
-                                LatLng lng;
-                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    User u = ds.getValue(User.class);
-                                    for (int i = 0; i < alGroupUser.size(); i++) {
-                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
-                                            alUser.add(u);
-                                        }
-                                    }
-                                }
-                                Log.d("alUser: ", alUser.size() + " ");
-                                Log.d("userID--", userID + ": ");
-                                if (!alUser.isEmpty() && alUser.size() > 0) {
-                                    for (int i = 0; i < alUser.size(); i++) {
-                                        if (!alUser.get(i).getUserId().equals(userID)) {
-                                            lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
-                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
-                                                    .position(lng)
-                                                    .title(alUser.get(i).getUserName()));
-                                            alMarkerMember.add(markerMem);
-                                        }
-                                        if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
-                                            mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
-                                        }
-                                    }
-                                    Log.d("alMarkerMember: ", alMarkerMember.size() + " ");
-                                }
+//        if (googleMap == null) {
+//            Toast.makeText(rootView.getContext(), "Google map null ! ", Toast.LENGTH_SHORT).show();
+//        } else {
+            alGroupUser = new ArrayList<>();
+            alMarkerMember = new ArrayList<>();
+            alUser = new ArrayList<>();
+            groupUserRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.hasChildren()) {
+                        alGroupUser.clear();
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                            GroupUser groupUser = ds.getValue(GroupUser.class);
+                            if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
+                                alGroupUser.add(groupUser);
                             }
                         }
+                        Log.d("alGroupUser: ", alGroupUser.size() + " ");
+                        userRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                alUser.clear();
+                                if (dataSnapshot.hasChildren()) {
+                                    if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
+                                        for (int i = 0; i < alMarkerMember.size() - 1; i++) {
+                                            // alMarkerMember.get(i).setVisible(true);
+                                            alMarkerMember.get(i).remove();
+                                        }
+                                    }
+                                    alMarkerMember.clear();
+                                    LatLng lng;
+                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                        User u = ds.getValue(User.class);
+                                        for (int i = 0; i < alGroupUser.size(); i++) {
+                                            if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
+                                                alUser.add(u);
+                                            }
+                                        }
+                                    }
+                                    Log.d("alUser: ", alUser.size() + "");
+                                    Log.d("userID: ", userID);
+                                    if (!alUser.isEmpty() && alUser.size() > 0) {
+                                        for (int i = 0; i < alUser.size(); i++) {
+                                            if (!alUser.get(i).getUserId().equals(userID)) {
+                                                lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
+                                                Log.d("LNGGGGG", lng + " ");
+//                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
+//                                                    .position(lng)
+//                                                    .title(alUser.get(i).getUserName())
+//                                                    .icon(BitmapDescriptorFactory
+//                                                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                        }
-                    });
+                                                Marker markerMem = null;
+                                                googleMap.addMarker(new MarkerOptions()
+                                                        .position(lng)
+                                                        .title("Hello world"));
+
+                                                alMarkerMember.add(markerMem);
+                                            }
+                                            if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
+                                                mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
+                                                Log.d("alPing1", " Ping1");
+                                            }
+                                        }
+                                        Log.d("alMarkerMember: ", alMarkerMember.size() + "");
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                            }
+                        });
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+       // }
     }
 
     // show noti
@@ -558,6 +621,7 @@ private String ciCode;
     public void onMarkerDragEnd(Marker marker) {
 
     }
+
     @Override
     public void onDirectionFinderStart() {
 

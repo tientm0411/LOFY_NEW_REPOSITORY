@@ -1,5 +1,8 @@
 package lofy.fpt.edu.vn.lofy_ver108.entity;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+
 import java.util.ArrayList;
 
 public class Group {
@@ -13,8 +16,25 @@ public class Group {
     private double end_Lat;
     private String status;
     private ArrayList<String> colorUser;
+    private ArrayList<Polyline> polylines;
+    private ArrayList<LatLng> listRest;
 
     public Group() {
+    }
+
+    public Group(String groupId, String groupName, String start_Date, String end_Date, double start_Long, double start_Lat, double end_Long, double end_Lat, String status, ArrayList<String> colorUser, ArrayList<Polyline> polylines, ArrayList<LatLng> listRest) {
+        this.groupId = groupId;
+        this.groupName = groupName;
+        this.start_Date = start_Date;
+        this.end_Date = end_Date;
+        this.start_Long = start_Long;
+        this.start_Lat = start_Lat;
+        this.end_Long = end_Long;
+        this.end_Lat = end_Lat;
+        this.status = status;
+        this.colorUser = colorUser;
+        this.polylines = polylines;
+        this.listRest = listRest;
     }
 
     public String getGroupId() {
@@ -97,17 +117,19 @@ public class Group {
         this.colorUser = colorUser;
     }
 
-    public Group(String groupId, String groupName, String start_Date, String end_Date, double start_Long, double start_Lat, double end_Long, double end_Lat, String status, ArrayList<String> colorUser) {
+    public ArrayList<Polyline> getPolylines() {
+        return polylines;
+    }
 
-        this.groupId = groupId;
-        this.groupName = groupName;
-        this.start_Date = start_Date;
-        this.end_Date = end_Date;
-        this.start_Long = start_Long;
-        this.start_Lat = start_Lat;
-        this.end_Long = end_Long;
-        this.end_Lat = end_Lat;
-        this.status = status;
-        this.colorUser = colorUser;
+    public void setPolylines(ArrayList<Polyline> polylines) {
+        this.polylines = polylines;
+    }
+
+    public ArrayList<LatLng> getListRest() {
+        return listRest;
+    }
+
+    public void setListRest(ArrayList<LatLng> listRest) {
+        this.listRest = listRest;
     }
 }

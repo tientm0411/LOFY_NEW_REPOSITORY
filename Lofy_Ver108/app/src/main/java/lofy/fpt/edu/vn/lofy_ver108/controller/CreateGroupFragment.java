@@ -505,7 +505,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             // Date currentTime = Calendar.getInstance().getTime();
             colorList.remove(colorHost);
             Group group = new Group(groupID, groupName, "NA",
-                    "NA", 0.0, 0.0, 0.0, 0.0, "open", colorList);
+                    "NA", 0.0, 0.0, 0.0, 0.0, "open", colorList,null,null);
             groupRef.child(groupID).setValue(group);
 
             // set groupId for sharefreference
