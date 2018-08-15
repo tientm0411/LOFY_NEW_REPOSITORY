@@ -245,7 +245,7 @@
             android:background="@drawable/boder_noti"
             />
         <Button
-            android:id="@+id/btn_map_noti_train"
+            android:id="@+id/btn_map_noti_trains"
             android:layout_margin="4dp"
             android:paddingBottom="8dp"
             android:paddingTop="8dp"

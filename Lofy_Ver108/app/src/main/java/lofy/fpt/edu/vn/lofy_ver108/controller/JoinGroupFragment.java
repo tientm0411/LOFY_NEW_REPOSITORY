@@ -3,6 +3,7 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -69,7 +71,8 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     private String userAvatar = "";
     private String groupID = "";
     private String groupName = "";
-
+    private FloatingActionButton btnStart;
+    private FloatingActionButton btnQuit;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference userRef;
     private DatabaseReference userRequestRef;
@@ -356,7 +359,10 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         lvAllMember = (ListView) rootView.findViewById(R.id.lv_join_member);
         lvHost = (ListView) rootView.findViewById(R.id.lv_join_host);
         lvVice = (ListView) rootView.findViewById(R.id.lv_join_vice);
-
+        btnStart = (FloatingActionButton) rootView.findViewById(R.id.fab_join_start);
+        btnQuit = (FloatingActionButton) rootView.findViewById(R.id.fab_join_quit_group);
+        btnStart.setOnClickListener(this);
+        btnQuit.setOnClickListener(this);
         lvVice.setOnItemClickListener(this);
         lvHost.setOnItemClickListener(this);
         lvAllMember.setOnItemClickListener(this);
@@ -373,12 +379,19 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
 
     @Override
     public void onClick(View view) {
+        Intent intent;
         switch (view.getId()) {
             case R.id.join_btn_join_send_request:
                 joinGroup();
                 break;
             case R.id.join_btn_color_picker_member:
                 chooseColor();
+                break;
+            case R.id.fab_join_start:
+                intent = new Intent(rootView.getContext(), StartActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.fab_join_quit_group:
                 break;
             default:
                 break;

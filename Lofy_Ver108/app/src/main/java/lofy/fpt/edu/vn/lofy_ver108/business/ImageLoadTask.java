@@ -6,24 +6,29 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 
 import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 
 public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
 
     //Link url hình ảnh bất kỳ
-    private String url;
     private GoogleMap map;
     private Context context;
     private boolean isCompleted = false;
-    private Marker currentMarker;
+    private Notification mNoti;
+    private Marker mMaker;
 
     public boolean isCompleted() {
         return isCompleted;
@@ -33,26 +38,26 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
         this.isCompleted = isCompleted;
     }
 
-    public ImageLoadTask(Context context, String url, GoogleMap map, Marker currentMarker) {
+    public ImageLoadTask(Context context, GoogleMap map, Notification notification) {
         this.context = context;
-        this.url = url;
         this.map = map;
-        this.currentMarker = currentMarker;
+        this.mNoti = notification;
+        // this.mMaker = marker;
+    }
+
+    public ImageLoadTask() {
+
     }
 
     @Override
     protected Bitmap doInBackground(Void... params) {
         try {
-//Tiến hành tạo đối tượng URL
-            URL urlConnection = new URL(url);
-//Mở kết nối
+            URL urlConnection = new URL(mNoti.getNoti_icon());
             HttpURLConnection connection = (HttpURLConnection) urlConnection
                     .openConnection();
             connection.setDoInput(true);
             connection.connect();
-//Đọc dữ liệu
             InputStream input = connection.getInputStream();
-//Tiến hành convert qua hình ảnh
             Bitmap myBitmap = BitmapFactory.decodeStream(input);
             if (myBitmap == null)
                 return null;
@@ -66,9 +71,21 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-//thiết lập Info cho Map khi tải hình hoàn tất
-        map.setInfoWindowAdapter(new InforNotiMaker(context, result));
-//tiến hành hiển thị lên Custom marker option lên Map:
-     //   currentMarker.showInfoWindow();
+       map.setInfoWindowAdapter(new InforNotiMaker(context, result,mNoti.getUserID()));
+        //new BitmapLoadTask(context,mNoti.getNoti_icon()).execute();
+        MarkerOptions mMarkerOptions = new MarkerOptions()
+                .title(mNoti.getNotiName())
+                .snippet(mNoti.getMess())
+                .position(new LatLng(mNoti.getLatitude(), mNoti.getLongtitude()))
+                .icon(BitmapDescriptorFactory.fromBitmap(result));
+        mMaker = map.addMarker(mMarkerOptions);
+        //  mMaker.setTag(0);
     }
+
+    // return marker
+    public Marker retriveMarkerNoti() {
+        return mMaker;
+    }
+
+
 }

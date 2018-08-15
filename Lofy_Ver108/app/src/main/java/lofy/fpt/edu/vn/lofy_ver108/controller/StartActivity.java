@@ -19,6 +19,7 @@ public class StartActivity extends AppCompatActivity {
     Toolbar toolbar;
     TabLayout tabLayout;
     ViewPager viewPager;
+    String ciCode;
 
     private int[] tabIcons = {
             R.drawable.ic_filter_1_white_24dp,
@@ -33,13 +34,16 @@ public class StartActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         viewPager= (ViewPager) findViewById(R.id.viewpager);
-
+        Bundle bundle = getIntent().getExtras();
+        ciCode = bundle.getString("groupId");
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        MapGroupFragment mapGroupFragment = new MapGroupFragment();
+        mapGroupFragment.setCode(ciCode);
         adapter.addFragment(new MapGroupFragment(), "One");
         adapter.addFragment(new HomeFragment(), "Two");
         adapter.addFragment(new ProfileFragment(), "Three");

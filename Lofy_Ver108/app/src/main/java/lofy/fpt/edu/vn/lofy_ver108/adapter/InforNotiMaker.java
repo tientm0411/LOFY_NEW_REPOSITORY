@@ -16,12 +16,14 @@ import lofy.fpt.edu.vn.lofy_ver108.R;
 public class InforNotiMaker implements GoogleMap.InfoWindowAdapter {
     private Context mContext;
     private Bitmap btmp;
+    private String memName;
     private LayoutInflater inflater;
 
-    public InforNotiMaker(Context context,Bitmap result)
+    public InforNotiMaker(Context context,Bitmap result,String name)
     {
         this.mContext=context;
         this.btmp=result;
+        this.memName=name;
         inflater = LayoutInflater.from(context);
     }
 
@@ -38,10 +40,12 @@ public class InforNotiMaker implements GoogleMap.InfoWindowAdapter {
 
         ImageView ivNoti = (ImageView) v.findViewById(R.id.iv_dg_noti_infor_icon);
         TextView tvName = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_name);
+        TextView tvMember = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_member);
         TextView tvMess = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_mess);
 
         tvName.setText(marker.getTitle());
         tvMess.setText(marker.getSnippet());
+        tvMember.setText(memName);
         ivNoti.setImageBitmap(btmp);
         return v;
     }
