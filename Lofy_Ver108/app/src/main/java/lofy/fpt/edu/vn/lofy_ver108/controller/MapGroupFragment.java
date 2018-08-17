@@ -68,6 +68,7 @@ import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.business.ImageLoadTask;
+import lofy.fpt.edu.vn.lofy_ver108.business.LoadMarkerMemberAsyntask;
 import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
@@ -220,8 +221,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             }
         });
 
-        loadLocationMember(mMap);
-
 
     }
 
@@ -229,6 +228,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         setUpMap(mMap);
+        loadMarkerNoti(mMap);
+
+        loadLocationMember(mMap);
     }
 
 
@@ -279,7 +281,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         googleMap.setOnMarkerClickListener(this);
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnMarkerDragListener(this);
-        loadMarkerNoti(googleMap);
     }
 
     private ArrayList<Notification> alNoti; // list noti
@@ -323,85 +324,81 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 //        if (googleMap == null) {
 //            Toast.makeText(rootView.getContext(), "Google map null ! ", Toast.LENGTH_SHORT).show();
 //        } else {
-            alGroupUser = new ArrayList<>();
-            alMarkerMember = new ArrayList<>();
-            alUser = new ArrayList<>();
-            groupUserRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.hasChildren()) {
-                        alGroupUser.clear();
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            GroupUser groupUser = ds.getValue(GroupUser.class);
-                            if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
-                                alGroupUser.add(groupUser);
-                            }
+        alGroupUser = new ArrayList<>();
+        alMarkerMember = new ArrayList<>();
+        alUser = new ArrayList<>();
+        groupUserRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alGroupUser.clear();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        GroupUser groupUser = ds.getValue(GroupUser.class);
+                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
+                            alGroupUser.add(groupUser);
                         }
-                        Log.d("alGroupUser: ", alGroupUser.size() + " ");
-                        userRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                alUser.clear();
-                                if (dataSnapshot.hasChildren()) {
-                                    if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
-                                        for (int i = 0; i < alMarkerMember.size() - 1; i++) {
-                                            // alMarkerMember.get(i).setVisible(true);
-                                            alMarkerMember.get(i).remove();
-                                        }
-                                    }
-                                    alMarkerMember.clear();
-                                    LatLng lng;
-                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                        User u = ds.getValue(User.class);
-                                        for (int i = 0; i < alGroupUser.size(); i++) {
-                                            if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
-                                                alUser.add(u);
-                                            }
-                                        }
-                                    }
-                                    Log.d("alUser: ", alUser.size() + "");
-                                    Log.d("userID: ", userID);
-                                    if (!alUser.isEmpty() && alUser.size() > 0) {
-                                        for (int i = 0; i < alUser.size(); i++) {
-                                            if (!alUser.get(i).getUserId().equals(userID)) {
-                                                lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
-                                                Log.d("LNGGGGG", lng + " ");
-//                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
-//                                                    .position(lng)
-//                                                    .title(alUser.get(i).getUserName())
-//                                                    .icon(BitmapDescriptorFactory
-//                                                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-                                                Marker markerMem = null;
-                                                googleMap.addMarker(new MarkerOptions()
-                                                        .position(lng)
-                                                        .title("Hello world"));
-
-                                                alMarkerMember.add(markerMem);
-                                            }
-                                            if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
-                                                mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
-                                                Log.d("alPing1", " Ping1");
-                                            }
-                                        }
-                                        Log.d("alMarkerMember: ", alMarkerMember.size() + "");
+                    }
+                    Log.d("alGroupUser: ", alGroupUser.size() + " ");
+                    userRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            alUser.clear();
+                            if (dataSnapshot.hasChildren()) {
+                                if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
+                                    for (int i = 0; i < alMarkerMember.size() - 1; i++) {
+                                        // alMarkerMember.get(i).setVisible(true);
+                                        alMarkerMember.get(i).remove();
                                     }
                                 }
+                                alMarkerMember.clear();
+                                LatLng lng;
+                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                    User u = ds.getValue(User.class);
+                                    for (int i = 0; i < alGroupUser.size(); i++) {
+                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
+                                            alUser.add(u);
+                                        }
+                                    }
+                                }
+                                Log.d("alUser: ", alUser.size() + "");
+                                Log.d("userID: ", userID);
+                                if (!alUser.isEmpty() && alUser.size() > 0) {
+                                    for (int i = 0; i < alUser.size(); i++) {
+                                        if (!alUser.get(i).getUserId().equals(userID)) {
+                                            lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
+                                            Log.d("alPing", "lng: "+lng );
+                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
+                                                    .position(lng)
+                                                    .title(alUser.get(i).getUserName())
+                                                    .icon(BitmapDescriptorFactory
+                                                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+                                            alMarkerMember.add(markerMem);
+                                            Log.d("alPing ", "alMarkerMember1: "+alMarkerMember.size());
+                                        }
+                                        if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
+                                            mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
+                                            Log.d("alPing", "mapCircle: " + mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5));
+                                        }
+                                    }
+                                    Log.d("alPing: ", "alMarkerMember2: " +alMarkerMember.size());
+                                }
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                            }
-                        });
-                    }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
                 }
+            }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                }
-            });
-       // }
+            }
+        });
+        // }
     }
 
     // show noti

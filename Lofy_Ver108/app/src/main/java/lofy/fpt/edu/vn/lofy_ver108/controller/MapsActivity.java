@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -49,8 +50,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -63,6 +73,7 @@ import javax.xml.datatype.Duration;
 
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
+import lofy.fpt.edu.vn.lofy_ver108.Modules.Distance;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.PlaceArrayAdapter;
@@ -101,6 +112,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private List<List> sumRoutes = new ArrayList<>();
     private List<Route> routes = new ArrayList<>();
     private List<Route> listArc = new ArrayList<>();
+    private List<LatLng> listRest = new ArrayList<>();
     private String groupID = "";
     private String groupName = "";
     private int sumDuration = 0, sumDistance = 0;
@@ -110,7 +122,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private static final LatLngBounds BOUNDS_MOUNTAIN_VIEW = new LatLngBounds(
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
     private String ciCode;
-    private List<LatLng> listRest=new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -336,7 +347,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
 
     @Override
-    public void onDirectionFinderSuccess(List<Route> routes) {
+    public void onDirectionFinderSuccess(final List<Route> routes) {
         this.routes = routes;
         progressDialog.dismiss();
         polylinePaths = new ArrayList<>();
@@ -392,19 +403,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 sumDistance += route.distance.value;
                 sumDuration += route.duration.value;
 
-                int days = sumDuration / 86400;
-                int hours = (sumDuration % 86400) / 3600;
-                int minutes = ((sumDuration % 86400) % 3600) / 60;
-                durDisp = days + " ngày " + hours + " giờ " + minutes + " phút";
-                if (sumDistance > 1000) {
-                    disDisp = NumberFormat.getNumberInstance(Locale.US).format((double) sumDistance / 1000) + " km";
-
-                } else {
-                    disDisp = NumberFormat.getNumberInstance(Locale.US).format(sumDistance) + " m";
-                }
-                ((TextView) findViewById(R.id.tv_map_duration)).setText(durDisp);
-                ((TextView) findViewById(R.id.tv_map_distance)).setText(disDisp);
-
+                executeDurDis();
             }
 
             Polyline polyline = mMap.addPolyline(polylineOptions);
@@ -457,6 +456,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 //                        Log.d("sumpaths", sumPaths.size() + "");
 //                    }
                     String id = polyline.getId();
+                    Log.d("hahahah", sumPaths.size() + ", " + sumRoutes.size());
                     for (int u = 0; u < sumPaths.size(); u++) {
                         List<Polyline> containedOne = new ArrayList<>();
                         polylinePaths = sumPaths.get(u);
@@ -470,7 +470,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                 polyline.setColor(Color.BLUE);
                                 polyline.setZIndex(10);
                                 polyline.setWidth(18);
-
 //                                if (durations.containsKey(id) && distances.containsKey(id)) {
 //                                    ((TextView) findViewById(R.id.tv_map_duration)).setText(durations.get(id));
 //                                    ((TextView) findViewById(R.id.tv_map_distance)).setText(distances.get(id));
@@ -480,6 +479,23 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                 polylinePaths.get(i).setZIndex(9);
                                 polylinePaths.get(i).setWidth(14);
                             }
+                            sumDuration = 0;
+                            sumDistance = 0;
+
+                        }
+                    }
+                    for (int u = 0; u < sumPaths.size(); u++) {
+                        List<Polyline> polylineNew = sumPaths.get(u);
+                        List<Route> routeNew = sumRoutes.get(u);
+                        for (int i = 0; i < polylineNew.size(); i++) {
+                            Polyline polyline1 = polylineNew.get(i);
+                            Route route1 = routeNew.get(i);
+                            if (polyline1.getColor() == Color.BLUE) {
+                                sumDistance += route1.distance.value;
+                                sumDuration += route1.duration.value;
+
+                                executeDurDis();
+                            }
                         }
                     }
                 }
@@ -488,9 +504,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
         sumRoutes.add(routes);
         sumPaths.add(polylinePaths);
-        Log.d("sumpaths", sumPaths.size() + "");
-        Log.d("sumroutes", sumRoutes.size() + "");
-
 //        }
 //        try {
 //            double lat = myMarker.getPosition().latitude;
@@ -502,6 +515,21 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         //blueArc();
     }
 
+    public void executeDurDis() {
+        int days = sumDuration / 86400;
+        int hours = (sumDuration % 86400) / 3600;
+        int minutes = ((sumDuration % 86400) % 3600) / 60;
+        durDisp = days + " ngày " + hours + " giờ " + minutes + " phút";
+        if (sumDistance > 1000) {
+            disDisp = NumberFormat.getNumberInstance(Locale.US).format((double) sumDistance / 1000) + " km";
+
+        } else {
+            disDisp = NumberFormat.getNumberInstance(Locale.US).format(sumDistance) + " m";
+        }
+        ((TextView) findViewById(R.id.tv_map_duration)).setText(durDisp);
+        ((TextView) findViewById(R.id.tv_map_distance)).setText(disDisp);
+    }
+
     @Override
     public void onMapLongClick(LatLng latLng) {
         // First check if markers number is lower than 10
@@ -511,6 +539,27 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     .position(latLng)
                     .title("Thêm điểm dừng?")
                     .snippet("Có phải bạn muốn thêm điểm dừng?"));
+            new DownloadRawData().execute("https://roads.googleapis.com/v1/snapToRoads?path=" + myMarker.getPosition().latitude + "," + myMarker.getPosition().longitude + "&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE");
+//            "https://roads.googleapis.com/v1/snapToRoads?path=-35.27801,149.12958|-35.28032,149.12907|-35.28099,149.12929|-35.28144,149.12984|-35.28194,149.13003|-35.28282,149.12956|-35.28302,149.12881|-35.28473,149.12836&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE"
+//            try {
+//                URL url = new URL(            "https://roads.googleapis.com/v1/snapToRoads?path=" +myMarker.getPosition().latitude +  ", " + myMarker.getPosition().longitude + "&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE");
+//                InputStream is = url.openConnection().getInputStream();
+//                StringBuffer buffer = new StringBuffer();
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+//
+//                String line;
+//                while ((line = reader.readLine()) != null) {
+//                    buffer.append(line + "\n");
+//                }
+//
+//                Log.d("bufferk", buffer.toString());
+//
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
             tenMarkers.add(myMarker);
             listRest.add(myMarker.getPosition());
         } else {
@@ -518,6 +567,62 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             myMarker.setPosition(latLng);
         }
     }
+
+    private class DownloadRawData extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String link = params[0];
+            try {
+                URL url = new URL(link);
+                InputStream is = url.openConnection().getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+
+                return buffer.toString();
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String res) {
+            try {
+                parseJSon(res);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void parseJSon(String data) throws JSONException {
+        if (data == null)
+            return;
+
+        List<LatLng> point = new ArrayList<>();
+        JSONObject jsonData = new JSONObject(data);
+        JSONArray jsonPoints = jsonData.getJSONArray("snappedPoints");
+        JSONObject jsonLocation = jsonPoints.getJSONObject(0);
+        for (int i = 0; i < jsonLocation.length(); i++) {
+            String jsonLat = jsonPoints.getJSONObject(0).toString();
+            String jsonLong = jsonPoints.getJSONObject(1).toString();
+            LatLng latLng = new LatLng(Double.valueOf(jsonLat), Double.valueOf(jsonLong));
+
+            myMarker.setPosition(latLng);
+        }
+
+        Toast.makeText(this, "hay vai", Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -548,22 +653,22 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        for (int i = 0; i < polylinePaths.size(); i++) {
-//            polylinePaths.get(i).setClickable(false);
-        }
-        LatLng mLocation = marker.getPosition();
-        String ori = mAutocompleteTextView.getText().toString();
-        String des = mAutocompleteTextView2.getText().toString();
-        String rest = mLocation.latitude + "," + mLocation.longitude;
-
-        try {
-            new DirectionFinder(this, ori, rest, tenMarkers, des).execute();
-            mAutocompleteTextView.setText(rest);
-            mAutocompleteTextView2.setText(des);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        marker.hideInfoWindow();
+//        for (int i = 0; i < polylinePaths.size(); i++) {
+////            polylinePaths.get(i).setClickable(false);
+//        }
+//        LatLng mLocation = marker.getPosition();
+//        String ori = mAutocompleteTextView.getText().toString();
+//        String des = mAutocompleteTextView2.getText().toString();
+//        String rest = mLocation.latitude + "," + mLocation.longitude;
+//
+//        try {
+//            new DirectionFinder(this, ori, rest, tenMarkers, des).execute();
+//            mAutocompleteTextView.setText(rest);
+//            mAutocompleteTextView2.setText(des);
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        marker.hideInfoWindow();
     }
 
     @Override
@@ -573,19 +678,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 marker.remove();
                 tenMarkers.remove(i);
                 Log.d("markersize", tenMarkers.size() + "");
-            }
-        }
-    }
-
-    public void blueArc() {
-        listArc.clear();
-        for (int u = 0; u < sumRoutes.size(); u++) {
-            for (int i = 0; i < sumRoutes.get(u).size(); i++) {
-                Route routeArc = (Route) sumRoutes.get(u).get(i);
-                Polyline polyArc = (Polyline) sumPaths.get(u).get(i);
-                if (polyArc.getColor() == Color.BLUE && polyArc != null) {
-                    listArc.add(routeArc);
-                }
             }
         }
     }
@@ -609,7 +701,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
                     newRef.child("paths").setValue(listArc);
                     newRef.child("restPoints").setValue(listRest);
-                    Toast.makeText(this, "Đặt lộ trình thành công!!!giờ bạn có thể bắt đầu.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
