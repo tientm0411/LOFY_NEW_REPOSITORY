@@ -26,23 +26,14 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     //Link url hình ảnh bất kỳ
     private GoogleMap map;
     private Context context;
-    private boolean isCompleted = false;
     private Notification mNoti;
     private Marker mMaker = null;
 
-    public boolean isCompleted() {
-        return isCompleted;
-    }
-
-    public void setCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
-    }
 
     public ImageLoadTask(Context context, GoogleMap map, Notification notification) {
         this.context = context;
         this.map = map;
         this.mNoti = notification;
-        // this.mMaker = marker;
     }
 
     public ImageLoadTask() {
@@ -86,6 +77,5 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     public Marker retriveMarkerNoti() {
         return mMaker;
     }
-
 
 }

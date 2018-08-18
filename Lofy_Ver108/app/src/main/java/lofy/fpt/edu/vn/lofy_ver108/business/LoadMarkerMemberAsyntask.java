@@ -3,10 +3,15 @@ package lofy.fpt.edu.vn.lofy_ver108.business;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -16,24 +21,31 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
+import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 
-public class LoadMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap>  {
+public class LoadMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap> {
 
-
-    //Link url hình ảnh bất kỳ
     private GoogleMap map;
     private Context context;
-    private Marker mMaker=null;
+    private Marker mMaker;
+    private Circle circle;
     private User user;
+    private GroupUser groupUser;
+    private String userID;
+    private LatLng latLng;
 
 
-    public LoadMarkerMemberAsyntask(Context context, GoogleMap map, User user) {
+    public LoadMarkerMemberAsyntask(Context context, GoogleMap map, User user, GroupUser groupUser, String userID, LatLng latLng) {
         this.context = context;
         this.map = map;
-         this.user = user;
+        this.user = user;
+        this.groupUser = groupUser;
+        this.userID = userID;
+        this.latLng = latLng;
     }
+
 
     public LoadMarkerMemberAsyntask() {
 
@@ -61,18 +73,30 @@ public class LoadMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap>  {
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        //new BitmapLoadTask(context,mNoti.getNoti_icon()).execute();
-        MarkerOptions mMarkerOptions = new MarkerOptions()
-                .title(user.getUserName())
-                .position(new LatLng(user.getUserLati(), user.getUserLongti()))
-                .icon(BitmapDescriptorFactory.fromBitmap(result));
-      map.addMarker(mMarkerOptions);
-        //  mMaker.setTag(0);
+        if (!user.getUserId().equals(userID)) {
+            MarkerOptions mMarkerOptions = new MarkerOptions()
+                    .title(user.getUserName())
+                    .position(new LatLng(user.getUserLati(), user.getUserLongti()))
+                    .icon(BitmapDescriptorFactory.fromBitmap(result));
+            mMaker = map.addMarker(mMarkerOptions);
+        }
+        if (groupUser.isHost() == true && groupUser.isStatusUser() == true) {
+            circle = new MapMethod(context).showCircleToGoogleMap(map, circle, latLng, 3);
+            Log.d("onPostExecute", circle + "");
+        }
     }
 
-    // return marker
-//    public Marker retriveMarkerNoti() {
-//        return mMaker;
-//    }
+    public Marker getmMaker() {
+        Log.d("getmMaker", mMaker + " ");
+        return mMaker;
+    }
 
+    public void setCircle(Circle circle) {
+        this.circle = circle;
+    }
+
+    public Circle getCircle() {
+        Log.d("getmMaker", circle + " ");
+        return circle;
+    }
 }

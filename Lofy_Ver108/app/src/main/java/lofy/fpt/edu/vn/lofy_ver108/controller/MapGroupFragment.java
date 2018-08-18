@@ -2,6 +2,7 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +48,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -107,16 +109,17 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private Marker mMarker;
     private ArrayList<Marker> alMarkerNoti; // list marker noti
     private ArrayList<Marker> alMarkerMember; // list marker member
+
     private ArrayList<GroupUser> alGroupUser; // list group user
     private ArrayList<User> alUser; // list user
     private String ciCode;
     private List<Polyline> polylinePaths = new ArrayList<>();
     private List<List> sumPaths = new ArrayList<>();
-    private List<List> sumRoutes = new ArrayList<>();
-    private List<Route> routes = new ArrayList<>();
+
 
     public MapGroupFragment() {
     }
+
 
     public void setCode(String code) {
         ciCode = code;
@@ -157,20 +160,30 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         mapMethod = new MapMethod(rootView.getContext());
-        mapCircle = null;
         alMarkerNoti = new ArrayList<>();
+
+
+        alMarkerMember = new ArrayList<>();
+        alGroupUser = new ArrayList<>();
+        alUser = new ArrayList<>();
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        setUpMap(mMap);
+        loadMarkerNoti(mMap);
+        loadRoute(mMap);
+        loadLocationMember(mMap);
+    }
+
+    private void loadRoute(final GoogleMap googleMap) {
         final DatabaseReference newRef = groupRef.child(groupID);
         final DirectionFinder directionFinder = new DirectionFinder(this, "", "", null, "");
         newRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                directionFinder.setOrigin(dataSnapshot.child("start_Lat").getValue().toString() + "," + dataSnapshot.child("start_Long").getValue().toString());
-//                directionFinder.setDestination(dataSnapshot.child("end_Lat").getValue().toString() + "," + dataSnapshot.child("end_Long").getValue().toString());
-//                try {
-//                    directionFinder.execute();
-//                } catch (UnsupportedEncodingException e) {
-//                    e.printStackTrace();
-//                }
                 List<List> listLatLng = new ArrayList<>();
                 // Result will be holded Here
                 for (DataSnapshot dsp : dataSnapshot.child("paths").getChildren()) {
@@ -191,7 +204,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     LatLng point = new LatLng(latitude, longitude);
                     polylineOptions.add(point).color(Color.BLUE).zIndex(10).width(20);
                 }
-                Polyline polyline = mMap.addPolyline(polylineOptions);
+                Polyline polyline = googleMap.addPolyline(polylineOptions);
                 polylinePaths.add(polyline);
                 Log.d("hasagi", polyline + "");
                 polyline.setClickable(true);
@@ -209,53 +222,16 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     double latitude = Double.parseDouble(latlong[0].trim().substring(1));
                     double longitude = Double.parseDouble(latlong[1].trim().substring(0, latlong[1].length() - 2));
                     LatLng point = new LatLng(latitude, longitude);
-                    Marker myMarker = mMap.addMarker(new MarkerOptions().position(point).title("Rest here!!!"));
+                    Marker myMarker = googleMap.addMarker(new MarkerOptions().position(point).title("Rest here!!!"));
                     tenMarkers.add(myMarker);
                 }
             }
-
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-
-
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        setUpMap(mMap);
-        loadMarkerNoti(mMap);
-
-        loadLocationMember(mMap);
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fab_noti:
-                showDialogNoti();
-                break;
-            default:
-                break;
-        }
-    }
-
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        // marker.showInfoWindow();
-        //Log.d("NOTI_SIZE_2 :", alMarkerNoti.size() + "");
-        return false;
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        //   marker.hideInfoWindow();
-
     }
 
     // set up map
@@ -319,14 +295,10 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         });
     }
 
+    private Marker markerMem;
+
     // load location member
     private void loadLocationMember(final GoogleMap googleMap) {
-//        if (googleMap == null) {
-//            Toast.makeText(rootView.getContext(), "Google map null ! ", Toast.LENGTH_SHORT).show();
-//        } else {
-        alGroupUser = new ArrayList<>();
-        alMarkerMember = new ArrayList<>();
-        alUser = new ArrayList<>();
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -338,20 +310,22 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                             alGroupUser.add(groupUser);
                         }
                     }
-                    Log.d("alGroupUser: ", alGroupUser.size() + " ");
                     userRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             alUser.clear();
-                            if (dataSnapshot.hasChildren()) {
-                                if (!alMarkerMember.isEmpty() && alMarkerMember.size() > 0) {
+                            LatLng lng = null;
+                            if (!alUser.isEmpty() && alUser.size() > 0) {
+                                Log.d("ping0", alMarkerMember.size() + "");
+                                Log.d("ping1", alUser.size() + "");
+                                if (!alMarkerMember.isEmpty() || alMarkerMember.size() > 0) {
                                     for (int i = 0; i < alMarkerMember.size() - 1; i++) {
-                                        // alMarkerMember.get(i).setVisible(true);
                                         alMarkerMember.get(i).remove();
                                     }
+                                    alMarkerMember.clear();
                                 }
-                                alMarkerMember.clear();
-                                LatLng lng;
+                            }
+                            if (dataSnapshot.hasChildren()) {
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     User u = ds.getValue(User.class);
                                     for (int i = 0; i < alGroupUser.size(); i++) {
@@ -360,29 +334,19 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                         }
                                     }
                                 }
-                                Log.d("alUser: ", alUser.size() + "");
-                                Log.d("userID: ", userID);
-                                if (!alUser.isEmpty() && alUser.size() > 0) {
-                                    for (int i = 0; i < alUser.size(); i++) {
-                                        if (!alUser.get(i).getUserId().equals(userID)) {
-                                            lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
-                                            Log.d("alPing", "lng: "+lng );
-                                            Marker markerMem = googleMap.addMarker(new MarkerOptions()
-                                                    .position(lng)
-                                                    .title(alUser.get(i).getUserName())
-                                                    .icon(BitmapDescriptorFactory
-                                                            .defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                                for (int i = 0; i < alUser.size(); i++) {
+                                    lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
 
-                                            alMarkerMember.add(markerMem);
-                                            Log.d("alPing ", "alMarkerMember1: "+alMarkerMember.size());
-                                        }
-                                        if (alGroupUser.get(i).isHost() == true && alGroupUser.get(i).isStatusUser() == true) {
-                                            mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5);
-                                            Log.d("alPing", "mapCircle: " + mapMethod.showCircleToGoogleMap(googleMap, mapCircle, new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti()), 5));
-                                        }
-                                    }
-                                    Log.d("alPing: ", "alMarkerMember2: " +alMarkerMember.size());
+                                    LoadMarkerMemberAsyntask loadMarkerMemberAsyntask = new LoadMarkerMemberAsyntask(rootView.getContext(), googleMap, alUser.get(i), alGroupUser.get(i), userID,  lng);
+                                    loadMarkerMemberAsyntask.execute();
+                                    mapCircle = new LoadMarkerMemberAsyntask().getCircle();
+                                    markerMem = new LoadMarkerMemberAsyntask().getmMaker();
+                                    Log.d("ping2", mapCircle + "");
+                                    Log.d("ping2", mMarker + "");
+
                                 }
+
+                                Log.d("ping3", alMarkerMember.size() + "");
                             }
                         }
 
@@ -395,11 +359,10 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
-        // }
     }
+
 
     // show noti
     private void showDialogNoti() {
@@ -750,4 +713,26 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             });
         }
     }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab_noti:
+                showDialogNoti();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+    }
+
 }

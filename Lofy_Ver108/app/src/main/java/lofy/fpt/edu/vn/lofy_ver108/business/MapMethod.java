@@ -65,6 +65,7 @@ public class MapMethod {
     public Circle showCircleToGoogleMap(GoogleMap mMap, Circle mapCircle, LatLng position, float radius) {
         if (mapCircle != null) {
             mapCircle.remove();
+            Log.d("showCircleToGoogleMap", "Ping 0");
         }
         if (position == null) {
             return null;
