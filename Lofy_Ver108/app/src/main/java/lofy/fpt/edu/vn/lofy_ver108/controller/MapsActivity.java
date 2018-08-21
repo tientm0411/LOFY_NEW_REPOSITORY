@@ -1,7 +1,6 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -25,7 +23,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.goodiebag.pinview.Pinview;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -37,18 +34,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,18 +62,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.datatype.Duration;
-
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
-import lofy.fpt.edu.vn.lofy_ver108.Modules.Distance;
-import lofy.fpt.edu.vn.lofy_ver108.Modules.Route;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.PlaceArrayAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
-import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
-import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
-import petrov.kristiyan.colorpicker.ColorPicker;
 
 
 public class MapsActivity extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener,
@@ -329,9 +316,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
         if (polylinePaths != null) {
             isClicked = false;
-//            for (Polyline polyline : polylinePaths) {
-//                polyline.remove();
-//            }
+
             sumDistance = 0;
             sumDuration = 0;
             for (int i = 0; i < sumPaths.size(); i++) {
@@ -351,10 +336,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         this.routes = routes;
         progressDialog.dismiss();
         polylinePaths = new ArrayList<>();
-//        polylinePaths = new ArrayList<>();
-//        originMarkers = new ArrayList<>();
-//        destinationMarkers = new ArrayList<>();
-//        for (int s = 0; s < sumRoutes.size(); s++) {
 
         int minDistanceIndex = 0;
         int minDistance = Integer.MAX_VALUE;
@@ -374,22 +355,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             LatLng camCover = new LatLng(route.startLocation.latitude, route.endLocation.longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camCover, 7));
 
-//            originMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-//                    .title(route.startAddress)
-//                    .position(route.startLocation)));
-//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-//                    .title(route.endAddress)
-//                    .position(route.endLocation)));
-//            PolylineOptions polylineOptions = new PolylineOptions().
-//                    geodesic(true).
-//                    color(Color.BLUE).
-//                    width(18);
-//            PolylineOptions polylineOptionsGray = new PolylineOptions().
-//                    geodesic(true).
-//                    color(Color.GRAY).
-//                    width(14);
             PolylineOptions polylineOptions = new PolylineOptions().geodesic(true);
 
             if (routes.indexOf(route) != minDistanceIndex) {
@@ -412,49 +377,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             durations.put(polyline.getId(), route.duration.text);
             distances.put(polyline.getId(), route.distance.text);
 
-
-//            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
-//                @Override
-//                public void onPolylineClick(Polyline polyline) {
-//                    // make color
-////                    blueId[0] = polyline.getId();
-////                    for (int i = 0; i < polylinePaths.size(); i++) {
-////                        if (!blueId[0].equals(polylinePaths.get(i).getId())) {
-////                            polylinePaths.get(i).setColor(Color.GRAY);
-////                            polylinePaths.get(i).setZIndex(9);
-////                            polylinePaths.get(i).setWidth(14);
-////                        } else {
-////                            polyline.setColor(Color.BLUE);
-////                            polylinePaths.get(i).setZIndex(10);
-////                            polyline.setWidth(18);
-////                            Log.d("polyid", polyline.getId());
-////                        }
-////                    }
-//                    for (int i = 0; i < polylinePaths.size(); i++) {
-//                        if (polyline.getId().equals(polylinePaths.get(i).getId())) {
-//                            polyline.setColor(Color.BLUE);
-//                            polylinePaths.get(i).setWidth(18);
-//                            polylinePaths.get(i).setZIndex(10);
-//                        } else {
-//                            polylinePaths.get(i).setColor(Color.GRAY);
-//                            polylinePaths.get(i).setWidth(14);
-//                            polylinePaths.get(i).setZIndex(9);
-//
-//                        }
-//                    }
-//
-//                    Log.d("poliId", polyline.getId());
-//                }
-//            });
-//                final String[] polyId = {""};
             mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
                 @Override
                 public void onPolylineClick(Polyline polyline) {
                     // make color
-//                        polyId[0] = polyline.getId();
-//                    for (int u = 0; u < sumPaths.size(); u++) {
-//                        Log.d("sumpaths", sumPaths.size() + "");
-//                    }
                     String id = polyline.getId();
                     Log.d("hahahah", sumPaths.size() + ", " + sumRoutes.size());
                     for (int u = 0; u < sumPaths.size(); u++) {
@@ -470,10 +396,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                 polyline.setColor(Color.BLUE);
                                 polyline.setZIndex(10);
                                 polyline.setWidth(18);
-//                                if (durations.containsKey(id) && distances.containsKey(id)) {
-//                                    ((TextView) findViewById(R.id.tv_map_duration)).setText(durations.get(id));
-//                                    ((TextView) findViewById(R.id.tv_map_distance)).setText(distances.get(id));
-//                                }
+
                             } else if (!id.equals(polylinePaths.get(i).getId()) && containedOne.equals(polylinePaths)) {
                                 polylinePaths.get(i).setColor(Color.GRAY);
                                 polylinePaths.get(i).setZIndex(9);
@@ -504,15 +427,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
         sumRoutes.add(routes);
         sumPaths.add(polylinePaths);
-//        }
-//        try {
-//            double lat = myMarker.getPosition().latitude;
-//            double lng = myMarker.getPosition().longitude;
-//            mAutocompleteTextView.setText(lat + "," + lng);
-//        } catch (Exception e) {
-//
-//        }
-        //blueArc();
+
     }
 
     public void executeDurDis() {
@@ -540,25 +455,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     .title("Thêm điểm dừng?")
                     .snippet("Có phải bạn muốn thêm điểm dừng?"));
             new DownloadRawData().execute("https://roads.googleapis.com/v1/snapToRoads?path=" + myMarker.getPosition().latitude + "," + myMarker.getPosition().longitude + "&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE");
-//            "https://roads.googleapis.com/v1/snapToRoads?path=-35.27801,149.12958|-35.28032,149.12907|-35.28099,149.12929|-35.28144,149.12984|-35.28194,149.13003|-35.28282,149.12956|-35.28302,149.12881|-35.28473,149.12836&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE"
-//            try {
-//                URL url = new URL(            "https://roads.googleapis.com/v1/snapToRoads?path=" +myMarker.getPosition().latitude +  ", " + myMarker.getPosition().longitude + "&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE");
-//                InputStream is = url.openConnection().getInputStream();
-//                StringBuffer buffer = new StringBuffer();
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-//
-//                String line;
-//                while ((line = reader.readLine()) != null) {
-//                    buffer.append(line + "\n");
-//                }
-//
-//                Log.d("bufferk", buffer.toString());
-//
-//            } catch (MalformedURLException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
 
             tenMarkers.add(myMarker);
             listRest.add(myMarker.getPosition());

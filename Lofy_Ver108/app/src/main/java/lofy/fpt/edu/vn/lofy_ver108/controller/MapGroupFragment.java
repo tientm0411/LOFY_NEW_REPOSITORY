@@ -2,7 +2,6 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +9,13 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,11 +45,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -61,16 +60,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.karan.churi.PermissionManager.PermissionManager;
 
-import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
-import lofy.fpt.edu.vn.lofy_ver108.Modules.Route;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.business.AppFunctions;
 import lofy.fpt.edu.vn.lofy_ver108.business.ImageLoadTask;
-import lofy.fpt.edu.vn.lofy_ver108.business.LoadMarkerMemberAsyntask;
 import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
@@ -87,6 +88,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private View rootView;
     private GoogleMap mMap;
     private Circle mapCircle;
+    private Marker mMarkerMem;
     private FloatingActionButton fabNoti;
 
     private SharedPreferences mSharedPreferences;
@@ -99,6 +101,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private DatabaseReference userRef;
     private DatabaseReference groupUserRef;
     private MapMethod mapMethod;
+    private AppFunctions appFunctions;
 
     private PermissionManager permissionManager;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -106,23 +109,17 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private static final int ACCESS_FINE_LOCATION_INTENT_ID = 3;
     private static final String BROADCAST_ACTION = "android.location.PROVIDERS_CHANGED";
 
-    private Marker mMarker;
+
     private ArrayList<Marker> alMarkerNoti; // list marker noti
     private ArrayList<Marker> alMarkerMember; // list marker member
 
     private ArrayList<GroupUser> alGroupUser; // list group user
     private ArrayList<User> alUser; // list user
-    private String ciCode;
     private List<Polyline> polylinePaths = new ArrayList<>();
     private List<List> sumPaths = new ArrayList<>();
 
 
     public MapGroupFragment() {
-    }
-
-
-    public void setCode(String code) {
-        ciCode = code;
     }
 
     @Override
@@ -143,9 +140,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
         wakeLock.acquire();
 
+
         return rootView;
     }
-
 
     private void initView() {
         fabNoti = (FloatingActionButton) rootView.findViewById(R.id.fab_noti);
@@ -160,8 +157,8 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         mapMethod = new MapMethod(rootView.getContext());
+        appFunctions = new AppFunctions();
         alMarkerNoti = new ArrayList<>();
-
 
         alMarkerMember = new ArrayList<>();
         alGroupUser = new ArrayList<>();
@@ -175,7 +172,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         setUpMap(mMap);
         loadMarkerNoti(mMap);
         loadRoute(mMap);
-        loadLocationMember(mMap);
+        loadMarkerMember();
     }
 
     private void loadRoute(final GoogleMap googleMap) {
@@ -282,11 +279,18 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 if (!alNoti.isEmpty() && alNoti.size() > 0) {
                     // mMarker = null;
                     for (int i = 0; i < alNoti.size(); i++) {
+
+
+//                        Intent intent = new Intent(rootView.getContext(), NotificationDisplayService.class);
+//                        intent.putExtra("KEY_NOTI", alNoti.get(i));
+//                        rootView.getContext().startService(intent);
+
                         ImageLoadTask imageLoadTask = new ImageLoadTask(rootView.getContext(), googleMap, alNoti.get(i));
                         imageLoadTask.execute();
                         alMarkerNoti.add(new ImageLoadTask().retriveMarkerNoti());
                     }
                 }
+                Log.d("alMarkerNoti", alMarkerNoti.size() + "");
             }
 
             @Override
@@ -295,10 +299,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         });
     }
 
-    private Marker markerMem;
-
-    // load location member
-    private void loadLocationMember(final GoogleMap googleMap) {
+    // load marker member
+    private void loadMarkerMember() {
+        Log.d("ping5", alMarkerMember.size() + "");
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -306,7 +309,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     alGroupUser.clear();
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         GroupUser groupUser = ds.getValue(GroupUser.class);
-                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
+                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser()) {
                             alGroupUser.add(groupUser);
                         }
                     }
@@ -315,38 +318,44 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             alUser.clear();
                             LatLng lng = null;
-                            if (!alUser.isEmpty() && alUser.size() > 0) {
-                                Log.d("ping0", alMarkerMember.size() + "");
-                                Log.d("ping1", alUser.size() + "");
-                                if (!alMarkerMember.isEmpty() || alMarkerMember.size() > 0) {
-                                    for (int i = 0; i < alMarkerMember.size() - 1; i++) {
-                                        alMarkerMember.get(i).remove();
-                                    }
-                                    alMarkerMember.clear();
+                            Log.d("ping2", alMarkerMember.size() + "");
+                            if (!alMarkerMember.isEmpty() || alMarkerMember.size() > 0) {
+                                for (Marker marker : alMarkerMember) {
+                                    marker.remove();
                                 }
+                                Log.d("ping3", alMarkerMember.size() + "");
+                                alMarkerMember.clear();
                             }
                             if (dataSnapshot.hasChildren()) {
+                                LatLng hostLng = null;
+                                float mResult[] =null;
+                                int mCount=0;
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     User u = ds.getValue(User.class);
                                     for (int i = 0; i < alGroupUser.size(); i++) {
-                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
+                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser()) {
                                             alUser.add(u);
                                         }
                                     }
                                 }
+                                for (int i = 0 ; i<alUser.size();i++){
+                                    if (alGroupUser.get(i).isHost() && alGroupUser.get(i).isStatusUser()) {
+                                        hostLng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
+                                        break;
+                                    }
+                                }
                                 for (int i = 0; i < alUser.size(); i++) {
                                     lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
-
-                                    LoadMarkerMemberAsyntask loadMarkerMemberAsyntask = new LoadMarkerMemberAsyntask(rootView.getContext(), googleMap, alUser.get(i), alGroupUser.get(i), userID,  lng);
-                                    loadMarkerMemberAsyntask.execute();
-                                    mapCircle = new LoadMarkerMemberAsyntask().getCircle();
-                                    markerMem = new LoadMarkerMemberAsyntask().getmMaker();
-                                    Log.d("ping2", mapCircle + "");
-                                    Log.d("ping2", mMarker + "");
+                                    LoaddMarkerMemberAsyntask loaddMarkerMemberAsyntask = new LoaddMarkerMemberAsyntask(alUser.get(i), alGroupUser.get(i), lng);
+                                    loaddMarkerMemberAsyntask.execute();
+                                    mResult = new float[10];
+                                    Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(i).getUserLati(), alUser.get(i).getUserLongti(), mResult);
+                                    Log.d("distance", mResult[0] + " ");
+                                    if(mResult[0]>=1000){
+                                        mCount++;
+                                    }
 
                                 }
-
-                                Log.d("ping3", alMarkerMember.size() + "");
                             }
                         }
 
@@ -355,6 +364,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         }
                     });
                 }
+                Log.d("ping4", alMarkerMember.size() + "");
             }
 
             @Override
@@ -363,6 +373,57 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         });
     }
 
+    // load marker member
+    public class LoaddMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap> {
+        private User user;
+        private GroupUser groupUser;
+        private LatLng latLng;
+
+        public LoaddMarkerMemberAsyntask(User user, GroupUser groupUser, LatLng latLng) {
+            this.user = user;
+            this.groupUser = groupUser;
+            this.latLng = latLng;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            try {
+//                 "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/test_image%2Ftest_image.PNG?alt=media&token=cf2ddd69-9809-49b0-9697-abb507796378"
+//                 "https://graph.facebook.com/692839717728567/picture?with=250&height=250"
+                URL urlConnection = new URL(user.getUrlAvatar());
+                HttpURLConnection connection = (HttpURLConnection) urlConnection
+                        .openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                if (myBitmap == null)
+                    return null;
+                return myBitmap;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final Bitmap result) {
+            super.onPostExecute(result);
+            if (!user.getUserId().equals(userID)) {
+                MarkerOptions mMarkerOptions = new MarkerOptions()
+                        .title(user.getUserName())
+                        .position(new LatLng(user.getUserLati(), user.getUserLongti()))
+                        .icon(BitmapDescriptorFactory.fromBitmap(appFunctions.getRoundedCornerBitmap(result, 68)))
+                        .anchor(0.5f, 1);
+                mMarkerMem = mMap.addMarker(mMarkerOptions);
+                alMarkerMember.add(mMarkerMem);
+                Log.d("ping1", alMarkerMember.size() + "");
+            }
+            if (groupUser.isHost() && groupUser.isStatusUser()) {
+                mapCircle = new MapMethod(rootView.getContext()).showCircleToGoogleMap(mMap, mapCircle, latLng, 1);
+            }
+        }
+    }
 
     // show noti
     private void showDialogNoti() {

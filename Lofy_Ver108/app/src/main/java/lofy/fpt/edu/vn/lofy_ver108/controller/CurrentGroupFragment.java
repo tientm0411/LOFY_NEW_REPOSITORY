@@ -108,7 +108,6 @@ public class CurrentGroupFragment extends Fragment implements SharedPreferences.
         editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
         editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
         editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_USER_COLOR, "NA");
         editor.putString(IntroApplicationActivity.IS_HOST, "NA");
         editor.apply();
         Toast.makeText(rootView.getContext(), "Done !", Toast.LENGTH_SHORT).show();

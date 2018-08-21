@@ -28,7 +28,7 @@ public class IntroApplicationActivity extends AppIntro implements SharedPreferen
     public static final String GROUP_NAME = "groupName";
     public static final String IS_HOST = "isHost";
     public static final String GROUP_USER_ID = "groupUser_ID";
-    public static final String GROUP_USER_COLOR = "groupUser_color";
+   // public static final String GROUP_USER_COLOR = "groupUser_color";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

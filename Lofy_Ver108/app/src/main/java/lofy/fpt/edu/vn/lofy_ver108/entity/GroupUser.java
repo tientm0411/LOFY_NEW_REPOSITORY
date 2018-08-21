@@ -6,7 +6,6 @@ public class GroupUser {
     private String groupId;
     private boolean isHost;
     private boolean isVice;
-    private String userColor;
     private String timeStamp;
     private double sizeRadius;
     private boolean statusUser;
@@ -54,14 +53,6 @@ public class GroupUser {
         isVice = vice;
     }
 
-    public String getUserColor() {
-        return userColor;
-    }
-
-    public void setUserColor(String userColor) {
-        this.userColor = userColor;
-    }
-
     public String getTimeStamp() {
         return timeStamp;
     }
@@ -86,13 +77,12 @@ public class GroupUser {
         this.statusUser = statusUser;
     }
 
-    public GroupUser(String groupsUsersID, String userId, String groupId, boolean isHost, boolean isVice, String userColor, String timeStamp, double sizeRadius, boolean statusUser) {
+    public GroupUser(String groupsUsersID, String userId, String groupId, boolean isHost, boolean isVice, String timeStamp, double sizeRadius, boolean statusUser) {
         this.groupsUsersID = groupsUsersID;
         this.userId = userId;
         this.groupId = groupId;
         this.isHost = isHost;
         this.isVice = isVice;
-        this.userColor = userColor;
         this.timeStamp = timeStamp;
         this.sizeRadius = sizeRadius;
         this.statusUser = statusUser;

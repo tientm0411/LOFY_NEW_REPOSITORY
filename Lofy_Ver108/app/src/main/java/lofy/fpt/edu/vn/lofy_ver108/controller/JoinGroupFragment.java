@@ -5,12 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,12 +32,10 @@ import java.util.ArrayList;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.JoinMemberAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
-import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
-import petrov.kristiyan.colorpicker.ColorPicker;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,10 +55,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     private JoinMemberAdapter groupMemberAdapter;
     private ProfileFragment profileFragment;
 
-    private TextView tvColorPicker;
-    private Button btnColorPicker;
 
-    private String currentGroupId = "";
     private String userID = "";
     private String userName = "";
     private String userPhone = "";
@@ -86,7 +78,6 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     private String mCode = "";
     private int mCount;
     private String gName = "";
-    private ArrayList<String> colorList;
 
     // set listview host
     private void registerHost() {
@@ -233,47 +224,15 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                 if (mCount == 0) {
                     alGroupUser.clear();
                 } else {
-                    colorList = new ArrayList<>();
-                    groupRef.child(ciEnterCode.getText().toString().toUpperCase()).child("colorUser").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            colorList.clear();
-                            if (dataSnapshot.hasChildren()) {
-                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    String g = ds.getValue(String.class);
-                                    colorList.add(g);
-                                }
-                            }
-                            if (tvColorPicker.getHint().toString().equals("NA")) {
-                                tvColorPicker.setBackgroundColor(Color.parseColor(colorList.get(0)));
-                                btnColorPicker.setTextColor(Color.parseColor(colorList.get(0)));
-                                tvColorPicker.setHint(colorList.get(0));
-                                tvColorPicker.setHintTextColor(Color.parseColor(colorList.get(0)));
+                    // set groupId for sharepreference
+                    editor.putString(IntroApplicationActivity.GROUP_ID, mCode.toUpperCase());
+                    editor.putString(IntroApplicationActivity.GROUP_NAME, gName);
+                    editor.putString(IntroApplicationActivity.GROUP_USER_ID, mCode.toUpperCase()
+                            + mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA"));
+                    editor.putString(IntroApplicationActivity.IS_HOST, "false");
+                    editor.apply();
+                    tvGroupName.setText(gName);
 
-                                groupUserRef.child(ciEnterCode.getText().toString().toUpperCase() + mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA")).
-                                        child("userColor").setValue(colorList.get(0));
-                                colorList.remove(colorList.get(0));
-                                groupRef.child(ciEnterCode.getText().toString().toUpperCase()).child("colorUser").setValue(colorList);
-                            }
-
-                            Log.d(TAG, "colortHint: " + tvColorPicker.getHint().toString());
-                            // set groupId for sharepreference
-                            editor.putString(IntroApplicationActivity.GROUP_ID, mCode.toUpperCase());
-                            editor.putString(IntroApplicationActivity.GROUP_NAME, gName);
-                            editor.putString(IntroApplicationActivity.GROUP_USER_ID, mCode.toUpperCase()
-                                    + mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA"));
-                            editor.putString(IntroApplicationActivity.IS_HOST, "false");
-                            editor.putString(IntroApplicationActivity.GROUP_USER_COLOR, tvColorPicker.getHint().toString());
-                            editor.apply();
-                            tvGroupName.setText(gName);
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
                 }
                 //  list member
                 userRef.addValueEventListener(new ValueEventListener() {
@@ -349,9 +308,6 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         userPhone = mSharedPreferences.getString(IntroApplicationActivity.USER_PHONE, "NA");
         userAvatar = mSharedPreferences.getString(IntroApplicationActivity.USER_URL_AVATAR, "NA");
 
-        tvColorPicker = (TextView) rootView.findViewById(R.id.join_tv_color_picker);
-        btnColorPicker = (Button) rootView.findViewById(R.id.join_btn_color_picker_member);
-        btnColorPicker.setOnClickListener(this);
         tvGroupName = (TextView) rootView.findViewById(R.id.tv_join_group_name);
         ciEnterCode = (EditText) rootView.findViewById(R.id.join_ci_enter_code);
         btnOkCode = (Button) rootView.findViewById(R.id.join_btn_join_send_request);
@@ -384,9 +340,6 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
             case R.id.join_btn_join_send_request:
                 joinGroup();
                 break;
-            case R.id.join_btn_color_picker_member:
-                chooseColor();
-                break;
             case R.id.fab_join_start:
                 intent = new Intent(rootView.getContext(), StartActivity.class);
                 startActivity(intent);
@@ -413,7 +366,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                         if (group.getGroupId().toString().toUpperCase().equals(mCode.toUpperCase())) {
                             UserRequest userRequest = new UserRequest(userID, mCode.toUpperCase());
                             userRequestRef.child(urKey).setValue(userRequest);
-                           // Toast.makeText(rootView.getContext(), "Vui lòng đợi chấp nhận !", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(rootView.getContext(), "Vui lòng đợi chấp nhận !", Toast.LENGTH_SHORT).show();
                             mCount++;
                             break;
 //                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -432,7 +385,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                         }
                     }
                     if (mCount > 0) {
-                       // Toast.makeText(rootView.getContext(), "Nhóm không tồn tại !", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(rootView.getContext(), "Nhóm không tồn tại !", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     userRequestRef.removeEventListener(this);
@@ -448,104 +401,6 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-    }
-
-    // choose color of marker
-    private void chooseColor() {
-        groupUserRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                colorList = new ArrayList<>();
-                mCount = 0;
-                if (dataSnapshot.hasChildren()) {
-                    for (DataSnapshot gu : dataSnapshot.getChildren()) {
-                        GroupUser groupUser = gu.getValue(GroupUser.class);
-                        if (groupUser.getUserId().equals(userID) && groupUser.getGroupId().equals(ciEnterCode.getText().toString().toUpperCase())) {
-                            mCount++;
-                        }
-                    }
-                    if (mCount == 0) {
-                        Toast.makeText(rootView.getContext(), "Bạn cần tham gia vào một nhóm trước !", Toast.LENGTH_SHORT).show();
-                        groupUserRef.removeEventListener(this);
-                        return;
-                    } else {
-                        final DatabaseReference newRef = groupRef.child(ciEnterCode.getText().toString().toUpperCase()).child("colorUser");
-                        newRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                colorList.clear();
-                                if (dataSnapshot.hasChildren()) {
-                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                        String g = ds.getValue(String.class);
-                                        colorList.add(g);
-                                    }
-                                    final ColorPicker colorPicker = new ColorPicker(getActivity());
-                                    colorPicker.addListenerButton("Chọn", new ColorPicker.OnButtonListener() {
-                                        @Override
-                                        public void onClick(View v, int position, int color) {
-                                            if (position == 0) {
-                                                String hexColor = String.format("#%06X", (0xFFFFFF & Color.parseColor(colorList.get(0))));
-                                                tvColorPicker.setBackgroundColor(Color.parseColor(colorList.get(0)));
-                                                btnColorPicker.setTextColor(Color.parseColor(colorList.get(0)));
-                                                if (!mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA").equals("NA")) {
-                                                    groupUserRef.child(mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA")).child("userColor").setValue(hexColor);
-                                                    groupRef.child(ciEnterCode.getText().toString().toUpperCase()).child("colorUser").child(String.valueOf(position)).
-                                                            setValue(mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_COLOR, "NA"));
-                                                }
-                                                editor.putString(IntroApplicationActivity.GROUP_USER_COLOR, hexColor);
-                                                editor.apply();
-                                                tvColorPicker.setHint(colorList.get(0));
-                                                tvColorPicker.setHintTextColor(Color.parseColor(colorList.get(0)));
-                                            } else {
-                                                String hexColor = String.format("#%06X", (0xFFFFFF & color));
-                                                tvColorPicker.setBackgroundColor(color);
-                                                btnColorPicker.setTextColor(color);
-                                                tvColorPicker.setHint(hexColor);
-                                                tvColorPicker.setHintTextColor(color);
-                                                if (!mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA").equals("NA")) {
-                                                    groupUserRef.child(mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA")).child("userColor").setValue(hexColor);
-                                                    groupRef.child(ciEnterCode.getText().toString().toUpperCase()).child("colorUser").child(String.valueOf(position)).
-                                                            setValue(mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_COLOR, "NA"));
-                                                }
-                                                editor.putString(IntroApplicationActivity.GROUP_USER_COLOR, hexColor);
-                                                editor.apply();
-                                                tvColorPicker.setHint(hexColor);
-                                                tvColorPicker.setHintTextColor(color);
-                                            }
-                                            colorPicker.dismissDialog();
-                                        }
-                                    });
-                                    colorPicker.addListenerButton("Hủy", new ColorPicker.OnButtonListener() {
-                                        @Override
-                                        public void onClick(View v, int position, int color) {
-                                            colorPicker.dismissDialog();
-                                        }
-                                    });
-                                    colorPicker.disableDefaultButtons(true);
-                                    colorPicker.setDefaultColorButton(Color.parseColor(colorList.get(0)));
-                                    colorPicker.setColumns(5);
-                                    colorPicker.setColors(colorList);
-                                    colorPicker.show();
-                                }
-                                newRef.removeEventListener(this);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-
-                        });
-                        groupUserRef.removeEventListener(this);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override

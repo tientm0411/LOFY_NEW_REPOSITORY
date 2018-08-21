@@ -50,6 +50,8 @@
             android:name=".controller.HomeActivity"
             android:label="@string/app_name" />
         <activity android:name=".controller.IntroApplicationActivity">
+        </activity>
+        <activity android:name=".controller.welecomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -73,9 +75,13 @@
             android:label="@string/title_activity_maps" />
 
         <service android:name=".controller.GPS_Service" />
-
+        <service
+            android:name=".controller.NotificationDisplayService"
+            android:enabled="true"
+            android:exported="true"></service>
         <activity android:name=".controller.StartActivity" />
         <activity android:name=".controller.DialogConfirmSetMarkerNoti"></activity>
+
     </application>
 
 </manifest>

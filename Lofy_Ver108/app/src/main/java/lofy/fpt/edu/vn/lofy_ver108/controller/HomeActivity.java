@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -17,6 +18,8 @@ public class HomeActivity extends AppCompatActivity {
         initview();
         showFragmentEnterName();
     }
+
+
 
     private void initview() {
     }

@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,8 @@ public class StartActivity extends AppCompatActivity {
     ViewPager viewPager;
     String ciCode;
 
+    ActionBar actionBar;
+
     private int[] tabIcons = {
             R.drawable.ic_filter_1_white_24dp,
             R.drawable.ic_filter_2_white_24dp,
@@ -36,17 +39,21 @@ public class StartActivity extends AppCompatActivity {
         viewPager= (ViewPager) findViewById(R.id.viewpager);
         Bundle bundle = getIntent().getExtras();
         ciCode = bundle.getString("groupId");
+        actionBar = getSupportActionBar();
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
+
+
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        MapGroupFragment mapGroupFragment = new MapGroupFragment();
-        mapGroupFragment.setCode(ciCode);
-        adapter.addFragment(new MapGroupFragment(), "One");
-        adapter.addFragment(new HomeFragment(), "Two");
-        adapter.addFragment(new ProfileFragment(), "Three");
+//        MapGroupFragment mapGroupFragment = new MapGroupFragment();
+//        mapGroupFragment.setCode(ciCode);
+
+        adapter.addFragment(new MapGroupFragment(), "Bản đồ");
+        adapter.addFragment(new HomeFragment(), "Nhóm");
+        adapter.addFragment(new ProfileFragment(), "Trang cá nhân");
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
     }

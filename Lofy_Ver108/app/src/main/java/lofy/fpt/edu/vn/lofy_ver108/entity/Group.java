@@ -15,14 +15,13 @@ public class Group {
     private double end_Long;
     private double end_Lat;
     private String status;
-    private ArrayList<String> colorUser;
     private ArrayList<Polyline> polylines;
     private ArrayList<LatLng> listRest;
 
     public Group() {
     }
 
-    public Group(String groupId, String groupName, String start_Date, String end_Date, double start_Long, double start_Lat, double end_Long, double end_Lat, String status, ArrayList<String> colorUser, ArrayList<Polyline> polylines, ArrayList<LatLng> listRest) {
+    public Group(String groupId, String groupName, String start_Date, String end_Date, double start_Long, double start_Lat, double end_Long, double end_Lat, String status, ArrayList<Polyline> polylines, ArrayList<LatLng> listRest) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.start_Date = start_Date;
@@ -32,7 +31,6 @@ public class Group {
         this.end_Long = end_Long;
         this.end_Lat = end_Lat;
         this.status = status;
-        this.colorUser = colorUser;
         this.polylines = polylines;
         this.listRest = listRest;
     }
@@ -107,14 +105,6 @@ public class Group {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public ArrayList<String> getColorUser() {
-        return colorUser;
-    }
-
-    public void setColorUser(ArrayList<String> colorUser) {
-        this.colorUser = colorUser;
     }
 
     public ArrayList<Polyline> getPolylines() {

@@ -2,9 +2,12 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +28,7 @@ import java.util.Date;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.business.AppFunctions;
 import lofy.fpt.edu.vn.lofy_ver108.business.BitmapLoadTask;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 
 public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -55,11 +59,11 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
     private EditText edtMess;
 
 
-    public DialogConfirmSetMarkerNoti(@NonNull Context context,String notiName,String urlIcon, Location location) {
+    public DialogConfirmSetMarkerNoti(@NonNull Context context, String notiName, String urlIcon, Location location) {
         super(context);
         mContext = context;
-        mNotiName= notiName;
-        mUrlIcon=urlIcon;
+        mNotiName = notiName;
+        mUrlIcon = urlIcon;
         mLocation = location;
         initView();
     }
@@ -87,7 +91,7 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         notiRef = mFirebaseDatabase.getReference("notifications");
 
-        BitmapLoadTask bitmapLoadTask = new BitmapLoadTask(mContext,mUrlIcon,ivIcon);
+        BitmapLoadTask bitmapLoadTask = new BitmapLoadTask(mContext, mUrlIcon, ivIcon);
         bitmapLoadTask.execute();
         tvNameNoti.setText(mNotiName);
     }
@@ -108,15 +112,24 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
     }
 
     private void sendNoti() {
-        if(!groupID.equals("NA")){
-                    String notiID = userID + appFunctions.randomString(6);
-                    Date currentTime = Calendar.getInstance().getTime();
-                    Notification notification = new Notification(notiID,mNotiName,groupID,userID,"icon",currentTime.toString(),
-                           mUrlIcon,mNotiName, mLocation.getLatitude(),mLocation.getLongitude(),edtMess.getText().toString());
-                    notiRef.child(notiID).setValue(notification);
-                }else{
+        if (!groupID.equals("NA")) {
+            String notiID = userID + appFunctions.randomString(6);
+            Date currentTime = Calendar.getInstance().getTime();
+            Notification notification = new Notification(notiID, mNotiName, groupID, userID, "icon", currentTime.toString(),
+                    mUrlIcon, mNotiName, mLocation.getLatitude(), mLocation.getLongitude(), edtMess.getText().toString());
+            notiRef.child(notiID).setValue(notification);
+
+
+            Log.d("sendNoti: ", new QueryFirebase(mContext).getAlUser().size() + "");
+            Intent intent = new Intent(mContext, NotificationDisplayService.class);
+            intent.putExtra("KEY_NOTI", notification);
+            mContext.startService(intent);
+
+        } else {
             Toast.makeText(mContext, "Bạn cần tham gia nhóm trước !", Toast.LENGTH_SHORT).show();
         }
+
+
     }
 
     @Override

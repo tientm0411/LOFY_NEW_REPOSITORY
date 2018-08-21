@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.firebase.database.FirebaseDatabase;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
 
 /**
@@ -43,7 +44,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
     public HomeFragment() {
         // add node user-request
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        UserRequest userRequest = new UserRequest("default-data","default-data");
+        UserRequest userRequest = new UserRequest("default-data", "default-data");
         mFirebaseDatabase.getReference("user-requests").child("default-data").setValue(userRequest);
     }
 
@@ -107,7 +108,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
                             .addToBackStack(null)
                             .commit();
                 } else {
-                   new DialogConfirmExitGroup(rootView.getContext(),currentGroupUserId).show();
+                    new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
                 }
                 break;
             case R.id.btn_home_join:
@@ -120,7 +121,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
                             .addToBackStack(null)
                             .commit();
                 } else {
-                    new DialogConfirmExitGroup(rootView.getContext(),currentGroupUserId).show();
+                    new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
                 }
                 break;
             case R.id.btn_home_about:
@@ -134,7 +135,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
     }
-
 
 
     @Override

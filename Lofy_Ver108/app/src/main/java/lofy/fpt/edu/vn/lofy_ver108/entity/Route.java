@@ -1,4 +1,4 @@
-package lofy.fpt.edu.vn.lofy_ver108.Modules;
+package lofy.fpt.edu.vn.lofy_ver108.entity;
 
 import com.google.android.gms.maps.model.LatLng;
 

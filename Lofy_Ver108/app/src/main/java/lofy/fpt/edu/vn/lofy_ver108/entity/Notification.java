@@ -1,8 +1,11 @@
 package lofy.fpt.edu.vn.lofy_ver108.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 
-public class Notification {
+public class Notification implements Parcelable{
     private String notiID;
     private String notiName;
     private String groupID;
@@ -18,6 +21,7 @@ public class Notification {
     public Notification() {
     }
 
+
     public Notification(String notiID, String notiName, String groupID, String userID, String noti_type, String noti_time, String noti_icon, String noti_content, double latitude, double longtitude, String mess) {
         this.notiID = notiID;
         this.notiName = notiName;
@@ -31,6 +35,32 @@ public class Notification {
         this.longtitude = longtitude;
         this.mess = mess;
     }
+
+    protected Notification(Parcel in) {
+        notiID = in.readString();
+        notiName = in.readString();
+        groupID = in.readString();
+        userID = in.readString();
+        noti_type = in.readString();
+        noti_time = in.readString();
+        noti_icon = in.readString();
+        noti_content = in.readString();
+        latitude = in.readDouble();
+        longtitude = in.readDouble();
+        mess = in.readString();
+    }
+
+    public static final Creator<Notification> CREATOR = new Creator<Notification>() {
+        @Override
+        public Notification createFromParcel(Parcel in) {
+            return new Notification(in);
+        }
+
+        @Override
+        public Notification[] newArray(int size) {
+            return new Notification[size];
+        }
+    };
 
     public String getNotiID() {
 
@@ -119,5 +149,25 @@ public class Notification {
 
     public void setMess(String mess) {
         this.mess = mess;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(notiID);
+        parcel.writeString(notiName);
+        parcel.writeString(groupID);
+        parcel.writeString(userID);
+        parcel.writeString(noti_type);
+        parcel.writeString(noti_time);
+        parcel.writeString(noti_icon);
+        parcel.writeString(noti_content);
+        parcel.writeDouble(latitude);
+        parcel.writeDouble(longtitude);
+        parcel.writeString(mess);
     }
 }

@@ -48,6 +48,8 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.github.karanchuri:Permissionmanager:0.1.0'
 
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
+
 //    implementation 'com.koushikdutta.ion:ion:2.2.1'
     implementation 'com.google.firebase:firebase-database:9.4.0'
 }

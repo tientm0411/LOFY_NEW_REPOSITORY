@@ -69,7 +69,6 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
         editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
         editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
         editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_USER_COLOR, "NA");
         editor.putString(IntroApplicationActivity.IS_HOST, "NA");
         editor.apply();
         Toast.makeText(mContext, "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();

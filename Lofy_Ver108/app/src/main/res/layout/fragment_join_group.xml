@@ -54,56 +54,7 @@
             android:textAllCaps="false"
             android:textColor="@color/fontColor" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="3"
-                android:background="@drawable/custom_view_shadow"
-                android:gravity="center"
-                android:text="@string/tv_fragment_join_group_selectColor"
-                android:textAllCaps="false"
-                android:textColor="@color/fontColor"
-                android:textSize="15dp"
-                android:textStyle="" />
-
-            <TextView
-                android:id="@+id/join_tv_color_picker"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="16dp"
-                android:layout_weight="4"
-                android:background="#FF0000"
-                android:hint="NA"
-                android:padding="10dp"
-                android:textColorHint="#FF0000"
-
-                />
-
-            <Button
-                android:id="@+id/join_btn_color_picker_member"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="5dp"
-                android:layout_weight="3"
-                android:background="@android:drawable/dialog_holo_light_frame"
-                android:text="@string/btn_fragment_join_group_yourColor"
-                android:textAllCaps="false"
-                android:textColor="#FF0000"
-                android:textStyle="bold" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -119,10 +70,10 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_weight="3"
-                android:background="@drawable/custom_view_shadow"
                 android:gravity="center"
                 android:text="@string/tv_fragment_join_group_groupName"
                 android:textAllCaps="false"
+                android:textStyle="bold"
                 android:textColor="@color/fontColor"
                 android:textSize="15sp" />
 
