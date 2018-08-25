@@ -13,12 +13,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
 
 import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
+import lofy.fpt.edu.vn.lofy_ver108.controller.NotificationDisplayService;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 
 public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
@@ -70,6 +72,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
                 .position(new LatLng(mNoti.getLatitude(), mNoti.getLongtitude()))
                 .icon(BitmapDescriptorFactory.fromBitmap(result));
         mMaker = map.addMarker(mMarkerOptions);
+
         //  mMaker.setTag(0);
     }
 

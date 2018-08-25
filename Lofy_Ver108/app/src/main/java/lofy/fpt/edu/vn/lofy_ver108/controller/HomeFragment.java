@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +70,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
         btnJoin.setOnClickListener(this);
         btnAbout.setOnClickListener(this);
 
-        mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_MULTI_PROCESS);
+        mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         editor = mSharedPreferences.edit();
 
@@ -79,10 +80,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
     public void onClick(View v) {
         currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         currentGroupUserId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+        String userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
+        Log.d("USERRR_ID", userId+"");
         switch (v.getId()) {
             case R.id.btn_home_profile:
                 if (profileFragment == null) {
-                    profileFragment = new ProfileFragment();
+                    profileFragment = new ProfileFragment(userId);
                 }
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())

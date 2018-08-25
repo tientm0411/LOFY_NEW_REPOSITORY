@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.JoinMemberAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
@@ -299,6 +301,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    private QueryFirebase queryFirebase =new QueryFirebase();
     private void initView() {
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -328,6 +331,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         userRequestRef = mFirebaseDatabase.getReference("user-requests");
         groupUserRef = mFirebaseDatabase.getReference("groups-users");
         groupRef = mFirebaseDatabase.getReference("groups");
+//        queryFirebase = new QueryFirebase();
 
 
     }
@@ -338,7 +342,9 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         Intent intent;
         switch (view.getId()) {
             case R.id.join_btn_join_send_request:
+//                queryFirebase = new QueryFirebase();
                 joinGroup();
+                Log.d(TAG, "onClick: "+queryFirebase.getAlUser().size());
                 break;
             case R.id.fab_join_start:
                 intent = new Intent(rootView.getContext(), StartActivity.class);
@@ -407,7 +413,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         final User u = (User) adapterView.getItemAtPosition(i);
         if (profileFragment == null) {
-            profileFragment = new ProfileFragment();
+            profileFragment = new ProfileFragment("1047171492113059");
         }
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())

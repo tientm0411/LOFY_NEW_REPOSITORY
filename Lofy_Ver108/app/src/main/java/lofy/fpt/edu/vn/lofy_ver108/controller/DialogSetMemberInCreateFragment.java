@@ -56,7 +56,7 @@ public class DialogSetMemberInCreateFragment extends Dialog implements View.OnCl
             case R.id.btn_dialog_create_view_profile:
                 dismiss();
                 if (profileFragment == null) {
-                    profileFragment = new ProfileFragment();
+                    profileFragment = new ProfileFragment("692839717728567");
                 }
                 ((AppCompatActivity)mContext).getSupportFragmentManager().beginTransaction()
                         .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())

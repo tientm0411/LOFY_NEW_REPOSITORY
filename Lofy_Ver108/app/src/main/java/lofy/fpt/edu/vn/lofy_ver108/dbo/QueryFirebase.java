@@ -23,58 +23,19 @@ import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
 
-public class QueryFirebase{
+public class QueryFirebase {
 
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference userRef;
-    private DatabaseReference userRequestRef;
-    private DatabaseReference groupUserRef;
-    private DatabaseReference groupRef;
-    private Context mContext;
+    private ArrayList<User> alUser;
 
-
-
-    private ArrayList<User> alUser ;
-    private ArrayList<String> codeList ;
-
-
-    public QueryFirebase(Context context) {
-        mContext = context;
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        userRequestRef = mFirebaseDatabase.getReference("user-requests");
-        groupUserRef = mFirebaseDatabase.getReference("groups-users");
-        groupRef = mFirebaseDatabase.getReference("groups");
-
-        getUserByID();
-        registerEvent();
-
-    }
-
-    public void registerEvent() {
-        codeList = new ArrayList<>();
-
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.getReference("groups").addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot gr : dataSnapshot.getChildren()) {
-                    Group group=gr.getValue(Group.class);
-                    codeList.add(group.getGroupId());
-                    // codeList has data
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-
-    public void getUserByID() {
+    public QueryFirebase() {
         alUser = new ArrayList<>();
+        registerUser();
+    }
+
+    public void registerUser() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.getReference("users").addValueEventListener(new ValueEventListener() {
+        mFirebaseDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren()) {
@@ -89,21 +50,14 @@ public class QueryFirebase{
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
 
-
     public ArrayList<User> getAlUser() {
         Log.d("alUser2", alUser.size() + "");
+        // no return
         return alUser;
     }
-
-    public ArrayList<String> getCodeFromFirebaseDemo() {
-        return codeList;
-    }
-
-
 
 }

@@ -79,7 +79,7 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
         btnSend.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 
-        mSharedPreferences = mContext.getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_MULTI_PROCESS);
+        mSharedPreferences = mContext.getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         userName = mSharedPreferences.getString(IntroApplicationActivity.USER_NAME, "NA");
@@ -118,12 +118,6 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
             Notification notification = new Notification(notiID, mNotiName, groupID, userID, "icon", currentTime.toString(),
                     mUrlIcon, mNotiName, mLocation.getLatitude(), mLocation.getLongitude(), edtMess.getText().toString());
             notiRef.child(notiID).setValue(notification);
-
-
-            Log.d("sendNoti: ", new QueryFirebase(mContext).getAlUser().size() + "");
-            Intent intent = new Intent(mContext, NotificationDisplayService.class);
-            intent.putExtra("KEY_NOTI", notification);
-            mContext.startService(intent);
 
         } else {
             Toast.makeText(mContext, "Bạn cần tham gia nhóm trước !", Toast.LENGTH_SHORT).show();

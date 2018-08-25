@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import lofy.fpt.edu.vn.lofy_ver108.adapter.MemberAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.UserRequestAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.business.AppFunctions;
 import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
@@ -80,7 +82,13 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private String groupID = "";
     private String groupName = "";
 
+    private int testQuery =0;
+
+    private QueryFirebase queryFirebase = new QueryFirebase();
+//    private QueryFirebase queryFirebase;
+
     public CreateGroupFragment() {
+        Log.d(TAG, "initView_4: " + testQuery);
     }
 
     private void registerVice() {
@@ -264,6 +272,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         registerListMember();
         registerVice();
         //scheckOldGroup();
+          Log.d(TAG, "initView_1: " + testQuery);
         return rootView;
     }
 
@@ -359,11 +368,13 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         });
 
 
+        Log.d(TAG, "initView_2: " + testQuery);
     }
 
 
-
     private void createGroup() {
+        testQuery = queryFirebase.getAlUser().size();
+        Log.d(TAG, "initView_3: " + testQuery);
         groupID = ciCode.getValue().toString();
         groupName = edtGroupName.getText().toString();
         if (groupName == null || groupName.equals("") || groupID == null || groupID.equals("")) {
@@ -372,7 +383,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             // push group to firebase
             // Date currentTime = Calendar.getInstance().getTime();
             Group group = new Group(groupID, groupName, "NA",
-                    "NA", 0.0, 0.0, 0.0, 0.0, "open",null,null);
+                    "NA", 0.0, 0.0, 0.0, 0.0, "open", null, null, null);
             groupRef.child(groupID).setValue(group);
 
             // set groupId for sharefreference
@@ -385,7 +396,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             // push group-user to firebase
             currentGroupUSerId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
             currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
-            GroupUser groupUser = new GroupUser(currentGroupUSerId, userID, currentGroupId, true, false,  "NA", 0.0, true);
+            GroupUser groupUser = new GroupUser(currentGroupUSerId, userID, currentGroupId, true, false, "NA", 0.0, true);
             groupUserRef.child(currentGroupUSerId).setValue(groupUser).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

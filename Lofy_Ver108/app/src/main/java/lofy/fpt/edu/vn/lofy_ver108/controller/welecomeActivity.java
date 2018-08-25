@@ -17,7 +17,7 @@ public class welecomeActivity extends AppCompatActivity {
     LinearLayout l1,l2;
     Animation uptodown,downtoup;
     ProgressBar progressBar;
-    private static int SPLASH_TIME = 3000; //This is 4 seconds
+    private static int SPLASH_TIME = 2000; //This is 4 seconds
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

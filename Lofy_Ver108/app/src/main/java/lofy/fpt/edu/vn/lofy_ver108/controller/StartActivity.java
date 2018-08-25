@@ -53,7 +53,7 @@ public class StartActivity extends AppCompatActivity {
 
         adapter.addFragment(new MapGroupFragment(), "Bản đồ");
         adapter.addFragment(new HomeFragment(), "Nhóm");
-        adapter.addFragment(new ProfileFragment(), "Trang cá nhân");
+        adapter.addFragment(new ProfileFragment("692839717728567"), "Trang cá nhân");
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
     }

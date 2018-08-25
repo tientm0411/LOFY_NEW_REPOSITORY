@@ -53,10 +53,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.karan.churi.PermissionManager.PermissionManager;
 
@@ -65,9 +67,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
+import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.business.AppFunctions;
@@ -76,6 +82,7 @@ import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
+import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -102,6 +109,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private DatabaseReference groupUserRef;
     private MapMethod mapMethod;
     private AppFunctions appFunctions;
+    private QueryFirebase queryFirebase = new QueryFirebase();
 
     private PermissionManager permissionManager;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -164,6 +172,10 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         alGroupUser = new ArrayList<>();
         alUser = new ArrayList<>();
 
+
+       // queryFirebase = new QueryFirebase();
+        int iadsa = queryFirebase.getAlUser().size();
+        Log.d("onMapReady_13", iadsa+" ");
     }
 
     @Override
@@ -173,6 +185,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         loadMarkerNoti(mMap);
         loadRoute(mMap);
         loadMarkerMember();
+
+        int iadsa = queryFirebase.getAlUser().size();
+        Log.d("onMapReady_3", iadsa+" ");
     }
 
     private void loadRoute(final GoogleMap googleMap) {
@@ -260,6 +275,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     // load marker noti
     private void loadMarkerNoti(final GoogleMap googleMap) {
+        final ArrayList<Notification> alCheckNoti = new ArrayList<>();
         alNoti = new ArrayList();
         notiRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -277,18 +293,13 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     }
                 }
                 if (!alNoti.isEmpty() && alNoti.size() > 0) {
-                    // mMarker = null;
                     for (int i = 0; i < alNoti.size(); i++) {
-
-
-//                        Intent intent = new Intent(rootView.getContext(), NotificationDisplayService.class);
-//                        intent.putExtra("KEY_NOTI", alNoti.get(i));
-//                        rootView.getContext().startService(intent);
 
                         ImageLoadTask imageLoadTask = new ImageLoadTask(rootView.getContext(), googleMap, alNoti.get(i));
                         imageLoadTask.execute();
                         alMarkerNoti.add(new ImageLoadTask().retriveMarkerNoti());
                     }
+
                 }
                 Log.d("alMarkerNoti", alMarkerNoti.size() + "");
             }
@@ -297,11 +308,45 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+
+        notiRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Notification nt = dataSnapshot.getValue(Notification.class);
+                if (nt.getGroupID().equals(groupID)) {
+                    Intent intent = new Intent(rootView.getContext(), NotificationDisplayService.class);
+                    intent.putExtra("KEY_NOTI", nt);
+                    rootView.getContext().startService(intent);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
     // load marker member
+    ArrayList <User> alUserOutRange;
     private void loadMarkerMember() {
-        Log.d("ping5", alMarkerMember.size() + "");
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -313,23 +358,24 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                             alGroupUser.add(groupUser);
                         }
                     }
+
+                    alUserOutRange = new ArrayList<>();
                     userRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             alUser.clear();
+                            alUserOutRange.clear();
                             LatLng lng = null;
-                            Log.d("ping2", alMarkerMember.size() + "");
                             if (!alMarkerMember.isEmpty() || alMarkerMember.size() > 0) {
                                 for (Marker marker : alMarkerMember) {
                                     marker.remove();
                                 }
-                                Log.d("ping3", alMarkerMember.size() + "");
                                 alMarkerMember.clear();
                             }
                             if (dataSnapshot.hasChildren()) {
                                 LatLng hostLng = null;
-                                float mResult[] =null;
-                                int mCount=0;
+                                float mResult[] = null;
+                                int mCount = 0;
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     User u = ds.getValue(User.class);
                                     for (int i = 0; i < alGroupUser.size(); i++) {
@@ -338,24 +384,33 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                         }
                                     }
                                 }
-                                for (int i = 0 ; i<alUser.size();i++){
+
+                                for (int i = 0; i < alUser.size(); i++) {
                                     if (alGroupUser.get(i).isHost() && alGroupUser.get(i).isStatusUser()) {
                                         hostLng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
                                         break;
                                     }
                                 }
-                                for (int i = 0; i < alUser.size(); i++) {
-                                    lng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
-                                    LoaddMarkerMemberAsyntask loaddMarkerMemberAsyntask = new LoaddMarkerMemberAsyntask(alUser.get(i), alGroupUser.get(i), lng);
+                                for (int k = 0; k < alUser.size(); k++) {
+                                    lng = new LatLng(alUser.get(k).getUserLati(), alUser.get(k).getUserLongti());
+                                    LoaddMarkerMemberAsyntask loaddMarkerMemberAsyntask = new LoaddMarkerMemberAsyntask(alUser.get(k), alGroupUser.get(k), lng);
                                     loaddMarkerMemberAsyntask.execute();
                                     mResult = new float[10];
-                                    Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(i).getUserLati(), alUser.get(i).getUserLongti(), mResult);
+                                    Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(k).getUserLati(), alUser.get(k).getUserLongti(), mResult);
                                     Log.d("distance", mResult[0] + " ");
-                                    if(mResult[0]>=1000){
+                                    if (mResult[0] >= 7) {
                                         mCount++;
+//                                        alUserOutRange.add(alUser.get(k));
+//                                        Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
+//                                        intent.putExtra("KEY_NOTI", alUser.get(k));
+//                                        rootView.getContext().startService(intent);
+                                        groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).setValue(alUser.get(k).getUserName().toString());
+                                    }else{
+                                        groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).removeValue();
                                     }
-
                                 }
+
+
                             }
                         }
 
@@ -371,9 +426,39 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+
+        groupRef.child(groupID).child("members-out-range").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String nt = dataSnapshot.getValue(String.class);
+                    Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
+                    intent.putExtra("KEY_NOTI_USER_NAME", nt);
+                    rootView.getContext().startService(intent);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    // load marker member
+    // load marker member asyn
     public class LoaddMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap> {
         private User user;
         private GroupUser groupUser;
@@ -428,7 +513,11 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     // show noti
     private void showDialogNoti() {
         //  Toast.makeText(this, "Clicked !", Toast.LENGTH_SHORT).show();
-        new DialogNotifyIcon(rootView.getContext(), getMyLocation()).show();
+        MapMethod mapMethod = new MapMethod(rootView.getContext());
+        Location myLocation = new Location("My_Location");
+        myLocation.setLatitude((mapMethod.getMyLocation().latitude ));
+        myLocation.setLongitude((mapMethod.getMyLocation().longitude ));
+        new DialogNotifyIcon(rootView.getContext(),myLocation ).show();
 
     }
 
