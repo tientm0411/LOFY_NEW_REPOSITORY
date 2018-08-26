@@ -38,8 +38,6 @@ public class NotificationDisplayService extends Service {
 
     public NotificationDisplayService() {
 
-        int t1 = queryFirebase.getAlUser().size();
-        Log.d("queryFirebase_1", t1 + " ");
     }
 
     @Override
@@ -52,15 +50,11 @@ public class NotificationDisplayService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notification data = (Notification) intent.getExtras().get("KEY_NOTI");
         displayNotification(data);
-        int t2 = queryFirebase.getAlUser().size();
-        Log.d("queryFirebase_2", t2 + " ");
         stopSelf(); // Beendet den Service nach dem Ausführen des Codes (nachträglich ergänzt)
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void displayNotification(final Notification noti) {
-        int t3 = queryFirebase.getAlUser().size();
-        Log.d("queryFirebase_3", t3 + " ");
         final int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
         Intent notificationIntent = new Intent(this, StartActivity.class);
         notificationIntent.putExtra("KEY_INTENT", "GROUP");

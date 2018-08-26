@@ -97,6 +97,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
@@ -223,13 +224,7 @@
                     app:fab_label="Rời khỏi nhóm"
                     fab:fab_size="mini" />
 
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/fab_create_delete_group"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_app"
-                    app:fab_label="Xóa nhóm"
-                    fab:fab_size="mini" />
+
 
             </com.github.clans.fab.FloatingActionMenu>
 

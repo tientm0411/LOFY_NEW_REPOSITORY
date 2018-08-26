@@ -1,7 +1,9 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,6 +32,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.MemberAdapter;
@@ -82,13 +86,10 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private String groupID = "";
     private String groupName = "";
 
-    private int testQuery =0;
 
-    private QueryFirebase queryFirebase = new QueryFirebase();
-//    private QueryFirebase queryFirebase;
+    private QueryFirebase queryFirebase;
 
     public CreateGroupFragment() {
-        Log.d(TAG, "initView_4: " + testQuery);
     }
 
     private void registerVice() {
@@ -169,7 +170,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     alGroupUser.clear();
                     for (DataSnapshot gu : dataSnapshot.getChildren()) {
                         GroupUser groupUser = gu.getValue(GroupUser.class);
-                        if (groupUser.getGroupId().equals(ciCode.getValue().toString().toUpperCase()) && groupUser.isVice() == false
+                        if (groupUser.getGroupId().equals(groupID) && groupUser.isVice() == false
                                 && groupUser.isHost() == false && groupUser.isStatusUser() == true) {
                             alGroupUser.add(groupUser);
                         }
@@ -214,7 +215,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private void registerUserRequest() {
         final ArrayList<UserRequest> alRequest = new ArrayList<>(); // list user request this group
         final ArrayList<User> alMem = new ArrayList<>(); // list user just request
-        lvUserRequest.setAdapter(null);
+//        lvUserRequest.setAdapter(null);
         userRequestRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -222,7 +223,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     alRequest.clear();
                     for (DataSnapshot us : dataSnapshot.getChildren()) {
                         UserRequest userRequest = us.getValue(UserRequest.class);
-                        if (userRequest.getGroupId().toUpperCase().equals(ciCode.getValue().toString().toUpperCase())) {
+                        if (userRequest.getGroupId().toUpperCase().equals(groupID.toUpperCase())) {
                             alRequest.add(userRequest);
                         }
                     }
@@ -268,16 +269,16 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_create_group, container, false);
         initView();
+        checkOldGroup();
         registerUserRequest();
         registerListMember();
         registerVice();
-        //scheckOldGroup();
-          Log.d(TAG, "initView_1: " + testQuery);
         return rootView;
     }
 
     private void initView() {
         edtGroupName = (EditText) rootView.findViewById(R.id.createGroup_edt_group_name);
+        edtGroupName.setText(null);
         ciCode = (Pinview) rootView.findViewById(R.id.createGroup_ci_code);
         btnCreate = (Button) rootView.findViewById(R.id.createGroup_btn_create_group);
         btnCreate.setOnClickListener(this);
@@ -287,11 +288,9 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         materialDesignFAM = (FloatingActionMenu) rootView.findViewById(R.id.floating_menu_create_group);
         btnSetTrack = (FloatingActionButton) rootView.findViewById(R.id.fab_create_set_track);
         btnStart = (FloatingActionButton) rootView.findViewById(R.id.fab_create_start);
-        btnDeleteGroup = (FloatingActionButton) rootView.findViewById(R.id.fab_create_start);
         btnQuit = (FloatingActionButton) rootView.findViewById(R.id.fab_create_quit_group);
         btnSetTrack.setOnClickListener(this);
         btnStart.setOnClickListener(this);
-        btnDeleteGroup.setOnClickListener(this);
         btnQuit.setOnClickListener(this);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -303,6 +302,8 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         editor = mSharedPreferences.edit();
+        groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+        groupName = mSharedPreferences.getString(IntroApplicationActivity.GROUP_NAME, "NA");
         userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         userName = mSharedPreferences.getString(IntroApplicationActivity.USER_NAME, "NA");
         userPhone = mSharedPreferences.getString(IntroApplicationActivity.USER_PHONE, "NA");
@@ -310,7 +311,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 
         appFunctions = new AppFunctions();
 
-        ciCode.setValue(appFunctions.randomString(6));
+//        ciCode.setValue(appFunctions.randomString(6));
 
         lvVice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -368,21 +369,21 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         });
 
 
-        Log.d(TAG, "initView_2: " + testQuery);
+        // initial
+        queryFirebase = new QueryFirebase();
+
     }
 
 
     private void createGroup() {
-        testQuery = queryFirebase.getAlUser().size();
-        Log.d(TAG, "initView_3: " + testQuery);
         groupID = ciCode.getValue().toString();
         groupName = edtGroupName.getText().toString();
         if (groupName == null || groupName.equals("") || groupID == null || groupID.equals("")) {
             Toast.makeText(rootView.getContext(), "Nhập tên nhóm !", Toast.LENGTH_SHORT).show();
         } else {
             // push group to firebase
-            // Date currentTime = Calendar.getInstance().getTime();
-            Group group = new Group(groupID, groupName, "NA",
+            Date currentTime = Calendar.getInstance().getTime();
+            Group group = new Group(groupID, groupName, currentTime + "",
                     "NA", 0.0, 0.0, 0.0, 0.0, "open", null, null, null);
             groupRef.child(groupID).setValue(group);
 
@@ -401,25 +402,29 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(rootView.getContext(), "Tạo thành công !", Toast.LENGTH_SHORT).show();
-                    btnCreate.setClickable(false);
-                    btnCreate.setFocusable(false);
+//                    btnCreate.setClickable(false);
+//                    btnCreate.setFocusable(false);
+                    btnCreate.setVisibility(View.GONE);
                     edtGroupName.clearFocus();
+                    edtGroupName.setFocusable(false);
                 }
             });
 
         }
-
     }
 
     // check if this is old group or not
     private void checkOldGroup() {
-        if (groupID.equals("NA")) {
+        Log.d(TAG, groupID + ": groupID ");
+        if (groupID.equals("NA") || groupID.equals("")) {
+            ciCode.setValue(appFunctions.randomString(6));
+            Log.d(TAG, "checkOldGroup123: ");
+        } else {
+            Log.d(TAG, "checkOldGroup: ");
             ciCode.setValue(groupID);
             edtGroupName.setText(groupName);
             btnCreate.setEnabled(false);
             btnCreate.setFocusable(false);
-        } else {
-            ciCode.setValue(appFunctions.randomString(6));
         }
     }
 
@@ -436,19 +441,86 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 startActivity(intent);
                 break;
             case R.id.fab_create_start:
-                intent = new Intent(rootView.getContext(), StartActivity.class);
-                intent.putExtra("groupId", groupID);
-                startActivity(intent);
-                break;
-            case R.id.fab_create_delete_group:
+                final ArrayList<GroupUser> ge = new ArrayList<>();
+                mFirebaseDatabase = FirebaseDatabase.getInstance();
+                mFirebaseDatabase.getReference("groups-users").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChildren()) {
+                            ge.clear();
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                GroupUser g = ds.getValue(GroupUser.class);
+                                if (g.getGroupId().equals(groupID) && g.isVice()) {
+                                    Intent intent;
+                                    intent = new Intent(rootView.getContext(), StartActivity.class);
+                                    intent.putExtra("groupId", groupID);
+                                    startActivity(intent);
+                                    return;
+                                }
+                            }
+                        }
+                        mFirebaseDatabase.getReference("groups-users").removeEventListener(this);
+                        Toast.makeText(rootView.getContext(), "Bạn cần có phó đoàn để bắt đầu chuyến đi !", Toast.LENGTH_SHORT).show();
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
                 break;
             case R.id.fab_create_quit_group:
-
+                String guId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+                if (guId.equals("NA")) {
+                    Toast.makeText(rootView.getContext(), "Bạn chưa tham gia vào nhóm nào !", Toast.LENGTH_SHORT).show();
+                } else {
+                    quitAlertDialog();
+                }
                 break;
             default:
                 break;
         }
+    }
+
+    public void quitAlertDialog() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(rootView.getContext()).create();
+        alertDialog.setTitle("Thoát ");
+        alertDialog.setMessage("Bạn có chắc muốn thoát nhóm hiện tại");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Thoát", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                quitGroup();
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+                return;
+            }
+        });
+        alertDialog.show();
+
+    }
+
+    private void quitGroup() {
+        String gUId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
+        groupRef.child(gUId).child("statusUser").setValue(false).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
+                editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
+                editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+                editor.putString(IntroApplicationActivity.IS_HOST, "NA");
+                editor.apply();
+                getFragmentManager().popBackStackImmediate();
+                Toast.makeText(rootView.getContext(), "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     @Override

@@ -174,8 +174,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
 
        // queryFirebase = new QueryFirebase();
-        int iadsa = queryFirebase.getAlUser().size();
-        Log.d("onMapReady_13", iadsa+" ");
     }
 
     @Override
@@ -186,8 +184,8 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         loadRoute(mMap);
         loadMarkerMember();
 
-        int iadsa = queryFirebase.getAlUser().size();
-        Log.d("onMapReady_3", iadsa+" ");
+//        int iadsa = queryFirebase.getAlUser().size();
+//        Log.d("onMapReady_3", iadsa+" ");
     }
 
     private void loadRoute(final GoogleMap googleMap) {

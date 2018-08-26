@@ -228,12 +228,17 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
                 } else {
                     // set groupId for sharepreference
                     editor.putString(IntroApplicationActivity.GROUP_ID, mCode.toUpperCase());
-                    editor.putString(IntroApplicationActivity.GROUP_NAME, gName);
                     editor.putString(IntroApplicationActivity.GROUP_USER_ID, mCode.toUpperCase()
                             + mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA"));
                     editor.putString(IntroApplicationActivity.IS_HOST, "false");
                     editor.apply();
-                    tvGroupName.setText(gName);
+                    Thread mythread = new Thread(new MyThreadJoin());
+                    mythread.start();
+                    String gID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID,"NA");
+                    String abc = queryFirebase.getGroupNameById(queryFirebase.getAlGroup(), gID);
+                    Log.d(TAG, "onDataChange: "+abc);
+                    String mName = mSharedPreferences.getString(IntroApplicationActivity.GROUP_NAME, "NA");
+                    tvGroupName.setText(abc);
 
                 }
                 //  list member
@@ -274,7 +279,9 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
 
     // check if this is old group or not
     private void checkOldGroup() {
-        if (!groupID.equals("NA")) {
+        if (groupID.equals("NA") || groupID.equals("")) {
+
+        } else {
             ciEnterCode.setText(groupID);
             tvGroupName.setText(groupName);
             btnOkCode.setEnabled(false);
@@ -282,16 +289,34 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         }
     }
 
+    public class MyThreadJoin implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String s = mSharedPreferences .getString(IntroApplicationActivity.GROUP_ID,"NA");
+            String name = queryFirebase.getGroupNameById(queryFirebase.getAlGroup(), s);
+            Log.d(TAG, "gName: " + name);
+            Log.d(TAG, "gId: " + s);
+            Log.d(TAG, "Ping_P_List: "+ queryFirebase.getAlGroup().size());
+            editor.putString(IntroApplicationActivity.GROUP_NAME, name);
+            editor.apply();
+
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_join_group, container, false);
         initView();
+        checkOldGroup();
         registerListMember();
         registerHost();
         registerVice();
-        // checkOldGroup();
         return rootView;
     }
 
@@ -301,7 +326,8 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    private QueryFirebase queryFirebase =new QueryFirebase();
+    private QueryFirebase queryFirebase = new QueryFirebase();
+
     private void initView() {
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -310,6 +336,8 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         userName = mSharedPreferences.getString(IntroApplicationActivity.USER_NAME, "NA");
         userPhone = mSharedPreferences.getString(IntroApplicationActivity.USER_PHONE, "NA");
         userAvatar = mSharedPreferences.getString(IntroApplicationActivity.USER_URL_AVATAR, "NA");
+        groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+        groupName = mSharedPreferences.getString(IntroApplicationActivity.GROUP_NAME, "NA");
 
         tvGroupName = (TextView) rootView.findViewById(R.id.tv_join_group_name);
         ciEnterCode = (EditText) rootView.findViewById(R.id.join_ci_enter_code);
@@ -331,7 +359,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         userRequestRef = mFirebaseDatabase.getReference("user-requests");
         groupUserRef = mFirebaseDatabase.getReference("groups-users");
         groupRef = mFirebaseDatabase.getReference("groups");
-//        queryFirebase = new QueryFirebase();
+        queryFirebase = new QueryFirebase();
 
 
     }
@@ -344,7 +372,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
             case R.id.join_btn_join_send_request:
 //                queryFirebase = new QueryFirebase();
                 joinGroup();
-                Log.d(TAG, "onClick: "+queryFirebase.getAlUser().size());
+                Log.d(TAG, "onClick: " + queryFirebase.getAlUser().size());
                 break;
             case R.id.fab_join_start:
                 intent = new Intent(rootView.getContext(), StartActivity.class);
