@@ -14,29 +14,95 @@
         android:orientation="vertical">
 
         <AutoCompleteTextView
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
             android:id="@+id/autoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
             android:drawableRight="@drawable/location"
             android:hint="Vị Trí Của Tôi"
             android:textStyle="bold"/>
 
         <AutoCompleteTextView
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
             android:id="@+id/autoCompleteTextView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
             android:drawableRight="@drawable/location"
             android:hint="Điểm Đến"
             android:textStyle="bold"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:drawableRight="@drawable/location"
+            android:hint="Điểm Đến"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:background="@drawable/boder_noti_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        android:layout_gravity="center"
+        android:gravity="center"
+        >
         <Button
             android:id="@+id/btn_main2_saveTrack"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Save Track" />
+            android:textAllCaps="false"
+            android:background="#5fbf8c"
+            android:textColor="#ffff"
+            android:text="Lưu"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            />
+
+        <Button
+            android:layout_marginRight="4dp"
+            android:id="@+id/btn_main2_findPath"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:background="#5fbf8c"
+            android:textColor="#ffff"
+            android:text="@string/btn_mapsActivity_findPath" />
+
+        <Button
+            android:id="@+id/btn_main2_addRest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="thêm điểm dừng"
+            android:textAllCaps="false"
+            android:textColor="#ffff" />
+
+        <Button
+            android:id="@+id/btn_main2_Reset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Đặt lại"
+            android:textAllCaps="false"
+            android:textColor="#ffff" />
     </LinearLayout>
 
     <fragment
@@ -44,18 +110,16 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="9"></fragment>
+        android:layout_weight="1"
+        ></fragment>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#5fbf8c"
+        android:layout_gravity="center"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_main2_findPath"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_mapsActivity_findPath" />
 
         <ImageView
             android:layout_width="40dp"

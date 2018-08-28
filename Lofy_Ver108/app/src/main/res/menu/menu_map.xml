@@ -1,0 +1,11 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="in.amzbizsol.vts.MainActivity">
+    <item
+        android:id="@+id/action_changepassword"
+        android:orderInCategory="1"
+        android:title="Đặt bán kính vòng "
+        app:showAsAction="never" />
+</menu>

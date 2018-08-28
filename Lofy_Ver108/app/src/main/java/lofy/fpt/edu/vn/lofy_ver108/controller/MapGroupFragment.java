@@ -25,8 +25,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -172,8 +177,22 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         alGroupUser = new ArrayList<>();
         alUser = new ArrayList<>();
 
+        mTopToolbar = (Toolbar) rootView.findViewById(R.id.my_toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(mTopToolbar);
 
-       // queryFirebase = new QueryFirebase();
+
+        // queryFirebase = new QueryFirebase();
+    }
+    private Toolbar mTopToolbar;
+
+
+
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        getActivity().getMenuInflater().inflate(R.menu.menu_map, menu);
     }
 
     @Override
@@ -343,7 +362,8 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     }
 
     // load marker member
-    ArrayList <User> alUserOutRange;
+    ArrayList<User> alUserOutRange;
+
     private void loadMarkerMember() {
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -396,19 +416,17 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                     mResult = new float[10];
                                     Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(k).getUserLati(), alUser.get(k).getUserLongti(), mResult);
                                     Log.d("distance", mResult[0] + " ");
-                                    if (mResult[0] >= 7) {
+                                    if (mResult[0] >= 1000) {
                                         mCount++;
 //                                        alUserOutRange.add(alUser.get(k));
 //                                        Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
 //                                        intent.putExtra("KEY_NOTI", alUser.get(k));
 //                                        rootView.getContext().startService(intent);
                                         groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).setValue(alUser.get(k).getUserName().toString());
-                                    }else{
+                                    } else {
                                         groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).removeValue();
                                     }
                                 }
-
-
                             }
                         }
 
@@ -429,9 +447,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String nt = dataSnapshot.getValue(String.class);
-                    Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
-                    intent.putExtra("KEY_NOTI_USER_NAME", nt);
-                    rootView.getContext().startService(intent);
+                Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
+                intent.putExtra("KEY_NOTI_USER_NAME", nt);
+                rootView.getContext().startService(intent);
             }
 
             @Override
@@ -513,9 +531,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         //  Toast.makeText(this, "Clicked !", Toast.LENGTH_SHORT).show();
         MapMethod mapMethod = new MapMethod(rootView.getContext());
         Location myLocation = new Location("My_Location");
-        myLocation.setLatitude((mapMethod.getMyLocation().latitude ));
-        myLocation.setLongitude((mapMethod.getMyLocation().longitude ));
-        new DialogNotifyIcon(rootView.getContext(),myLocation ).show();
+        myLocation.setLatitude((mapMethod.getMyLocation().latitude));
+        myLocation.setLongitude((mapMethod.getMyLocation().longitude));
+        new DialogNotifyIcon(rootView.getContext(), myLocation).show();
 
     }
 

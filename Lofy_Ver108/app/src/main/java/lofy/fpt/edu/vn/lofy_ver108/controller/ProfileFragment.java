@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -21,16 +22,33 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import java.util.ArrayList;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.HistoryGroupApdater;
@@ -39,6 +57,8 @@ import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,6 +71,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     private TextView tvUserName;
     private ImageView ivAva;
     private EditText edtPhoneNumber;
+    private EditText edtVerifyCode;
+    private Button btnUpdatePhoneNumber;
     private Button btnShowMenu;
     private Button btnConfimmCode;
     private Button btnCancelCode;
@@ -65,6 +87,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     private SharedPreferences mSharedPreferences;
     private String mUserId;
 
+     FirebaseAuth mAuth;
+
+     String codeSent;
     //    public ProfileFragment() {
 //        // Required empty public constructor
 //    }
@@ -78,6 +103,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
+        mAuth = FirebaseAuth.getInstance();
         initView();
         showHistoryGroup();
         return rootView;
@@ -86,11 +112,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     private void initView() {
         tvUserName = (TextView) rootView.findViewById(R.id.tv_profile_user_name);
         edtPhoneNumber = (EditText) rootView.findViewById(R.id.edt_profile_user_phone);
+        edtVerifyCode=(EditText)rootView.findViewById(R.id.edt_profile_code_confirm);
+
         ivAva = (ImageView) rootView.findViewById(R.id.iv_profile_ava);
         lvHistoryGroups = (ListView) rootView.findViewById(R.id.lv_profile_list_old_group);
         btnLogout = (Button) rootView.findViewById(R.id.btn_profile_logout);
+        btnConfimmCode=(Button)rootView.findViewById(R.id.btn_profile_code_confirm);
         btnLogout.setOnClickListener(this);
-        btnConfimmCode = (Button) rootView.findViewById(R.id.btn_profile_code_confirm);
+
         btnCancelCode = (Button) rootView.findViewById(R.id.btn_profile_code_cancel);
         btnConfimmCode.setOnClickListener(this);
         btnCancelCode.setOnClickListener(this);
@@ -105,9 +134,86 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
             btnLogout.setVisibility(View.GONE);
         }
 
-
 //        tvUserName.setText(userId+"");
     }
+    private void verifySignInCode() {
+        String code = edtVerifyCode.getText().toString();
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeSent, code);
+        signInWithPhoneAuthCredential(credential);
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            //here you can open new activity
+                            Toast.makeText(getApplicationContext(),
+                                    "Login Successfull", Toast.LENGTH_LONG).show();
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                Toast.makeText(getApplicationContext(),
+                                        "Incorrect Verification Code ", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+                });
+    }
+    private void sendVerificationCode() {
+
+        String phone = edtPhoneNumber.getText().toString();
+
+        if (phone.isEmpty()) {
+            edtPhoneNumber.setError("Phone number is required");
+            edtPhoneNumber.requestFocus();
+            return;
+        }
+
+        if (phone.length() < 10) {
+            edtPhoneNumber.setError("Please enter a valid phone");
+            edtPhoneNumber.requestFocus();
+
+            return;
+        }
+        if (phone.length() > 11) {
+            edtPhoneNumber.setError("Please enter a valid phone");
+            edtPhoneNumber.requestFocus();
+
+            return;
+        }
+
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phone,        // Phone number to verify
+                60,                 // Timeout duration
+                TimeUnit.SECONDS,   // Unit of timeout
+                 getActivity(),               // Activity (for callback binding)
+                mCallbacks);
+        Toast.makeText(getApplicationContext(),
+                "Please wait!!! ", Toast.LENGTH_LONG).show();// OnVerificationStateChangedCallbacks
+    }
+
+
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+        @Override
+        public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+
+        }
+
+        @Override
+        public void onVerificationFailed(FirebaseException e) {
+
+        }
+
+        @Override
+        public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            super.onCodeSent(s, forceResendingToken);
+
+            codeSent = s;
+        }
+    };
+
 
     @Override
     public void onClick(View view) {
@@ -119,7 +225,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                 showMenu(view);
                 break;
             case R.id.btn_profile_code_confirm:
-
+                verifySignInCode();
                 break;
             case R.id.btn_profile_code_cancel:
 
@@ -228,14 +334,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
-            case R.id.menu_profile_confirm:
-
-                break;
+//            case R.id.menu_profile_confirm:
+//
+//                break;
             case R.id.menu_profile_delete:
 
                 lnConfirmCode.setVisibility(View.GONE);
                 break;
             case R.id.menu_profile_update:
+                sendVerificationCode();
                 lnConfirmCode.setVisibility(View.VISIBLE);
                 break;
         }

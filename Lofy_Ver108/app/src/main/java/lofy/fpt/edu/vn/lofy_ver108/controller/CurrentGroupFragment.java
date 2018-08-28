@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -102,15 +103,21 @@ public class CurrentGroupFragment extends Fragment implements SharedPreferences.
     }
 
     private void quitGroup() {
-        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
-        groupRef.child(currentGroupId + userID).child("statusUser").setValue(false);
+        String guID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID,"NA");
+        if("NA".equals(guID)) {
+            String substrGId = guID.substring(0, 6);
+            String substrUId = guID.substring(6, 21);
+            GroupUser gu1 = new GroupUser(guID, substrUId, substrGId, false, false, "NA", 0.0, false);
+            DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
+            groupRef.child(guID).setValue(gu1);
 
-        editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-        editor.putString(IntroApplicationActivity.IS_HOST, "NA");
-        editor.apply();
-        Toast.makeText(rootView.getContext(), "Done !", Toast.LENGTH_SHORT).show();
+            editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
+            editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
+            editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+            editor.putString(IntroApplicationActivity.IS_HOST, "NA");
+            editor.apply();
+            Toast.makeText(rootView.getContext(), "Done !", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

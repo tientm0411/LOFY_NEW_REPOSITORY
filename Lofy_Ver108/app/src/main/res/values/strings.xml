@@ -11,13 +11,13 @@
     <!--activity_login-->
     <string name="tv_activity_login_logo">LOFY</string>
     <string name="tv_activity_login_slogan">"''To Travel is To Live''"</string>
-    <string name="btn_activity_login_login">> Login to Facebook</string>
+    <string name="btn_activity_login_login"> Đăng nhập bằng Facebook</string>
     <!--activity_dialog_confirm_exit_group-->
     <string name="tv_activity_dialog_confirm_exit_group_confirm">Bạn đang ở một nhóm khác !</string>
     <string name="btn_activity_dialog_confirm_exit_group_go_current">Đi tới nhóm hiện tại</string>
     <string name="btn_activity_dialog_confirm_exit_group_quit_group">Thoát nhóm hiện tại</string>
     <!--mapsActivity-->
-    <string name="btn_mapsActivity_findPath">FIND PATH</string>
+    <string name="btn_mapsActivity_findPath">Tìm đường</string>
     <string name="tv_mapsActivity_distance">0 km</string>
     <string name="tv_mapsActivity_duration">0 min</string>
     <!--dialog_confirm_remove_member-->
@@ -71,7 +71,7 @@
     <string name="btn_fragment_home_current_group">Nhóm hiện tại</string>
     <string name="btn_fragment_home_create">Tạo một nhóm</string>
     <string name="btn_fragment_home_join">Tham gia nhóm</string>
-    <string name="btn_fragment_home_about">Thông tin</string>
+    <string name="btn_fragment_home_about">Về ứng dụng</string>
     <string name="tv_fragment_home_slogan">"''To Travel is To Live''"</string>
     <!--fragment_join_group-->
     <string name="tv_fragment_join_group_goupCode">Mã nhóm</string>
@@ -91,5 +91,6 @@
     <string name="tv_item_member_nameMember">Thành viên</string>
     <!--item_user_request-->
     <string name="tv_item_user_request_userName">Người dùng</string>
-
+    <string name="title_home">Thông tin ứng dụng</string>
+    <string name="title_dashboard">Hướng dẫn</string>
 </resources>

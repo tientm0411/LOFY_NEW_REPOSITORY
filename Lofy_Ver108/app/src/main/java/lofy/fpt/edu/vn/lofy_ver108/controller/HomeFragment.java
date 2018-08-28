@@ -4,6 +4,7 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -59,20 +60,20 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
 
     private void initView() {
         btnProfile = (Button) rootView.findViewById(R.id.btn_home_profile);
-        btnCurrent = (Button) rootView.findViewById(R.id.btn_home_current);
+//        btnCurrent = (Button) rootView.findViewById(R.id.btn_home_current);
         btnCreate = (Button) rootView.findViewById(R.id.btn_home_create);
         btnJoin = (Button) rootView.findViewById(R.id.btn_home_join);
         btnAbout = (Button) rootView.findViewById(R.id.btn_home_about);
 
         btnProfile.setOnClickListener(this);
-        btnCurrent.setOnClickListener(this);
+//        btnCurrent.setOnClickListener(this);
         btnCreate.setOnClickListener(this);
         btnJoin.setOnClickListener(this);
         btnAbout.setOnClickListener(this);
 
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        editor = mSharedPreferences.edit();
+        editor = mSharedPreferences.edit();Log.d("onClick", currentGroupId+" ");
 
     }
 
@@ -80,6 +81,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
     public void onClick(View v) {
         currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         currentGroupUserId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+        Log.d("onClick", currentGroupId + " ");
+        Log.d("onClick2", currentGroupUserId + " ");
         String userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         Log.d("USERRR_ID", userId+"");
         switch (v.getId()) {
@@ -92,15 +95,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
                         .addToBackStack(null)
                         .commit();
                 break;
-            case R.id.btn_home_current:
-                if (currentGroupFragment == null) {
-                    currentGroupFragment = new CurrentGroupFragment();
-                }
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.ln_main, currentGroupFragment, CurrentGroupFragment.class.getName())
-                        .addToBackStack(null)
-                        .commit();
-                break;
+//            case R.id.btn_home_current:
+//                if (currentGroupFragment == null) {
+//                    currentGroupFragment = new CurrentGroupFragment();
+//                }
+//                getActivity().getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.ln_main, currentGroupFragment, CurrentGroupFragment.class.getName())
+//                        .addToBackStack(null)
+//                        .commit();
+//                break;
             case R.id.btn_home_create:
                 if (currentGroupId.equals("NA")) {
                     if (createGroupFragment == null) {
@@ -124,10 +127,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
                             .addToBackStack(null)
                             .commit();
                 } else {
+
                     new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
                 }
                 break;
             case R.id.btn_home_about:
+                Intent intent=new Intent(rootView.getContext(),InformationAppActivity.class);
+                rootView.getContext().startActivity(intent);
                 break;
             default:
                 break;

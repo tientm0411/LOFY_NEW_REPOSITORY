@@ -252,7 +252,7 @@ public class DirectionFinder {
             new DownloadRawData().execute(createUrlRest(origin, rest));
             new DownloadRawData().execute(createUrlDestination(rest, destination));
         } else {
-            new DownloadRawData().execute(createUrlRest(origin, rest));
+            new DownloadRawData().execute(createUrlRest(origin, tenMarkers.get(0).getPosition().latitude + "," + tenMarkers.get(0).getPosition().longitude));
             new DownloadRawData().execute(createUrlDestination(rest, destination));
         }
     }

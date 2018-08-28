@@ -85,7 +85,10 @@
         <service
             android:name=".controller.OutRangeService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".controller.InformationAppActivity" />
+        <activity android:name=".controller.GuidesActivity"></activity>
     </application>
 
 </manifest>

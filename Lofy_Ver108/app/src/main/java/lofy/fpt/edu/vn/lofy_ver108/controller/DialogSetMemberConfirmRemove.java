@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 
 public class DialogSetMemberConfirmRemove extends Dialog implements View.OnClickListener {
     private Context mContext;
@@ -56,8 +57,12 @@ public class DialogSetMemberConfirmRemove extends Dialog implements View.OnClick
     }
 
     private void doRemove() {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mReference = mFirebaseDatabase.getReference("groups-users");
-        mReference.child(mKeyUserRequest2).child("statusUser").setValue(false);;
+        String substrGId = mKeyUserRequest2.substring(0, 6);
+        String substrUId = mKeyUserRequest2.substring(6, 21);
+        GroupUser gu1 = new GroupUser(mKeyUserRequest2, substrUId, substrGId, false, false, "NA", 0.0, false);
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
+        groupRef.child(mKeyUserRequest2).setValue(gu1);
+
+
     }
 }

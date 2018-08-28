@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:background="#FFF0CC"
+    android:background="#ededed"
     android:orientation="vertical"
     tools:context=".controller.JoinGroupFragment">
 
@@ -27,8 +27,8 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_weight="3"
-                android:background="@drawable/custom_view_shadow"
                 android:gravity="center"
+                android:textStyle="bold"
                 android:text="@string/tv_fragment_join_group_goupCode"
                 android:textAllCaps="false"
                 android:textColor="@color/fontColor"
@@ -49,10 +49,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:background="@android:drawable/dialog_holo_light_frame"
+            android:background="#5fbf8c"
             android:text="@string/btn_fragment_join_group_join"
             android:textAllCaps="false"
-            android:textColor="@color/fontColor" />
+            android:textColor="#ffffff"
+            />
 
 
 
@@ -166,8 +167,8 @@
                 android:layout_marginRight="11dp"
                 fab:menu_animationDelayPerItem="55"
                 fab:menu_buttonSpacing="0dp"
-                fab:menu_colorNormal="#da3c2f"
-                fab:menu_colorPressed="#dc4b3f"
+                fab:menu_colorNormal="#126d5b"
+                fab:menu_colorPressed="#5fbf8c"
                 fab:menu_colorRipple="#99d4d4d4"
                 fab:menu_fab_label="Floating Social Icons"
                 fab:menu_fab_size="normal"

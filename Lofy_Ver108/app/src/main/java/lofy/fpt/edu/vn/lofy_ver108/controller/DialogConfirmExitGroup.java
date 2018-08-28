@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 
 public class DialogConfirmExitGroup extends Dialog implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -63,8 +64,11 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
     }
 
     private void quitGroup() {
+        String substrGId = mkeyGroupUser.substring(0, 6);
+        String substrUId = mkeyGroupUser.substring(6, 21);
+        GroupUser gu1= new GroupUser(mkeyGroupUser,substrUId,substrGId,false,false,"NA",0.0,false);
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
-        groupRef.child(mkeyGroupUser).child("statusUser").setValue(false);
+        groupRef.child(mkeyGroupUser).setValue(gu1);
 
         editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
         editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");

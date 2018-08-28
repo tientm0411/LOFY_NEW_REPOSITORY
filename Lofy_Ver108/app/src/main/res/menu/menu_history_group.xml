@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/menu_profile_update"
         android:title="Cập nhật" />
-    <item android:id="@+id/menu_profile_confirm"
-        android:title="Xác nhận" />
+    <!--<item android:id="@+id/menu_profile_confirm"-->
+        <!--android:title="Xác nhận" />-->
     <item android:id="@+id/menu_profile_delete"
         android:title="Xóa bỏ" />
 </menu>

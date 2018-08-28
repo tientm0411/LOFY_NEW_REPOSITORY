@@ -97,6 +97,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         final ArrayList<User> alVice = new ArrayList<>();
         final ArrayList<GroupUser> alGroupUserMem = new ArrayList<>();
         lvVice.setAdapter(null);
+        Log.d(TAG, "onDataChange789: "+alVice.size());
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -106,7 +107,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     for (DataSnapshot gu : dataSnapshot.getChildren()) {
                         GroupUser groupUser = gu.getValue(GroupUser.class);
                         // th1 : group has 1 vice before
-                        if (groupUser.getGroupId().equals(ciCode.getValue().toString().toUpperCase()) && groupUser.isVice() == true
+                        if (groupID.equals(groupUser.getGroupId()) && groupUser.isVice() == true
                                 && groupUser.isStatusUser() == true && groupUser.isHost() == false) {
                             alGroupUser.add(groupUser);
                             break;
@@ -126,6 +127,8 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 //                }
 
                 // get list detail user just request
+
+                Log.d(TAG, "onDataChange456: "+alVice.size());
                 userRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -138,6 +141,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                                 }
                             }
                         }
+                        Log.d(TAG, "onDataChange123: "+alVice.size());
                         // set list request to listview
                         memberAdapter = new MemberAdapter(rootView.getContext(), alVice);
                         lvVice.setAdapter(memberAdapter);
@@ -170,7 +174,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     alGroupUser.clear();
                     for (DataSnapshot gu : dataSnapshot.getChildren()) {
                         GroupUser groupUser = gu.getValue(GroupUser.class);
-                        if (groupUser.getGroupId().equals(groupID) && groupUser.isVice() == false
+                        if (groupID.equals(groupUser.getGroupId()) && groupUser.isVice() == false
                                 && groupUser.isHost() == false && groupUser.isStatusUser() == true) {
                             alGroupUser.add(groupUser);
                         }
@@ -378,6 +382,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private void createGroup() {
         groupID = ciCode.getValue().toString();
         groupName = edtGroupName.getText().toString();
+
         if (groupName == null || groupName.equals("") || groupID == null || groupID.equals("")) {
             Toast.makeText(rootView.getContext(), "Nhập tên nhóm !", Toast.LENGTH_SHORT).show();
         } else {
@@ -394,6 +399,11 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             editor.putString(IntroApplicationActivity.GROUP_USER_ID, groupID + userID);
             editor.apply();
 
+//            String mKeyUserRequest2 = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID,"NA");
+//            String substrGId = mKeyUserRequest2.substring(0, 6);
+//            String substrUId = mKeyUserRequest2.substring(6, 21);
+//
+//            Log.d(TAG, "createGroup: ("+substrGId+")("+substrUId+")");
             // push group-user to firebase
             currentGroupUSerId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
             currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
@@ -507,7 +517,9 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private void quitGroup() {
         String gUId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
-        groupRef.child(gUId).child("statusUser").setValue(false).addOnSuccessListener(new OnSuccessListener<Void>() {
+        // String groupsUsersID, String userId, String groupId, boolean isHost, boolean isVice, String timeStamp, double sizeRadius, boolean statusUser
+        GroupUser gu1= new GroupUser(gUId,userID,groupID,false,false,"NA",0.0,false);
+        groupRef.child(gUId).setValue(gu1).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
@@ -519,7 +531,6 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 Toast.makeText(rootView.getContext(), "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();
             }
         });
-
 
     }
 

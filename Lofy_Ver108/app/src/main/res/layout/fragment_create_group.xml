@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF0CC"
+    android:background="#ededed"
     tools:context=".controller.CreateGroupFragment">
 
     <LinearLayout
@@ -38,7 +38,6 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_marginBottom="10dp"
-                android:background="@android:drawable/dialog_holo_light_frame"
                 android:focusable="false"
                 app:cursorVisible="false"
                 app:forceKeyboard="false"
@@ -56,6 +55,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
+            android:paddingRight="12dp"
             android:orientation="horizontal">
 
             <TextView
@@ -77,7 +77,6 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="5dp"
                 android:layout_weight="7"
-                android:background="@android:drawable/dialog_holo_light_frame"
                 android:gravity="center"
                 android:hint="..." />
         </LinearLayout>
@@ -173,8 +172,8 @@
                 android:layout_marginRight="11dp"
                 fab:menu_animationDelayPerItem="55"
                 fab:menu_buttonSpacing="0dp"
-                fab:menu_colorNormal="#da3c2f"
-                fab:menu_colorPressed="#dc4b3f"
+                fab:menu_colorNormal="#126d5b"
+                fab:menu_colorPressed="#5fbf8c"
                 fab:menu_colorRipple="#99d4d4d4"
                 fab:menu_fab_size="normal"
                 fab:menu_icon="@drawable/fab_add"

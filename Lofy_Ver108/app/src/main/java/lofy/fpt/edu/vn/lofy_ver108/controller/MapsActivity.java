@@ -1,8 +1,10 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -40,8 +42,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,10 +84,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private static final int GOOGLE_API_CLIENT_ID = 0;
     private AutoCompleteTextView mAutocompleteTextView;
     private AutoCompleteTextView mAutocompleteTextView2;
+    private AutoCompleteTextView mAutocompleteTextView3;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private ProgressDialog progressDialog;
     private Button btnFindPath;
+    private Button btnAddRest;
     private GoogleApiClient mGoogleApiClient;
     private PlaceArrayAdapter mPlaceArrayAdapter;
     private TextView tvDuration;
@@ -110,6 +117,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             new LatLng(37.398160, -122.180831), new LatLng(37.430610, -121.972090));
     private String ciCode;
 
+    private String userID = "";
+    private DatabaseReference notiRef;
+    private DatabaseReference groupRef;
+    private DatabaseReference userRef;
+    private DatabaseReference groupUserRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,9 +142,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
         mAutocompleteTextView.setThreshold(3);
         mAutocompleteTextView2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
+        mAutocompleteTextView3 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView3);
         tvDistance = (TextView) findViewById(R.id.tv_map_distance);
         tvDuration = (TextView) findViewById(R.id.tv_map_duration);
         mAutocompleteTextView2.setThreshold(3);
+        mAutocompleteTextView3.setThreshold(3);
         mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, GOOGLE_API_CLIENT_ID, this)
@@ -139,15 +154,20 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 .build();
         //groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         btnSaveTrack = (Button) findViewById(R.id.btn_main2_saveTrack);
+        btnAddRest = (Button) findViewById(R.id.btn_main2_addRest);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         group = mFirebaseDatabase.getReference("groups");
         btnSaveTrack.setOnClickListener(this);
+        btnAddRest.setOnClickListener(this);
         mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
         mAutocompleteTextView2.setOnItemClickListener(mAutocompleteClickListener);
+        mAutocompleteTextView3.setOnItemClickListener(mAutocompleteClickListener);
         mPlaceArrayAdapter = new PlaceArrayAdapter(this, android.R.layout.simple_list_item_1,
                 BOUNDS_MOUNTAIN_VIEW, null);
         mAutocompleteTextView.setAdapter(mPlaceArrayAdapter);
         mAutocompleteTextView2.setAdapter(mPlaceArrayAdapter);
+        mAutocompleteTextView3.setAdapter(mPlaceArrayAdapter);
+        mAutocompleteTextView3.setVisibility(View.GONE);
         mapMethod = new MapMethod(this);
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +177,48 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             }
         });
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+    }
+
+    private void initView2() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        notiRef = mFirebaseDatabase.getReference("notifications");
+        groupRef = mFirebaseDatabase.getReference("groups");
+        userRef = mFirebaseDatabase.getReference("users");
+        groupUserRef = mFirebaseDatabase.getReference("groups-users");
+        mSharedPreferences = this.getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
+        groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+        userID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
+        mapMethod = new MapMethod(this);
+        final DatabaseReference newRef = groupRef.child(groupID);
+        newRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<List> listMarker = new ArrayList<>();
+                for (DataSnapshot dsp : dataSnapshot.child("restPoints").getChildren()) {
+                    List<String> point = new ArrayList<>();
+                    for (DataSnapshot dsp2 : dsp.getChildren()) {
+                        point.add(String.valueOf(dsp2.getValue())); //add result into array list
+                    }
+                    listMarker.add(point);
+                }
+                for (int i = 0; i < listMarker.size(); i++) {
+                    String[] latlong = listMarker.get(i).toString().split(",");
+                    double latitude = Double.parseDouble(latlong[0].trim().substring(1));
+                    double longitude = Double.parseDouble(latlong[1].trim().substring(0, latlong[1].length() - 2));
+                    LatLng point = new LatLng(latitude, longitude);
+                    myMarker = mMap.addMarker(new MarkerOptions().position(point).title("Rest here!!!"));
+                    tenMarkers.add(myMarker);
+                    listRest.add(point);
+//                    Toast.makeText(MapsActivity.this, "" + tenMarkers.size(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(MapsActivity.this, "" + listRest.size(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void sendRequest() {
@@ -173,7 +235,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
         /* If myMarker null, only find direction between origin and destination.
            Else, first from origin to myMarker, and so on to destination. */
-        if (myMarker == null) {
+        if (tenMarkers.size() == 0) {
             try {
                 new DirectionFinder(this, mAutocompleteTextView.getText().toString(), "", null, mAutocompleteTextView2.getText().toString()).execute();
             } catch (UnsupportedEncodingException e) {
@@ -216,6 +278,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnInfoWindowLongClickListener(this);
         autoHideKeyboard();
+        initView2();
     }
 
     private void autoHideKeyboard() {
@@ -227,6 +290,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             }
         });
         mAutocompleteTextView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                in.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+            }
+        });
+        mAutocompleteTextView3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 InputMethodManager in = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -454,10 +524,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     .position(latLng)
                     .title("Thêm điểm dừng?")
                     .snippet("Có phải bạn muốn thêm điểm dừng?"));
-            new DownloadRawData().execute("https://roads.googleapis.com/v1/snapToRoads?path=" + myMarker.getPosition().latitude + "," + myMarker.getPosition().longitude + "&interpolate=true&key=AIzaSyBEIiySPSYD4Y0E0mGqlpYvErj99oj77fE");
-
             tenMarkers.add(myMarker);
             listRest.add(myMarker.getPosition());
+            DatabaseReference newRef = group.child(ciCode.toUpperCase());
+            newRef.child("restPoints").setValue(listRest);
         } else {
             // Number of markers is 10, just update the last one's position
             myMarker.setPosition(latLng);
@@ -516,89 +586,162 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             myMarker.setPosition(latLng);
         }
 
-        Toast.makeText(this, "hay vai", Toast.LENGTH_SHORT).show();
     }
 
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        LatLng mLocation = marker.getPosition();
-//        Toast.makeText(this, marker.getId().toString() + "", Toast.LENGTH_SHORT).show();
+    public boolean onMarkerClick(final Marker marker) {
+        Geocoder geocoder = new Geocoder(MapsActivity.this);
+        String addresses;
         try {
-            List<Address> addresses;
-            Geocoder geocoder = new Geocoder(MapsActivity.this);
-            addresses = geocoder.getFromLocation(mLocation.latitude, mLocation.longitude, 1);
-            if (addresses != null && addresses.size() > 0) {
-                Address address = addresses.get(0);
-                String province = addresses.get(0).getAdminArea();
-//                marker.setSnippet(address.getThoroughfare() + ", " + province);
+            if (geocoder.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1).size() != 0) {
+                addresses = geocoder.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1).get(0).getAddressLine(0);
+                new AlertDialog.Builder(this)
+                        .setTitle(addresses)
+                        .setPositiveButton("Xóa điểm dừng?",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        // do something...
+                                        new AlertDialog.Builder(MapsActivity.this)
+                                                .setTitle("Bạn có chắc chắn muốn xóa?")
+                                                .setPositiveButton("Xác nhận",
+                                                        new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                                // do something...
+                                                                marker.remove();
+                                                                for (int i = 0; i < tenMarkers.size(); i++) {
+                                                                    if (marker.getPosition().latitude == tenMarkers.get(i).getPosition().latitude && marker.getPosition().longitude == tenMarkers.get(i).getPosition().longitude) {
+                                                                        tenMarkers.remove(i);
+                                                                    }
+                                                                }
+                                                                for (int j = 0; j < listRest.size(); j++) {
+                                                                    if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
+                                                                        listRest.remove(j);
+                                                                        DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                                                        newRef.child("restPoints").setValue(listRest);
+                                                                    }
+                                                                }
+                                                                Log.d("markersize", tenMarkers.size() + "");
+
+                                                            }
+                                                        }
+                                                )
+                                                .setNegativeButton("HỦY",
+                                                        new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                                dialog.dismiss();
+                                                            }
+                                                        }
+                                                )
+                                                .create().show();
+                                    }
+                                }
+                        )
+                        .setNegativeButton("HỦY",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        dialog.dismiss();
+                                    }
+                                }
+                        )
+                        .create().show();
+            } else {
+                for (int i = 0; i < tenMarkers.size(); i++) {
+                    if (marker.getId().equals(tenMarkers.get(i).getId())) {
+                        marker.remove();
+                        myMarker.remove();
+                        for (int j = 0; j < tenMarkers.size(); j++) {
+                            if (marker.getPosition().latitude == tenMarkers.get(j).getPosition().latitude && marker.getPosition().longitude == tenMarkers.get(j).getPosition().longitude) {
+                                tenMarkers.remove(j);
+                            }
+                        }
+                        for (int j = 0; j < listRest.size(); j++) {
+                            if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
+                                listRest.remove(j);
+                                DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                newRef.child("restPoints").setValue(listRest);
+                            }
+                        }
+
+                        Log.d("markersize", tenMarkers.size() + "");
+                    }
+                }
+                return false;
             }
-            String address = addresses.get(0).getAddressLine(0);
-            //get current province/City
-//            mAutocompleteTextView2.setText(address);
-            double lat = myMarker.getPosition().latitude;
-            double lng = myMarker.getPosition().longitude;
-            mAutocompleteTextView2.setText(lat + "," + lng);
-            btnFindPath.setEnabled(true);
-            marker.setTitle(address);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return true;
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-//        for (int i = 0; i < polylinePaths.size(); i++) {
-////            polylinePaths.get(i).setClickable(false);
-//        }
-//        LatLng mLocation = marker.getPosition();
-//        String ori = mAutocompleteTextView.getText().toString();
-//        String des = mAutocompleteTextView2.getText().toString();
-//        String rest = mLocation.latitude + "," + mLocation.longitude;
-//
-//        try {
-//            new DirectionFinder(this, ori, rest, tenMarkers, des).execute();
-//            mAutocompleteTextView.setText(rest);
-//            mAutocompleteTextView2.setText(des);
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//        marker.hideInfoWindow();
+
     }
 
     @Override
     public void onInfoWindowLongClick(Marker marker) {
-        for (int i = 0; i < tenMarkers.size(); i++) {
-            if (marker.getId().equals(tenMarkers.get(i).getId())) {
-                marker.remove();
-                tenMarkers.remove(i);
-                Log.d("markersize", tenMarkers.size() + "");
-            }
-        }
+
     }
 
     @Override
     public void onClick(View v) {
         DatabaseReference newRef = group.child(ciCode.toUpperCase());
+        switch (v.getId()) {
+            case R.id.btn_main2_saveTrack:
+                listArc.clear();
+                for (int u = 0; u < sumRoutes.size(); u++) {
+                    for (int i = 0; i < sumRoutes.get(u).size(); i++) {
+                        Route routeArc = (Route) sumRoutes.get(u).get(i);
+                        Polyline polyArc = (Polyline) sumPaths.get(u).get(i);
+                        if (polyArc.getColor() == Color.BLUE && polyArc != null) {
+                            listArc.add(routeArc);
 
-        listArc.clear();
-        for (int u = 0; u < sumRoutes.size(); u++) {
-            for (int i = 0; i < sumRoutes.get(u).size(); i++) {
-                Route routeArc = (Route) sumRoutes.get(u).get(i);
-                Polyline polyArc = (Polyline) sumPaths.get(u).get(i);
-                if (polyArc.getColor() == Color.BLUE && polyArc != null) {
-                    listArc.add(routeArc);
-                    Date currentTime = Calendar.getInstance().getTime();
-                    newRef.child("start_Date").setValue(currentTime.toString());
-                    newRef.child("start_Lat").setValue(routeArc.startLocation.latitude);
-                    newRef.child("start_Long").setValue(routeArc.startLocation.longitude);
-                    newRef.child("end_Lat").setValue(routeArc.endLocation.latitude);
-                    newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
-                    newRef.child("paths").setValue(listArc);
-                    newRef.child("restPoints").setValue(listRest);
+                            Date currentTime = Calendar.getInstance().getTime();
+                            newRef.child("start_Date").setValue(currentTime.toString());
+                            newRef.child("start_Lat").setValue(routeArc.startLocation.latitude);
+                            newRef.child("start_Long").setValue(routeArc.startLocation.longitude);
+                            newRef.child("end_Lat").setValue(routeArc.endLocation.latitude);
+                            newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
+                            newRef.child("paths").setValue(listArc);
+                            newRef.child("restPoints").setValue(listRest);
+                        }
+                    }
                 }
-            }
+                Toast.makeText(this, "Đã lưu hành trình!", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btn_main2_addRest:
+                if (mAutocompleteTextView3.getVisibility() == View.GONE) {
+                    mAutocompleteTextView3.setVisibility(View.VISIBLE);
+                } else if (!mAutocompleteTextView3.equals("")) {
+                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+                    List<Address> addresses;
+                    try {
+                        addresses = geocoder.getFromLocationName(mAutocompleteTextView3.getText().toString(), 1);
+                        double latitude = addresses.get(0).getLatitude();
+                        double longitude = addresses.get(0).getLongitude();
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        myMarker = mMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title("Rest"));
+                        tenMarkers.add(myMarker);
+                        listRest.add(myMarker.getPosition());
+                        newRef.child("restPoints").setValue(listRest);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    mAutocompleteTextView3.setText("");
+                    mAutocompleteTextView3.setVisibility(View.GONE);
+                }
+                break;
+            case R.id.btn_main2_Reset:
+                mMap.clear();
+                break;
+            default:
+                break;
         }
+
     }
 }

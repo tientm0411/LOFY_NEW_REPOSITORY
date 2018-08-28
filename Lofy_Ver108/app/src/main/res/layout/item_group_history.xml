@@ -15,14 +15,17 @@
         android:weightSum="1">
 
         <ImageView
+            android:layout_gravity="center"
             android:layout_width="0dp"
             android:layout_height="40px"
             android:layout_weight=".1"
-            android:src="@drawable/ic_app_logo"
+            android:src="@drawable/ic_logo_siple"
 
             />
 
         <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
             android:id="@+id/tv_it_history_date"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -36,9 +39,10 @@
         <ImageView
             android:id="@+id/iv_it_history_delete"
             android:layout_width="0dp"
-            android:layout_height="40px"
+            android:layout_height="50px"
             android:layout_weight=".1"
             android:src="@drawable/ic_deny"
+            android:layout_marginTop="8dp"
             />
 
     </LinearLayout>
@@ -58,6 +62,7 @@
             android:textColor="@color/fontColor"
             android:textStyle="italic|bold"
             android:textSize="16sp"
+            android:layout_marginLeft="4dp"
             />
 
         <TextView
@@ -66,8 +71,9 @@
             android:layout_height="match_parent"
             android:text="LO_TRINH"
             android:textStyle="italic|bold"
-            android:textColor="#000A55"
+            android:textColor="#192e2f"
             android:textSize="12sp"
+            android:layout_marginLeft="4dp"
 
             />
     </LinearLayout>
