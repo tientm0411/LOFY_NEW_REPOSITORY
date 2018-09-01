@@ -1,21 +1,25 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -29,6 +33,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
@@ -36,6 +47,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -47,6 +59,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.karan.churi.PermissionManager.PermissionManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,8 +80,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import lofy.fpt.edu.vn.lofy_ver108.Modules.DataParser;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
+import lofy.fpt.edu.vn.lofy_ver108.Modules.DownloadURL;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.PlaceArrayAdapter;
@@ -101,6 +116,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference group;
     private List<Marker> tenMarkers = new ArrayList<>();
+    private List<Marker> listNearby = new ArrayList<>();
+
     private List<Polyline> polylinePaths = new ArrayList<>();
     private List<List> sumPaths = new ArrayList<>();
     private List<List> sumRoutes = new ArrayList<>();
@@ -123,6 +140,14 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private DatabaseReference userRef;
     private DatabaseReference groupUserRef;
 
+    private Button btnReset;
+    private Button btnNearbyHospital;
+    private Button btnNearbyGastation;
+    private Button btnNearbyRestaurant;
+
+    private String googlePlacesData;
+    String url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,12 +156,105 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapMain2);
         mapFragment.getMapAsync(this);
+        askGrantLocationPermission(); // ask grant location permisstion
+        initGoogleAPIClient();//Init Google API Client
+        checkPermissions();//Check Permission
         Bundle bundle = getIntent().getExtras();
         ciCode = bundle.getString("groupId");
         Log.d("cCode:", ciCode);
         initView();
     }
 
+    private PermissionManager permissionManager;
+    private static final int REQUEST_CHECK_SETTINGS = 0x1;
+    private static final int ACCESS_FINE_LOCATION_INTENT_ID = 3;
+    private static final String BROADCAST_ACTION = "android.location.PROVIDERS_CHANGED";
+    // ask grant lccation permisstion
+    private void askGrantLocationPermission() {
+        permissionManager = new PermissionManager() {
+        };
+        permissionManager.checkAndRequestPermissions(this);
+    }    // initial api client
+
+    private void initGoogleAPIClient() {
+        //Without Google API Client Auto Location Dialog will not work
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    /* Check Location Permission for Marshmallow Devices */
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED)
+                requestLocationPermission();
+            else
+                showSettingDialog();
+        } else
+            showSettingDialog();
+
+    }
+    /* Show Location Access Dialog */
+    private void showSettingDialog() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);//Setting priotity of Location request to high
+        locationRequest.setInterval(30 * 1000);
+        locationRequest.setFastestInterval(5 * 1000);//5 sec Time interval for location update
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true); //this is the key ingredient to show dialog always when GPS is off
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates state = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        // All location settings are satisfied. The client can initialize location
+                        // requests here.
+                        //                        Toast.makeText(rootView.getContext(), "GPS đang bật !", Toast.LENGTH_SHORT).show();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            status.startResolutionForResult((Activity) getApplicationContext(), REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            e.printStackTrace();
+                            // Ignore the error.
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+    }
+
+
+    /*  Show Popup to access User Permission  */
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    ACCESS_FINE_LOCATION_INTENT_ID);
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    ACCESS_FINE_LOCATION_INTENT_ID);
+        }
+    }
     private void initView() {
         btnFindPath = (Button) findViewById(R.id.btn_main2_findPath);
         mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
@@ -159,6 +277,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         group = mFirebaseDatabase.getReference("groups");
         btnSaveTrack.setOnClickListener(this);
         btnAddRest.setOnClickListener(this);
+
         mAutocompleteTextView.setOnItemClickListener(mAutocompleteClickListener);
         mAutocompleteTextView2.setOnItemClickListener(mAutocompleteClickListener);
         mAutocompleteTextView3.setOnItemClickListener(mAutocompleteClickListener);
@@ -168,6 +287,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         mAutocompleteTextView2.setAdapter(mPlaceArrayAdapter);
         mAutocompleteTextView3.setAdapter(mPlaceArrayAdapter);
         mAutocompleteTextView3.setVisibility(View.GONE);
+
+        btnReset = (Button) findViewById(R.id.btn_main2_Reset);
+        btnNearbyHospital = (Button) findViewById(R.id.btn_main2_nearbyHospital);
+        btnNearbyGastation = (Button) findViewById(R.id.btn_main2_nearbyGasStation);
+        btnNearbyRestaurant = (Button) findViewById(R.id.btn_main2_nearbyRestaurant);
+        btnReset.setOnClickListener(this);
+        btnNearbyGastation.setOnClickListener(this);
+        btnNearbyHospital.setOnClickListener(this);
+        btnNearbyRestaurant.setOnClickListener(this);
+        btnNearbyGastation.setVisibility(View.GONE);
+        btnNearbyHospital.setVisibility(View.GONE);
+        btnNearbyRestaurant.setVisibility(View.GONE);
         mapMethod = new MapMethod(this);
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,9 +340,14 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     myMarker = mMap.addMarker(new MarkerOptions().position(point).title("Rest here!!!"));
                     tenMarkers.add(myMarker);
                     listRest.add(point);
-//                    Toast.makeText(MapsActivity.this, "" + tenMarkers.size(), Toast.LENGTH_SHORT).show();
-//                    Toast.makeText(MapsActivity.this, "" + listRest.size(), Toast.LENGTH_SHORT).show();
                 }
+                try {
+                    mAutocompleteTextView.setText(dataSnapshot.child("origin").getValue().toString());
+                    mAutocompleteTextView2.setText(dataSnapshot.child("destination").getValue().toString());
+                } catch (Exception e) {
+
+                }
+
             }
 
             @Override
@@ -223,7 +359,37 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     private void sendRequest() {
 
+        DatabaseReference newRef = group.child(ciCode.toUpperCase());
         String destination = mAutocompleteTextView2.getText().toString();
+        String rest = mAutocompleteTextView3.getText().toString();
+
+        if (!rest.isEmpty()) {
+            Geocoder geocoder = new Geocoder(MapsActivity.this);
+            List<Address> addresses;
+            try {
+                addresses = geocoder.getFromLocationName(mAutocompleteTextView3.getText().toString(), 1);
+                double latitude = addresses.get(0).getLatitude();
+                double longitude = addresses.get(0).getLongitude();
+                LatLng latLng = new LatLng(latitude, longitude);
+                myMarker = mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Rest"));
+                tenMarkers.add(myMarker);
+                listRest.add(myMarker.getPosition());
+                if (!groupID.toString().equals("NA")) {
+                    newRef.child("restPoints").setValue(listRest);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mAutocompleteTextView3.setText("");
+            mAutocompleteTextView3.setVisibility(View.GONE);
+            btnNearbyGastation.setVisibility(View.GONE);
+            btnNearbyHospital.setVisibility(View.GONE);
+            btnNearbyRestaurant.setVisibility(View.GONE);
+        }
 
         if (destination.isEmpty()) {
             Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
@@ -237,13 +403,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
            Else, first from origin to myMarker, and so on to destination. */
         if (tenMarkers.size() == 0) {
             try {
-                new DirectionFinder(this, mAutocompleteTextView.getText().toString(), "", null, mAutocompleteTextView2.getText().toString()).execute();
+                new DirectionFinder(this, mAutocompleteTextView.getText().toString(), null, mAutocompleteTextView2.getText().toString()).execute();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         } else
             try {
-                new DirectionFinder(this, mAutocompleteTextView.getText().toString(), myMarker.getPosition().latitude + "," + myMarker.getPosition().longitude, tenMarkers, mAutocompleteTextView2.getText().toString()).execute();
+                new DirectionFinder(this, mAutocompleteTextView.getText().toString(), tenMarkers, mAutocompleteTextView2.getText().toString()).execute();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -526,11 +692,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     .snippet("Có phải bạn muốn thêm điểm dừng?"));
             tenMarkers.add(myMarker);
             listRest.add(myMarker.getPosition());
-            DatabaseReference newRef = group.child(ciCode.toUpperCase());
-            newRef.child("restPoints").setValue(listRest);
+            if (!groupID.toString().equals("NA")) {
+                Log.d("groupid", "1" + groupID + "1");
+                DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                newRef.child("restPoints").setValue(listRest);
+            }
+
         } else {
             // Number of markers is 10, just update the last one's position
-            myMarker.setPosition(latLng);
+            Toast.makeText(this, "Số điểm dừng hiện tại đã là 10", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -591,6 +761,51 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        Toast.makeText(this, "" + listNearby.size(), Toast.LENGTH_SHORT).show();
+        for (int i = 0; i < listNearby.size(); i++) {
+            if (marker.getPosition().latitude == listNearby.get(i).getPosition().latitude) {
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setTitle(marker.getTitle() + ". Thêm điểm dừng tại đây?")
+                        .setPositiveButton("Xác nhận",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        // do something...
+                                        if (tenMarkers.size() < 10) {
+                                            // Marker was not set yet. Add marker:
+                                            myMarker = mMap.addMarker(new MarkerOptions().position(marker.getPosition()));
+                                            tenMarkers.add(myMarker);
+                                            listRest.add(myMarker.getPosition());
+                                            if (!groupID.toString().equals("NA")) {
+                                                DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                                newRef.child("restPoints").setValue(listRest);
+                                            }
+
+                                        } else {
+                                            // Number of markers is 10, just update the last one's position
+                                            Toast.makeText(MapsActivity.this, "Số điểm dừng hiện tại đã là 10", Toast.LENGTH_SHORT).show();
+                                        }
+                                        for (int j = 0; j < listNearby.size(); j++) {
+                                            myMarker = listNearby.get(j);
+                                            myMarker.remove();
+                                        }
+                                        listNearby.clear();
+                                        return;
+                                    }
+                                }
+                        )
+                        .setNegativeButton("HỦY",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        dialog.dismiss();
+                                        return;
+                                    }
+                                }
+                        )
+                        .create().show();
+                return true;
+            }
+        }
+
         Geocoder geocoder = new Geocoder(MapsActivity.this);
         String addresses;
         try {
@@ -617,8 +832,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                                                 for (int j = 0; j < listRest.size(); j++) {
                                                                     if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
                                                                         listRest.remove(j);
-                                                                        DatabaseReference newRef = group.child(ciCode.toUpperCase());
-                                                                        newRef.child("restPoints").setValue(listRest);
+                                                                        if (!groupID.toString().equals("NA")) {
+                                                                            DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                                                            newRef.child("restPoints").setValue(listRest);
+                                                                        }
+
                                                                     }
                                                                 }
                                                                 Log.d("markersize", tenMarkers.size() + "");
@@ -658,11 +876,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                         for (int j = 0; j < listRest.size(); j++) {
                             if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
                                 listRest.remove(j);
-                                DatabaseReference newRef = group.child(ciCode.toUpperCase());
-                                newRef.child("restPoints").setValue(listRest);
+                                if (!groupID.toString().equals("NA")) {
+                                    DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                    newRef.child("restPoints").setValue(listRest);
+                                }
+
                             }
                         }
-
                         Log.d("markersize", tenMarkers.size() + "");
                     }
                 }
@@ -685,8 +905,60 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     }
 
+    public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
+
+        @Override
+        protected String doInBackground(Object... objects) {
+            mMap = (GoogleMap) objects[0];
+            url = (String) objects[1];
+
+            DownloadURL downloadURL = new DownloadURL();
+            try {
+                googlePlacesData = downloadURL.readUrl(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return googlePlacesData;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            List<HashMap<String, String>> nearbyPlaceList;
+            DataParser parser = new DataParser();
+            nearbyPlaceList = parser.parse(s);
+            Log.d("nearbyplacesdata", "called parse method");
+            showNearbyPlaces(nearbyPlaceList);
+            Log.d("nearby1", "" + listNearby.size());
+        }
+
+        private void showNearbyPlaces(List<HashMap<String, String>> nearbyPlaceList) {
+            for (int i = 0; i < nearbyPlaceList.size(); i++) {
+                MarkerOptions markerOptions = new MarkerOptions();
+                HashMap<String, String> googlePlace = nearbyPlaceList.get(i);
+                String placeName = googlePlace.get("place_name");
+                String vicinity = googlePlace.get("vicinity");
+                double lat = Double.parseDouble(googlePlace.get("lat"));
+                double lng = Double.parseDouble(googlePlace.get("lng"));
+                LatLng latLng = new LatLng(lat, lng);
+                markerOptions.position(latLng);
+                markerOptions.title(placeName + " : " + vicinity);
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                listNearby.add(mMap.addMarker(markerOptions));
+                Log.d("listNearby", listNearby.size() + "");
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+            }
+        }
+    }
+
     @Override
     public void onClick(View v) {
+        Object dataTransfer[] = new Object[2];
+        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+        String url;
+        String station;
         DatabaseReference newRef = group.child(ciCode.toUpperCase());
         switch (v.getId()) {
             case R.id.btn_main2_saveTrack:
@@ -706,6 +978,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                             newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
                             newRef.child("paths").setValue(listArc);
                             newRef.child("restPoints").setValue(listRest);
+                            newRef.child("origin").setValue(mAutocompleteTextView.getText().toString());
+                            newRef.child("destination").setValue(mAutocompleteTextView2.getText().toString());
                         }
                     }
                 }
@@ -714,6 +988,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             case R.id.btn_main2_addRest:
                 if (mAutocompleteTextView3.getVisibility() == View.GONE) {
                     mAutocompleteTextView3.setVisibility(View.VISIBLE);
+                    btnNearbyGastation.setVisibility(View.VISIBLE);
+                    btnNearbyHospital.setVisibility(View.VISIBLE);
+                    btnNearbyRestaurant.setVisibility(View.VISIBLE);
                 } else if (!mAutocompleteTextView3.equals("")) {
                     Geocoder geocoder = new Geocoder(MapsActivity.this);
                     List<Address> addresses;
@@ -727,17 +1004,92 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                 .title("Rest"));
                         tenMarkers.add(myMarker);
                         listRest.add(myMarker.getPosition());
-                        newRef.child("restPoints").setValue(listRest);
+                        if (!groupID.toString().equals("NA")) {
+                            newRef.child("restPoints").setValue(listRest);
+                        }
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                     mAutocompleteTextView3.setText("");
                     mAutocompleteTextView3.setVisibility(View.GONE);
+                    btnNearbyGastation.setVisibility(View.GONE);
+                    btnNearbyHospital.setVisibility(View.GONE);
+                    btnNearbyRestaurant.setVisibility(View.GONE);
+
                 }
                 break;
             case R.id.btn_main2_Reset:
                 mMap.clear();
+                mAutocompleteTextView.setText("");
+                mAutocompleteTextView2.setText("");
+                listNearby.clear();
+                listArc.clear();
+                listRest.clear();
+                sumDistance = 0;
+                sumDuration = 0;
+                sumPaths.clear();
+                sumRoutes.clear();
+                tenMarkers.clear();
+                ((TextView) findViewById(R.id.tv_map_duration)).setText("0 min");
+                ((TextView) findViewById(R.id.tv_map_distance)).setText("0 km");
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(mapMethod.getMyLocation()));
+                mAutocompleteTextView3.setText("");
+                mAutocompleteTextView3.setVisibility(View.GONE);
+                btnNearbyGastation.setVisibility(View.GONE);
+                btnNearbyHospital.setVisibility(View.GONE);
+                btnNearbyRestaurant.setVisibility(View.GONE);
+
+                newRef.child("start_Date").removeValue();
+                newRef.child("start_Lat").removeValue();
+                newRef.child("start_Long").removeValue();
+                newRef.child("end_Lat").removeValue();
+                newRef.child("end_Long").removeValue();
+                newRef.child("paths").removeValue();
+                newRef.child("restPoints").removeValue();
+                newRef.child("origin").removeValue();
+                newRef.child("destination").removeValue();
+                break;
+            case R.id.btn_main2_nearbyGasStation:
+                station = "gas_station";
+                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                dataTransfer[0] = mMap;
+                dataTransfer[1] = url;
+                getNearbyPlacesData.execute(dataTransfer);
+                mAutocompleteTextView3.setText("");
+                mAutocompleteTextView3.setVisibility(View.GONE);
+                btnNearbyGastation.setVisibility(View.GONE);
+                btnNearbyHospital.setVisibility(View.GONE);
+                btnNearbyRestaurant.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), "Showing Nearby Gas Station", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btn_main2_nearbyHospital:
+                station = "hospital";
+                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                dataTransfer[0] = mMap;
+                dataTransfer[1] = url;
+                getNearbyPlacesData.execute(dataTransfer);
+                mAutocompleteTextView3.setText("");
+                mAutocompleteTextView3.setVisibility(View.GONE);
+                btnNearbyGastation.setVisibility(View.GONE);
+                btnNearbyHospital.setVisibility(View.GONE);
+                btnNearbyRestaurant.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), "Showing Nearby Hospital", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.btn_main2_nearbyRestaurant:
+                station = "restaurant";
+                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                dataTransfer[0] = mMap;
+                dataTransfer[1] = url;
+                getNearbyPlacesData.execute(dataTransfer);
+                mAutocompleteTextView3.setText("");
+                mAutocompleteTextView3.setVisibility(View.GONE);
+                btnNearbyGastation.setVisibility(View.GONE);
+                btnNearbyHospital.setVisibility(View.GONE);
+                btnNearbyRestaurant.setVisibility(View.GONE);
+                Log.d("listNearby", listNearby.size() + "");
+                Toast.makeText(getApplicationContext(), "Showing Nearby Restaurant", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;

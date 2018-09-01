@@ -20,6 +20,7 @@ public class IntroApplicationActivity extends AppIntro implements SharedPreferen
 
     public static final String FILE_NAME = "Inital-Data-App-lofy-ver108.1";
     public static final String IS_FIST = "is fist";
+    public static final String IS_LOGINED = "is logined";
     public static final String USER_ID = "userID";
     public static final String USER_NAME = "userName";
     public static final String USER_PHONE = "userPhone";
@@ -28,6 +29,7 @@ public class IntroApplicationActivity extends AppIntro implements SharedPreferen
     public static final String GROUP_NAME = "groupName";
     public static final String IS_HOST = "isHost";
     public static final String GROUP_USER_ID = "groupUser_ID";
+    public static final String GROUP_REQUEST = "group_request";
    // public static final String GROUP_USER_COLOR = "groupUser_color";
 
     @Override
@@ -39,9 +41,16 @@ public class IntroApplicationActivity extends AppIntro implements SharedPreferen
 
     private void chekFirstTime() {
         if(AccessToken.getCurrentAccessToken()!=null){
-            Intent intent = new Intent(IntroApplicationActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
+            String gID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID,"NA");
+            if(gID.equals("NA") || gID.isEmpty() || gID.equals("")){
+                Intent intent = new Intent(IntroApplicationActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }else{
+                Intent intent = new Intent(IntroApplicationActivity.this, StartActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }else if (mSharedPreferences.getBoolean(IS_FIST, true)) {
             editor.putBoolean(IS_FIST, false);
             editor.apply();

@@ -230,10 +230,9 @@ public class DirectionFinder {
         this.rest = rest;
     }
 
-    public DirectionFinder(DirectionFinderListener listener, String origin, String rest, List<Marker> tenMarkers, String destination) {
+    public DirectionFinder(DirectionFinderListener listener, String origin, List<Marker> tenMarkers, String destination) {
         this.listener = listener;
         this.origin = origin;
-        this.rest = rest;
         this.tenMarkers = tenMarkers;
         this.destination = destination;
     }
@@ -252,7 +251,8 @@ public class DirectionFinder {
             new DownloadRawData().execute(createUrlRest(origin, rest));
             new DownloadRawData().execute(createUrlDestination(rest, destination));
         } else {
-            new DownloadRawData().execute(createUrlRest(origin, tenMarkers.get(0).getPosition().latitude + "," + tenMarkers.get(0).getPosition().longitude));
+            rest = tenMarkers.get(0).getPosition().latitude + "," + tenMarkers.get(0).getPosition().longitude;
+            new DownloadRawData().execute(createUrlRest(origin, rest));
             new DownloadRawData().execute(createUrlDestination(rest, destination));
         }
     }

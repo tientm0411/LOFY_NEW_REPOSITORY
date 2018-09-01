@@ -58,22 +58,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
         return rootView;
     }
 
+
     private void initView() {
         btnProfile = (Button) rootView.findViewById(R.id.btn_home_profile);
-//        btnCurrent = (Button) rootView.findViewById(R.id.btn_home_current);
         btnCreate = (Button) rootView.findViewById(R.id.btn_home_create);
         btnJoin = (Button) rootView.findViewById(R.id.btn_home_join);
         btnAbout = (Button) rootView.findViewById(R.id.btn_home_about);
 
         btnProfile.setOnClickListener(this);
-//        btnCurrent.setOnClickListener(this);
         btnCreate.setOnClickListener(this);
         btnJoin.setOnClickListener(this);
         btnAbout.setOnClickListener(this);
+//        btnCurrent = (Button) rootView.findViewById(R.id.btn_home_current);
+//        btnCurrent.setOnClickListener(this);
 
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        editor = mSharedPreferences.edit();Log.d("onClick", currentGroupId+" ");
 
     }
 
@@ -81,10 +81,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
     public void onClick(View v) {
         currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
         currentGroupUserId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+        String userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         Log.d("onClick", currentGroupId + " ");
         Log.d("onClick2", currentGroupUserId + " ");
-        String userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
-        Log.d("USERRR_ID", userId+"");
+        Log.d("onClick3", userId+"");
         switch (v.getId()) {
             case R.id.btn_home_profile:
                 if (profileFragment == null) {
@@ -107,7 +107,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
             case R.id.btn_home_create:
                 if (currentGroupId.equals("NA")) {
                     if (createGroupFragment == null) {
-                        createGroupFragment = new CreateGroupFragment();
+                        createGroupFragment = new CreateGroupFragment("home");
                     }
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.ln_main, createGroupFragment, CreateGroupFragment.class.getName())
@@ -120,7 +120,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
             case R.id.btn_home_join:
                 if (currentGroupId.equals("NA")) {
                     if (joinGroupFragment == null) {
-                        joinGroupFragment = new JoinGroupFragment();
+                        joinGroupFragment = new JoinGroupFragment("home");
                     }
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.ln_main, joinGroupFragment, JoinGroupFragment.class.getName())

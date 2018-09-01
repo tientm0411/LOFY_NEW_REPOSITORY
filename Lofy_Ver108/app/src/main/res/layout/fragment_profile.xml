@@ -27,7 +27,9 @@
                 android:id="@+id/iv_profile_ava"
                 android:layout_width="140dp"
                 android:layout_height="140dp"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/ic_launcher"
+                android:background="@drawable/border_iv_ava"
+                />
 
             <TextView
                 android:id="@+id/tv_profile_user_name"
@@ -93,7 +95,9 @@
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+
+            >
 
 
             <TextView

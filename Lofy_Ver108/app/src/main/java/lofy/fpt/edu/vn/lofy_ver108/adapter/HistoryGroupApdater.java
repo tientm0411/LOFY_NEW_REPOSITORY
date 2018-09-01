@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -51,6 +52,12 @@ public class HistoryGroupApdater extends BaseAdapter {
             myViewHolder.tvName = (TextView) view.findViewById(R.id.tv_it_history_name);
             myViewHolder.tvTrack = (TextView) view.findViewById(R.id.tv_it_history_track);
             myViewHolder.ivDel = (ImageView) view.findViewById(R.id.iv_it_history_delete);
+//            myViewHolder.ivDel.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    ((ListView)viewGroup).performItemClick(view,i,0);
+//                }
+//            });
             view.setTag(myViewHolder);
         } else {
             myViewHolder = (MyViewHolder) view.getTag();

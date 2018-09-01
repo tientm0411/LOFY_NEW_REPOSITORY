@@ -70,7 +70,7 @@ public class QueryFirebase {
         });
     }
 
-    public String getGroupNameById(ArrayList<Group> al,String gID) {
+    public String getGroupNameById(ArrayList<Group> al, String gID) {
         String name = "";
         for (int i = 0; i < al.size(); i++) {
             if (al.get(i).getGroupId().equals(gID)) {
@@ -78,11 +78,20 @@ public class QueryFirebase {
                 return name;
             }
         }
-        return "Group sapa";
+        return "group sapa";
+    }
+
+    public User getUserById(ArrayList<User> al, String uId) {
+        User u = new User();
+        for (int i = 0; i < al.size(); i++) {
+            if (uId.equals(al.get(i).getUserId())) {
+                return al.get(i);
+            }
+        }
+        return u;
     }
 
     public void registerUser() {
-        Log.d("alUser2", "ping ! ");
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -102,10 +111,11 @@ public class QueryFirebase {
         });
     }
 
-    public  ArrayList<User> getAlUser() {
+    public ArrayList<User> getAlUser() {
         return alUser;
     }
-    public  ArrayList<Group> getAlGroup() {
+
+    public ArrayList<Group> getAlGroup() {
         return alGroup;
     }
 

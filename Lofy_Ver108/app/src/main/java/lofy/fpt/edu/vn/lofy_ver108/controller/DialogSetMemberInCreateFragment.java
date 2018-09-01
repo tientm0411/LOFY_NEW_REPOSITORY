@@ -2,8 +2,10 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -21,15 +23,17 @@ public class DialogSetMemberInCreateFragment extends Dialog implements View.OnCl
     private DialogSetMemberConfirmRemove dialogSetMemberConfirmRemove;
     private DialogSetMemberConfirmSetVice dialogSetMemberConfirmSetVice;
     private Context mContext;
-    private String mKeyUserRequest2 ;
+    private String mKeyUserRequest2;
+    String from;
 
     private ProfileFragment profileFragment;
 
 
-    public DialogSetMemberInCreateFragment(@NonNull Context context, String keyUserRequest2) {
+    public DialogSetMemberInCreateFragment(@NonNull Context context, String keyUserRequest2, String from) {
         super(context);
         mContext = context;
-        mKeyUserRequest2 = keyUserRequest2 ;
+        mKeyUserRequest2 = keyUserRequest2;
+        this.from = from;
         initView();
     }
 
@@ -55,22 +59,37 @@ public class DialogSetMemberInCreateFragment extends Dialog implements View.OnCl
         switch (view.getId()) {
             case R.id.btn_dialog_create_view_profile:
                 dismiss();
+                String substrGId = mKeyUserRequest2.substring(0, 6);
+                String substrUId = mKeyUserRequest2.substring(6, 21);
                 if (profileFragment == null) {
-                    profileFragment = new ProfileFragment("692839717728567");
+                    profileFragment = new ProfileFragment(substrUId);
                 }
-                ((AppCompatActivity)mContext).getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
-                        .addToBackStack(null)
-                        .commit();
+                Log.d("onClick", from + "");
+                Log.d("onClick", "mKeyUserRequest2: " + mKeyUserRequest2 + "");
+                if (from.equals("home")) {
+                    ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+//                    ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.ln_start, profileFragment, ProfileFragment.class.getName())
+//                            .addToBackStack(null)
+//                            .commit();
+                    Intent intent = new Intent(mContext,StartActivity.class);
+                    intent.putExtra("from", "start");
+                    intent.putExtra("USERID", substrUId);
+                    mContext.startActivity(intent);
+                }
                 break;
             case R.id.btn_dialog_create_remove:
                 dismiss();
-                dialogSetMemberConfirmRemove = new DialogSetMemberConfirmRemove(mContext,mKeyUserRequest2);
+                dialogSetMemberConfirmRemove = new DialogSetMemberConfirmRemove(mContext, mKeyUserRequest2);
                 dialogSetMemberConfirmRemove.show();
                 break;
             case R.id.btn_dialog_create_set_vice:
                 dismiss();
-                dialogSetMemberConfirmSetVice = new DialogSetMemberConfirmSetVice(mContext,mKeyUserRequest2);
+                dialogSetMemberConfirmSetVice = new DialogSetMemberConfirmSetVice(mContext, mKeyUserRequest2);
                 dialogSetMemberConfirmSetVice.show();
                 break;
             case R.id.btn_dialog_create_set_host:

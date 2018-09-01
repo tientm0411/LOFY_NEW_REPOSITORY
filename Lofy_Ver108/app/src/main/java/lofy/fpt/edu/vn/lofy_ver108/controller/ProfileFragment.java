@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -15,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,11 +31,13 @@ import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,6 +50,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 import java.util.concurrent.Executor;
@@ -54,9 +61,11 @@ import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.HistoryGroupApdater;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.MemberAdapter;
 import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.User;
+import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -64,7 +73,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * A simple {@link Fragment} subclass.
  */
 @SuppressLint("ValidFragment")
-public class ProfileFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener, PopupMenu.OnMenuItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private View rootView;
     private Button btnLogout;
@@ -87,9 +96,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
     private SharedPreferences mSharedPreferences;
     private String mUserId;
 
-     FirebaseAuth mAuth;
+    FirebaseAuth mAuth;
 
-     String codeSent;
+    String codeSent;
+
     //    public ProfileFragment() {
 //        // Required empty public constructor
 //    }
@@ -105,19 +115,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         mAuth = FirebaseAuth.getInstance();
         initView();
-        showHistoryGroup();
+//        showHistoryGroup();
+        showHistoryAsyn showHistoryAsyn = new showHistoryAsyn();
+        showHistoryAsyn.execute();
         return rootView;
     }
 
     private void initView() {
         tvUserName = (TextView) rootView.findViewById(R.id.tv_profile_user_name);
         edtPhoneNumber = (EditText) rootView.findViewById(R.id.edt_profile_user_phone);
-        edtVerifyCode=(EditText)rootView.findViewById(R.id.edt_profile_code_confirm);
+        edtVerifyCode = (EditText) rootView.findViewById(R.id.edt_profile_code_confirm);
 
         ivAva = (ImageView) rootView.findViewById(R.id.iv_profile_ava);
         lvHistoryGroups = (ListView) rootView.findViewById(R.id.lv_profile_list_old_group);
         btnLogout = (Button) rootView.findViewById(R.id.btn_profile_logout);
-        btnConfimmCode=(Button)rootView.findViewById(R.id.btn_profile_code_confirm);
+        btnConfimmCode = (Button) rootView.findViewById(R.id.btn_profile_code_confirm);
         btnLogout.setOnClickListener(this);
 
         btnCancelCode = (Button) rootView.findViewById(R.id.btn_profile_code_cancel);
@@ -130,12 +142,150 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         mSharedPreferences = getActivity().getSharedPreferences(IntroApplicationActivity.FILE_NAME, Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
         Log.d("initView", mUserId + " ");
+        Log.d("initView_2", userId + " ");
         if (!mUserId.equals(userId)) {
             btnLogout.setVisibility(View.GONE);
+            btnShowMenu.setVisibility(View.GONE);
+        }
+        lvHistoryGroups.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (mUserId.equals(userId)) {
+                    final Group g = (Group) adapterView.getItemAtPosition(i);
+//                Toast.makeText(rootView.getContext(), "Name : " + g.getGroupName(), Toast.LENGTH_SHORT).show();
+                    delAlertDialog(g.getGroupId());
+                    switch (view.getId()) {
+                        case R.id.iv_it_history_delete:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        });
+        queryFirebase = new QueryFirebase();
+
+        LoadUserAsyn loadUserAsyn = new LoadUserAsyn();
+        loadUserAsyn.execute();
+    }
+
+    public void delAlertDialog(String gID) {
+        final android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(rootView.getContext()).create();
+        alertDialog.setTitle("Xóa lịch sử ");
+        alertDialog.setMessage("Bạn có chắc muốn xóa nhóm nhóm này ?");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setButton(android.app.AlertDialog.BUTTON_POSITIVE, "Xóa", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                deleteGroup(gID);
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setButton(android.app.AlertDialog.BUTTON_NEGATIVE, "Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+                return;
+            }
+        });
+        alertDialog.show();
+
+    }
+
+    public void delPhoneNumber() {
+        final android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(rootView.getContext()).create();
+        alertDialog.setTitle("Xóa số điện thoại ");
+        alertDialog.setMessage("Bạn có chắc muốn xóa số điện thoại?");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setButton(android.app.AlertDialog.BUTTON_POSITIVE, "Xóa", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mFirebaseDatabase = FirebaseDatabase.getInstance();
+                mFirebaseDatabase.getReference("users").child(userId).child("userPhone").setValue("NA").addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        edtPhoneNumber.setText("NA");
+                        edtPhoneNumber.clearFocus();
+                        Toast.makeText(rootView.getContext(), "Xóa thành công !", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setButton(android.app.AlertDialog.BUTTON_NEGATIVE, "Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+                return;
+            }
+        });
+        alertDialog.show();
+
+    }
+
+
+    private void deleteGroup(String gID) {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        valueEventListenerDelGroupUser = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        GroupUser groupUser = ds.getValue(GroupUser.class);
+                        if (userId.equals(groupUser.getUserId()) && gID.equals(groupUser.getGroupId())) {
+                            mFirebaseDatabase.getReference("groups-users").child(groupUser.getGroupsUsersID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(rootView.getContext(), "Xóa thành công !", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mFirebaseDatabase.getReference("groups-users").addValueEventListener(valueEventListenerDelGroupUser);
+
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+
+    }
+
+    public class LoadUserAsyn extends AsyncTask<Void, Void, User> {
+
+        @Override
+        protected User doInBackground(Void... voids) {
+            try {
+                Thread.sleep(2000);
+                User u = queryFirebase.getUserById(queryFirebase.getAlUser(), userId);
+                Log.d(ProfileFragment.class.getName(), "doInBackground: " + u.getUserName());
+                Log.d(ProfileFragment.class.getName(), "doInBackground_2: " + userId);
+                return u;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
         }
 
-//        tvUserName.setText(userId+"");
+        @Override
+        protected void onPostExecute(User user) {
+            tvUserName.setText(user.getUserName());
+            Picasso.with(rootView.getContext()).load(user.getUrlAvatar()).into(ivAva);
+            edtPhoneNumber.setText(user.getUserPhone());
+            super.onPostExecute(user);
+        }
     }
+
+    private QueryFirebase queryFirebase;
+
     private void verifySignInCode() {
         String code = edtVerifyCode.getText().toString();
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeSent, code);
@@ -148,36 +298,46 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            String mPhone = task.getResult().getUser().getPhoneNumber();
                             //here you can open new activity
-                            Toast.makeText(getApplicationContext(),
-                                    "Login Successfull", Toast.LENGTH_LONG).show();
+                            mFirebaseDatabase = FirebaseDatabase.getInstance();
+                            mFirebaseDatabase.getReference("users").child(userId).child("userPhone").setValue(mPhone).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    lnConfirmCode.setVisibility(View.GONE);
+                                    edtPhoneNumber.clearFocus();
+                                    Toast.makeText(getApplicationContext(),
+                                            "Lưu số điện thoại thành công !", Toast.LENGTH_LONG).show();
+                                }
+                            });
                         } else {
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 Toast.makeText(getApplicationContext(),
-                                        "Incorrect Verification Code ", Toast.LENGTH_LONG).show();
+                                        "Mã xác nhận không đúng ! ", Toast.LENGTH_LONG).show();
                             }
                         }
                     }
                 });
     }
+
     private void sendVerificationCode() {
 
         String phone = edtPhoneNumber.getText().toString();
 
         if (phone.isEmpty()) {
-            edtPhoneNumber.setError("Phone number is required");
+            edtPhoneNumber.setError("Mời nhập số điện thoại");
             edtPhoneNumber.requestFocus();
             return;
         }
 
         if (phone.length() < 10) {
-            edtPhoneNumber.setError("Please enter a valid phone");
+            edtPhoneNumber.setError("Số điện thoại không đúng !");
             edtPhoneNumber.requestFocus();
 
             return;
         }
         if (phone.length() > 11) {
-            edtPhoneNumber.setError("Please enter a valid phone");
+            edtPhoneNumber.setError("Số điện thoại không đúng !");
             edtPhoneNumber.requestFocus();
 
             return;
@@ -187,12 +347,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                 phone,        // Phone number to verify
                 60,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
-                 getActivity(),               // Activity (for callback binding)
+                getActivity(),               // Activity (for callback binding)
                 mCallbacks);
+        lnConfirmCode.setVisibility(View.VISIBLE);
         Toast.makeText(getApplicationContext(),
-                "Please wait!!! ", Toast.LENGTH_LONG).show();// OnVerificationStateChangedCallbacks
+                "Mã xác nhận đã được gửi, vui lòng đợi ! ", Toast.LENGTH_LONG).show();// OnVerificationStateChangedCallbacks
     }
-
 
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
@@ -214,7 +374,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         }
     };
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -228,7 +387,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                 verifySignInCode();
                 break;
             case R.id.btn_profile_code_cancel:
-
+                lnConfirmCode.setVisibility(View.GONE);
+                edtPhoneNumber.clearFocus();
                 break;
             default:
                 break;
@@ -242,13 +402,52 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         popup.show();
     }
 
+    public class showHistoryAsyn extends AsyncTask<Void, Void, User> {
+
+        @Override
+        protected User doInBackground(Void... voids) {
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            showHistoryGroup();
+        }
+    }
 
     private void showHistoryGroup() {
-        Log.d("showHistoryGroup", userId + " ");
         alGroupIds = new ArrayList<>();
         alGroups = new ArrayList<>();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.getReference("groups-users").addListenerForSingleValueEvent(new ValueEventListener() {
+        valueEventListenerShowGroup = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alGroups.clear();
+                    for (DataSnapshot gr : dataSnapshot.getChildren()) {
+                        Group g = gr.getValue(Group.class);
+                        for (int i = 0; i < alGroupIds.size(); i++) {
+                            if (alGroupIds.get(i).equals(g.getGroupId())) {
+                                alGroups.add(g);
+                            }
+                        }
+                    }
+                    historyGroupApdater = new HistoryGroupApdater(rootView.getContext(), alGroups);
+                    lvHistoryGroups.setAdapter(historyGroupApdater);
+                    lvHistoryGroups.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+                    ResizeListview.setListViewHeightBasedOnChildren(lvHistoryGroups);
+                    historyGroupApdater.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        valueEventListenerShowGroupUser = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren()) {
@@ -259,43 +458,17 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                             alGroupIds.add(groupUser.getGroupId());
                         }
                     }
-                    Log.d("alGroupIds ", alGroupIds.size() + "");
-                    if (!alGroupIds.isEmpty() && alGroupIds.size() >= 0) {
-                        mFirebaseDatabase.getReference("groups").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChildren()) {
-                                    alGroups.clear();
-                                    for (DataSnapshot gr : dataSnapshot.getChildren()) {
-                                        Group g = gr.getValue(Group.class);
-                                        for (int i = 0; i < alGroupIds.size(); i++) {
-                                            if (g.getGroupId().equals(alGroupIds.get(i))) {
-                                                alGroups.add(g);
-                                            }
-                                        }
-                                    }
-                                    Log.d("alGroups ", alGroups.size() + "");
-                                    historyGroupApdater = new HistoryGroupApdater(rootView.getContext(), alGroups);
-                                    lvHistoryGroups.setAdapter(historyGroupApdater);
-                                    lvHistoryGroups.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-                                    ResizeListview.setListViewHeightBasedOnChildren(lvHistoryGroups);
-                                    historyGroupApdater.notifyDataSetChanged();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
+//                    if (!alGroupIds.isEmpty() && alGroupIds.size() >= 0) {
+                    mFirebaseDatabase.getReference("groups").addValueEventListener(valueEventListenerShowGroup);
                 }
+//                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
-        });
+        };
+        mFirebaseDatabase.getReference("groups-users").addValueEventListener(valueEventListenerShowGroupUser);
     }
 
     public void disconnectFromFacebook() {
@@ -331,6 +504,30 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
 
     }
 
+    private ValueEventListener valueEventListenerDelGroupUser = null;
+    private ValueEventListener valueEventListenerShowGroupUser = null;
+    private ValueEventListener valueEventListenerShowGroup = null;
+
+    @Override
+    public void onStop() {
+        super.onStop();
+//        mFirebaseDatabase = FirebaseDatabase.getInstance();
+//        mFirebaseDatabase.getReference("groups").removeEventListener(valueEventListenerShowGroup);
+//        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerShowGroupUser);
+//        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerDelGroupUser);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase.getReference("groups").removeEventListener(valueEventListenerShowGroup);
+        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerShowGroupUser);
+//        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerDelGroupUser);
+    }
+
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -338,12 +535,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
 //
 //                break;
             case R.id.menu_profile_delete:
-
                 lnConfirmCode.setVisibility(View.GONE);
+                delPhoneNumber();
                 break;
             case R.id.menu_profile_update:
                 sendVerificationCode();
-                lnConfirmCode.setVisibility(View.VISIBLE);
                 break;
         }
         return false;

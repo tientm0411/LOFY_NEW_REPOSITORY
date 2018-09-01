@@ -81,7 +81,7 @@ public class CurrentGroupFragment extends Fragment implements SharedPreferences.
                 break;
             case "true":
                 if (createGroupFragment == null) {
-                    createGroupFragment = new CreateGroupFragment();
+                    createGroupFragment = new CreateGroupFragment("home");
                 }
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.ln_main, createGroupFragment, CreateGroupFragment.class.getName())
@@ -90,7 +90,7 @@ public class CurrentGroupFragment extends Fragment implements SharedPreferences.
                 break;
             case "false":
                 if (joinGroupFragment == null) {
-                    joinGroupFragment = new JoinGroupFragment();
+                    joinGroupFragment = new JoinGroupFragment("home");
                 }
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.ln_main, joinGroupFragment, JoinGroupFragment.class.getName())

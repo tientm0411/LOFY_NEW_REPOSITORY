@@ -28,12 +28,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -153,6 +155,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
         wakeLock.acquire();
 
+        setHasOptionsMenu(true);
 
         return rootView;
     }
@@ -177,22 +180,36 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         alGroupUser = new ArrayList<>();
         alUser = new ArrayList<>();
 
-        mTopToolbar = (Toolbar) rootView.findViewById(R.id.my_toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(mTopToolbar);
-
+//        mTopToolbar = (Toolbar) rootView.findViewById(R.id.my_toolbar);
+//        ((AppCompatActivity)getActivity()).setSupportActionBar(mTopToolbar);
+//
 
         // queryFirebase = new QueryFirebase();
     }
+
     private Toolbar mTopToolbar;
-
-
-
 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         getActivity().getMenuInflater().inflate(R.menu.menu_map, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.it_menu_set_radius:
+//                Toast.makeText(rootView.getContext(), "Đặt bán kính !", Toast.LENGTH_SHORT).show();
+                DialogSetRadius dialogSetRadius = new DialogSetRadius(rootView.getContext());
+                dialogSetRadius.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                dialogSetRadius.show();
+            default:
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+
     }
 
     @Override
@@ -209,7 +226,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     private void loadRoute(final GoogleMap googleMap) {
         final DatabaseReference newRef = groupRef.child(groupID);
-        final DirectionFinder directionFinder = new DirectionFinder(this, "", "", null, "");
+        final DirectionFinder directionFinder = new DirectionFinder(this, "", null, "");
         newRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -372,7 +389,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     alGroupUser.clear();
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         GroupUser groupUser = ds.getValue(GroupUser.class);
-                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser()) {
+                        if (groupUser.getGroupId().equals(groupID) && groupUser.isStatusUser() == true) {
                             alGroupUser.add(groupUser);
                         }
                     }
@@ -397,7 +414,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     User u = ds.getValue(User.class);
                                     for (int i = 0; i < alGroupUser.size(); i++) {
-                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser()) {
+                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser()==true) {
                                             alUser.add(u);
                                         }
                                     }
@@ -414,7 +431,11 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                     LoaddMarkerMemberAsyntask loaddMarkerMemberAsyntask = new LoaddMarkerMemberAsyntask(alUser.get(k), alGroupUser.get(k), lng);
                                     loaddMarkerMemberAsyntask.execute();
                                     mResult = new float[10];
-                                    Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(k).getUserLati(), alUser.get(k).getUserLongti(), mResult);
+                                    try {
+
+                                        Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(k).getUserLati(), alUser.get(k).getUserLongti(), mResult);
+                                    } catch (Exception e) {
+                                    }
                                     Log.d("distance", mResult[0] + " ");
                                     if (mResult[0] >= 1000) {
                                         mCount++;
@@ -520,7 +541,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 alMarkerMember.add(mMarkerMem);
                 Log.d("ping1", alMarkerMember.size() + "");
             }
-            if (groupUser.isHost() && groupUser.isStatusUser()) {
+            if (groupUser.isHost() && groupUser.isStatusUser() == true) {
                 mapCircle = new MapMethod(rootView.getContext()).showCircleToGoogleMap(mMap, mapCircle, latLng, 1);
             }
         }

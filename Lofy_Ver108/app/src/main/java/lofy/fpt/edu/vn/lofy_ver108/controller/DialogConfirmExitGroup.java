@@ -1,13 +1,16 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -40,7 +43,6 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
     }
 
 
-
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -64,18 +66,23 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
     }
 
     private void quitGroup() {
-        String substrGId = mkeyGroupUser.substring(0, 6);
-        String substrUId = mkeyGroupUser.substring(6, 21);
-        GroupUser gu1= new GroupUser(mkeyGroupUser,substrUId,substrGId,false,false,"NA",0.0,false);
-        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
-        groupRef.child(mkeyGroupUser).setValue(gu1);
+        try {
+            Log.d("mkeyGroupUser", mkeyGroupUser + ": ");
+            String substrGId = mkeyGroupUser.substring(0, 6);
+            String substrUId = mkeyGroupUser.substring(6, 21);
+            GroupUser gu1 = new GroupUser(mkeyGroupUser, substrUId, substrGId, false, false, "NA", 0.0, false);
+            DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
+            groupRef.child(mkeyGroupUser).setValue(gu1);
 
-        editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
-        editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-        editor.putString(IntroApplicationActivity.IS_HOST, "NA");
-        editor.apply();
-        Toast.makeText(mContext, "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();
+            editor.putString(IntroApplicationActivity.GROUP_ID, "NA");
+            editor.putString(IntroApplicationActivity.GROUP_NAME, "NA");
+            editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+            editor.putString(IntroApplicationActivity.IS_HOST, "NA");
+            editor.apply();
+            Toast.makeText(mContext, "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+
+        }
     }
 
     // create a dialog
@@ -102,11 +109,44 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
 
     }
 
+    private CreateGroupFragment createGroupFragment;
+    private JoinGroupFragment joinGroupFragment;
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_dialog_confirm_exit_group_go_current:
-                Toast.makeText(mContext, "ĐI", Toast.LENGTH_SHORT).show();
+                String groupID = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+//                String uID = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
+//                String isHost = mSharedPreferences.getString(IntroApplicationActivity.IS_HOST, "NA");
+//                if (isHost.equals("true")) {
+//                    if (createGroupFragment == null) {
+//                        createGroupFragment = new CreateGroupFragment("home");
+//                    }
+//                    ((AppCompatActivity)getOwnerActivity()).getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.ln_main, createGroupFragment, CreateGroupFragment.class.getName())
+//                            .addToBackStack(null)
+//                            .commit();
+//                } else {
+//                    if (joinGroupFragment == null) {
+//                        joinGroupFragment = new JoinGroupFragment("home");
+//                    }
+//                    ((AppCompatActivity)getOwnerActivity()).getSupportFragmentManager().beginTransaction()
+//                            .replace(R.id.ln_main, joinGroupFragment, JoinGroupFragment.class.getName())
+//                            .addToBackStack(null)
+//                            .commit();
+//                }
+//                Toast.makeText(mContext, "ĐI", Toast.LENGTH_SHORT).show();
+
+                Activity activity = getOwnerActivity();
+                if (activity != null) {
+                    Intent intent;
+                    intent = new Intent(activity, StartActivity.class);
+                    intent.putExtra("groupId", groupID);
+                    activity.startActivity(intent);
+                }else{
+                    Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_dialog_confirm_exit_group_quit_group:
                 createAlertDialog();

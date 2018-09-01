@@ -111,31 +111,39 @@ public class LoginActivity extends AppCompatActivity implements SharedPreference
                         } else {
                             URL profile_picture = null;
                             try {
-                                profile_picture = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?with=250&height=250");
-                                String id = object.optString("id");
-                                String name = object.optString("name");
+                                String logined =mSharedPreferences.getString(IntroApplicationActivity.IS_LOGINED,"NA");
+                                if("NA".equals(logined)){
+                                    profile_picture = new URL("https://graph.facebook.com/" + object.getString("id") + "/picture?with=250&height=250");
+                                    String id = object.optString("id");
+                                    String name = object.optString("name");
 
-                                // save to sharefreference
-                                editor.putString(IntroApplicationActivity.USER_ID, id);
-                                editor.putString(IntroApplicationActivity.USER_NAME, name);
-                                editor.putString(IntroApplicationActivity.USER_URL_AVATAR, profile_picture.toString());
-                                editor.apply();
+                                    // save to sharefreference
+                                    editor.putString(IntroApplicationActivity.IS_LOGINED, "Logined");
+                                    editor.putString(IntroApplicationActivity.USER_ID, id);
+                                    editor.putString(IntroApplicationActivity.USER_NAME, name);
+                                    editor.putString(IntroApplicationActivity.USER_URL_AVATAR, profile_picture.toString());
+                                    editor.apply();
 
-                                // push data user to firebase
-                                User user = new User(id, name, profile_picture.toString(), "NA", 0.0, 0.0);
-                                mReferenceUser.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(LoginActivity.this, "Something wrong !", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                    // push data user to firebase
+                                    User user = new User(id, name, profile_picture.toString(), "NA", 0.0, 0.0);
+                                    mReferenceUser.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(LoginActivity.this, "Something wrong !", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }else{
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             } catch (JSONException e) {

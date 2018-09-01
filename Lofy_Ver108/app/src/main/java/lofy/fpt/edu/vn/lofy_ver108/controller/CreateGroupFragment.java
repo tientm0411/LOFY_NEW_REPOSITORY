@@ -1,16 +1,20 @@
 package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +53,7 @@ import lofy.fpt.edu.vn.lofy_ver108.entity.UserRequest;
 /**
  * A simple {@link Fragment} subclass.
  */
+@SuppressLint("ValidFragment")
 public class CreateGroupFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener, View.OnClickListener, AdapterView.OnItemClickListener {
     private static final String TAG = "MY_TAG";
     private View rootView;
@@ -86,23 +91,48 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private String groupID = "";
     private String groupName = "";
 
+    private String from;
 
-    private QueryFirebase queryFirebase;
 
-    public CreateGroupFragment() {
+    @SuppressLint("ValidFragment")
+    public CreateGroupFragment(String from) {
+        this.from = from;
     }
+
 
     private void registerVice() {
         final ArrayList<GroupUser> alGroupUser = new ArrayList<>();
         final ArrayList<User> alVice = new ArrayList<>();
         final ArrayList<GroupUser> alGroupUserMem = new ArrayList<>();
-        lvVice.setAdapter(null);
-        Log.d(TAG, "onDataChange789: "+alVice.size());
-        groupUserRef.addValueEventListener(new ValueEventListener() {
+        valueEventListenerViceUserRef = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                alVice.clear();
+                if (dataSnapshot.hasChildren() && !alGroupUser.isEmpty()) {
+                    for (DataSnapshot us : dataSnapshot.getChildren()) {
+                        User ur = us.getValue(User.class);
+                        if (alGroupUser.get(0).getUserId().equals(ur.getUserId()) && !userID.equals(ur.getUserId())) {
+                            alVice.add(ur);
+                        }
+                    }
+                }
+                // set list request to listview
+                memberAdapter = new MemberAdapter(rootView.getContext(), alVice);
+                lvVice.setAdapter(memberAdapter);
+                lvVice.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+                ResizeListview.setListViewHeightBasedOnChildren(lvVice);
+                memberAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        valueEventListenerViceGroupUserRef = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                alGroupUser.clear();
                 if (dataSnapshot.hasChildren()) {
-                    alGroupUser.clear();
                     alGroupUserMem.clear();
                     for (DataSnapshot gu : dataSnapshot.getChildren()) {
                         GroupUser groupUser = gu.getValue(GroupUser.class);
@@ -110,7 +140,6 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                         if (groupID.equals(groupUser.getGroupId()) && groupUser.isVice() == true
                                 && groupUser.isStatusUser() == true && groupUser.isHost() == false) {
                             alGroupUser.add(groupUser);
-                            break;
                         }
                         // th2 : group has't vice before
 //                         else if (groupUser.getGroupId().equals(ciCode.getValue().toString().toUpperCase()) && groupUser.isVice() == false
@@ -128,46 +157,47 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 
                 // get list detail user just request
 
-                Log.d(TAG, "onDataChange456: "+alVice.size());
-                userRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren() && !alGroupUser.isEmpty()) {
-                            alVice.clear();
-                            for (DataSnapshot us : dataSnapshot.getChildren()) {
-                                User ur = us.getValue(User.class);
-                                if (ur.getUserId().equals(alGroupUser.get(0).getUserId()) && !ur.getUserId().equals(userID)) {
-                                    alVice.add(ur);
-                                }
-                            }
-                        }
-                        Log.d(TAG, "onDataChange123: "+alVice.size());
-                        // set list request to listview
-                        memberAdapter = new MemberAdapter(rootView.getContext(), alVice);
-                        lvVice.setAdapter(memberAdapter);
-                        lvVice.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-                        ResizeListview.setListViewHeightBasedOnChildren(lvVice);
-                        memberAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                userRef.addValueEventListener(valueEventListenerViceUserRef);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        groupUserRef.addValueEventListener(valueEventListenerViceGroupUserRef);
     }
 
     private void registerListMember() {
         final ArrayList<GroupUser> alGroupUser = new ArrayList<>();
         final ArrayList<User> alMem = new ArrayList<>();
-        lvMember.setAdapter(null);
-        groupUserRef.addValueEventListener(new ValueEventListener() {
+        valueEventListenerMemberUserRef = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alMem.clear();
+                    for (DataSnapshot us : dataSnapshot.getChildren()) {
+                        User ur = us.getValue(User.class);
+                        for (int i = 0; i < alGroupUser.size(); i++) {
+                            if (alGroupUser.get(i).getUserId().equals(ur.getUserId())) {
+                                alMem.add(ur);
+                            }
+                        }
+                    }
+                }
+                // set list request to listview
+                memberAdapter = new MemberAdapter(rootView.getContext(), alMem);
+                lvMember.setAdapter(memberAdapter);
+                lvMember.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+                ResizeListview.setListViewHeightBasedOnChildren(lvMember);
+                memberAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        valueEventListenerMemberGroupUserRef = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren()) {
@@ -181,46 +211,48 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     }
                 }
                 // get list detail user just request
-                userRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren()) {
-                            alMem.clear();
-                            for (DataSnapshot us : dataSnapshot.getChildren()) {
-                                User ur = us.getValue(User.class);
-                                for (int i = 0; i < alGroupUser.size(); i++) {
-                                    if (ur.getUserId().equals(alGroupUser.get(i).getUserId())) {
-                                        alMem.add(ur);
-                                    }
-                                }
-                            }
-                        }
-                        // set list request to listview
-                        memberAdapter = new MemberAdapter(rootView.getContext(), alMem);
-                        lvMember.setAdapter(memberAdapter);
-                        lvMember.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-                        ResizeListview.setListViewHeightBasedOnChildren(lvMember);
-                        memberAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                userRef.addValueEventListener(valueEventListenerMemberUserRef);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        groupUserRef.addValueEventListener(valueEventListenerMemberGroupUserRef);
     }
 
     private void registerUserRequest() {
         final ArrayList<UserRequest> alRequest = new ArrayList<>(); // list user request this group
         final ArrayList<User> alMem = new ArrayList<>(); // list user just request
 //        lvUserRequest.setAdapter(null);
-        userRequestRef.addValueEventListener(new ValueEventListener() {
+        valueEventListenerRequestUser = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alMem.clear();
+                    for (DataSnapshot us : dataSnapshot.getChildren()) {
+                        User ur = us.getValue(User.class);
+                        for (int i = 0; i < alRequest.size(); i++) {
+                            if (ur.getUserId().equals(alRequest.get(i).getUserId())) {
+                                alMem.add(ur);
+                            }
+                        }
+                    }
+                }
+                // set list request to listview
+                userRequestAdapter = new UserRequestAdapter(rootView.getContext(), alMem);
+                lvUserRequest.setAdapter(userRequestAdapter);
+                lvUserRequest.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+                ResizeListview.setListViewHeightBasedOnChildren(lvUserRequest);
+                userRequestAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        valueEventListenerRequestUserRequest = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChildren()) {
@@ -233,39 +265,15 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     }
                 }
                 // get list detail user just request
-                userRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren()) {
-                            alMem.clear();
-                            for (DataSnapshot us : dataSnapshot.getChildren()) {
-                                User ur = us.getValue(User.class);
-                                for (int i = 0; i < alRequest.size(); i++) {
-                                    if (ur.getUserId().equals(alRequest.get(i).getUserId())) {
-                                        alMem.add(ur);
-                                    }
-                                }
-                            }
-                        }
-                        // set list request to listview
-                        userRequestAdapter = new UserRequestAdapter(rootView.getContext(), alMem);
-                        lvUserRequest.setAdapter(userRequestAdapter);
-                        lvUserRequest.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-                        ResizeListview.setListViewHeightBasedOnChildren(lvUserRequest);
-                        userRequestAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                userRef.addValueEventListener(valueEventListenerRequestUser);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        userRequestRef.addValueEventListener(valueEventListenerRequestUserRequest);
     }
 
     @Nullable
@@ -274,10 +282,41 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         rootView = inflater.inflate(R.layout.fragment_create_group, container, false);
         initView();
         checkOldGroup();
-        registerUserRequest();
-        registerListMember();
-        registerVice();
+        LoadListAsynJoin loadListAsyn = new LoadListAsynJoin();
+        loadListAsyn.execute();
+        rootView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                    if (i == KeyEvent.KEYCODE_BACK) {
+                        Toast.makeText(rootView.getContext(), "Clicked !", Toast.LENGTH_SHORT).show();
+                        callParentMethod();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
         return rootView;
+    }
+    public void callParentMethod(){
+        getActivity().onBackPressed();
+    }
+
+    public class LoadListAsynJoin extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            registerUserRequest();
+            registerListMember();
+            registerVice();
+        }
     }
 
     private void initView() {
@@ -312,17 +351,14 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         userName = mSharedPreferences.getString(IntroApplicationActivity.USER_NAME, "NA");
         userPhone = mSharedPreferences.getString(IntroApplicationActivity.USER_PHONE, "NA");
         userAvatar = mSharedPreferences.getString(IntroApplicationActivity.USER_URL_AVATAR, "NA");
-
         appFunctions = new AppFunctions();
-
-//        ciCode.setValue(appFunctions.randomString(6));
-
         lvVice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final User u = (User) parent.getItemAtPosition(position);
+                Log.d(TAG, "onItemClick: " + u.getUserName());
                 final String keyGroupUser = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA") + u.getUserId();
-                dialogSetMemberInCreateFragment = new DialogSetMemberInCreateFragment(rootView.getContext(), keyGroupUser);
+                dialogSetMemberInCreateFragment = new DialogSetMemberInCreateFragment(rootView.getContext(), keyGroupUser, from);
                 dialogSetMemberInCreateFragment.show();
             }
         });
@@ -367,14 +403,16 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final User u = (User) parent.getItemAtPosition(position);
                 final String keyGroupUser = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA") + u.getUserId();
-                dialogSetMemberInCreateFragment = new DialogSetMemberInCreateFragment(rootView.getContext(), keyGroupUser);
+                dialogSetMemberInCreateFragment = new DialogSetMemberInCreateFragment(rootView.getContext(), keyGroupUser, from);
                 dialogSetMemberInCreateFragment.show();
             }
         });
 
-
-        // initial
-        queryFirebase = new QueryFirebase();
+        if (!groupID.equals("NA")) {
+            btnCreate.setVisibility(View.GONE);
+            edtGroupName.setClickable(false);
+            edtGroupName.setFocusable(false);
+        }
 
     }
 
@@ -399,12 +437,6 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             editor.putString(IntroApplicationActivity.GROUP_USER_ID, groupID + userID);
             editor.apply();
 
-//            String mKeyUserRequest2 = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID,"NA");
-//            String substrGId = mKeyUserRequest2.substring(0, 6);
-//            String substrUId = mKeyUserRequest2.substring(6, 21);
-//
-//            Log.d(TAG, "createGroup: ("+substrGId+")("+substrUId+")");
-            // push group-user to firebase
             currentGroupUSerId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
             currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
             GroupUser groupUser = new GroupUser(currentGroupUSerId, userID, currentGroupId, true, false, "NA", 0.0, true);
@@ -412,8 +444,6 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(rootView.getContext(), "Tạo thành công !", Toast.LENGTH_SHORT).show();
-//                    btnCreate.setClickable(false);
-//                    btnCreate.setFocusable(false);
                     btnCreate.setVisibility(View.GONE);
                     edtGroupName.clearFocus();
                     edtGroupName.setFocusable(false);
@@ -425,12 +455,9 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 
     // check if this is old group or not
     private void checkOldGroup() {
-        Log.d(TAG, groupID + ": groupID ");
         if (groupID.equals("NA") || groupID.equals("")) {
             ciCode.setValue(appFunctions.randomString(6));
-            Log.d(TAG, "checkOldGroup123: ");
         } else {
-            Log.d(TAG, "checkOldGroup: ");
             ciCode.setValue(groupID);
             edtGroupName.setText(groupName);
             btnCreate.setEnabled(false);
@@ -452,8 +479,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 break;
             case R.id.fab_create_start:
                 final ArrayList<GroupUser> ge = new ArrayList<>();
-                mFirebaseDatabase = FirebaseDatabase.getInstance();
-                mFirebaseDatabase.getReference("groups-users").addValueEventListener(new ValueEventListener() {
+                valueEventListenerOnclickGroupUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren()) {
@@ -461,22 +487,28 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 GroupUser g = ds.getValue(GroupUser.class);
                                 if (g.getGroupId().equals(groupID) && g.isVice()) {
-                                    Intent intent;
-                                    intent = new Intent(rootView.getContext(), StartActivity.class);
-                                    intent.putExtra("groupId", groupID);
-                                    startActivity(intent);
-                                    return;
+
+                                    Activity activity = getActivity();
+                                    if (isAdded() && activity != null) {
+                                        Intent intent;
+                                        intent = new Intent(rootView.getContext(), StartActivity.class);
+                                        intent.putExtra("groupId", groupID);
+                                        startActivity(intent);
+                                        return;
+                                    }
                                 }
                             }
                         }
                         mFirebaseDatabase.getReference("groups-users").removeEventListener(this);
-                        Toast.makeText(rootView.getContext(), "Bạn cần có phó đoàn để bắt đầu chuyến đi !", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(rootView.getContext(), "Bạn cần có phó đoàn để bắt đầu chuyến đi !", Toast.LENGTH_SHORT).show();
+                        startNoViceAlertDialog();
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                     }
-                });
+                };
+                groupUserRef.addValueEventListener(valueEventListenerOnclickGroupUser);
                 break;
             case R.id.fab_create_quit_group:
                 String guId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
@@ -489,6 +521,35 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             default:
                 break;
         }
+    }
+
+    public void startNoViceAlertDialog() {
+        final AlertDialog alertDialog = new AlertDialog.Builder(rootView.getContext()).create();
+        alertDialog.setTitle("Nhắc nhở ");
+        alertDialog.setMessage("Nhóm của bạn chưa có phó đoàn. Tiếp tục ? ");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Tiếp tục", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Activity activity = getActivity();
+                if (isAdded() && activity != null) {
+                    Intent intent;
+                    intent = new Intent(rootView.getContext(), StartActivity.class);
+                    intent.putExtra("groupId", groupID);
+                    startActivity(intent);
+                }
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+                return;
+            }
+        });
+        alertDialog.show();
+
     }
 
     public void quitAlertDialog() {
@@ -514,11 +575,13 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
 
     }
 
+    private HomeFragment homeFragment;
+
     private void quitGroup() {
         String gUId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
         // String groupsUsersID, String userId, String groupId, boolean isHost, boolean isVice, String timeStamp, double sizeRadius, boolean statusUser
-        GroupUser gu1= new GroupUser(gUId,userID,groupID,false,false,"NA",0.0,false);
+        GroupUser gu1 = new GroupUser(gUId, userID, groupID, false, false, "NA", 0.0, false);
         groupRef.child(gUId).setValue(gu1).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -527,8 +590,19 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 editor.putString(IntroApplicationActivity.GROUP_USER_ID, "NA");
                 editor.putString(IntroApplicationActivity.IS_HOST, "NA");
                 editor.apply();
-                getFragmentManager().popBackStackImmediate();
                 Toast.makeText(rootView.getContext(), "Đã rời khỏi nhóm !", Toast.LENGTH_SHORT).show();
+                if (from.equals("start")) {
+                    Intent intent = new Intent(getActivity(), HomeActivity.class);
+                    startActivity(intent);
+                } else {
+                    if (homeFragment == null) {
+                        homeFragment = new HomeFragment();
+                    }
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.ln_main, homeFragment, HomeFragment.class.getName())
+                            .addToBackStack(null)
+                            .commit();
+                }
             }
         });
 
@@ -542,9 +616,36 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     }
 
+    private ValueEventListener valueEventListenerViceGroupUserRef = null;
+    private ValueEventListener valueEventListenerViceUserRef = null;
+    private ValueEventListener valueEventListenerMemberGroupUserRef = null;
+    private ValueEventListener valueEventListenerMemberUserRef = null;
+    private ValueEventListener valueEventListenerRequestUserRequest = null;
+    private ValueEventListener valueEventListenerRequestUser = null;
+    private ValueEventListener valueEventListenerOnclickGroupUser = null;
+
+    @Override
+    public void onStop() {
+        super.onStop();
+//        groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
+        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
+//        groupUserRef.removeEventListener(valueEventListenerOnclickGroupUser);
+        userRef.removeEventListener(valueEventListenerViceUserRef);
+        userRef.removeEventListener(valueEventListenerMemberUserRef);
+        userRef.removeEventListener(valueEventListenerRequestUser);
+        userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+//        groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
+        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
+//        groupUserRef.removeEventListener(valueEventListenerOnclickGroupUser);
+        userRef.removeEventListener(valueEventListenerViceUserRef);
+        userRef.removeEventListener(valueEventListenerMemberUserRef);
+        userRef.removeEventListener(valueEventListenerRequestUser);
+        userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
     }
 }

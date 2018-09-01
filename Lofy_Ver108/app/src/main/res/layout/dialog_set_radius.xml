@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/boder_noti_title"
+    android:layout_margin="4dp"
+    >
+
+    <TextView
+        android:layout_margin="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Đặt bán kính vòng an toàn"
+        android:textStyle="bold|italic"
+        android:textSize="20sp"
+        android:textColor="#5fbf8c"
+        android:layout_gravity="center"
+        android:gravity="center"
+
+        />
+    <LinearLayout
+        android:layout_margin="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Bán kính"
+            android:textStyle="bold"
+            android:textColor="@color/fontColor"
+
+            />
+        <EditText
+            android:id="@+id/edt_dl_set_radius_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="..."
+            />
+        <TextView
+            android:layout_marginLeft="4dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="km"
+            android:textStyle="bold"
+            android:textColor="@color/fontColor"
+
+            />
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/btn_dl_set_radius_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xác nhận"
+        android:gravity="center"
+        android:textAllCaps="false"
+        android:textColor="@color/fontColor"
+        android:textStyle="bold"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        />
+</LinearLayout>

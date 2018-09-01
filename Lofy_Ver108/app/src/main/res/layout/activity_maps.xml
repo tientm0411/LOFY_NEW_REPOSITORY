@@ -104,6 +104,53 @@
             android:textAllCaps="false"
             android:textColor="#ffff" />
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutNearBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/boder_noti_title"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/btn_main2_nearbyGasStation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Trạm xăng"
+            android:textAllCaps="false"
+            android:textColor="#ffff" />
+
+        <Button
+            android:id="@+id/btn_main2_nearbyHospital"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Bệnh viện"
+            android:textAllCaps="false"
+            android:textColor="#ffff" />
+
+        <Button
+            android:id="@+id/btn_main2_nearbyRestaurant"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Nhà hàng"
+            android:textAllCaps="false"
+            android:textColor="#ffff" />
+
+    </LinearLayout>
 
     <fragment
         android:id="@+id/mapMain2"
