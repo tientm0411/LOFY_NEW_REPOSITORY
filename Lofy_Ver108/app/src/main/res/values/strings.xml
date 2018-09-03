@@ -51,8 +51,11 @@
 
     <!--dialog_set_member_confirm_set_vice-->
     <string name="tv_dialog_set_member_confirm_set_vice_set_vice">Đặt làm phó đoàn</string>
+    <string name="tv_dialog_set_member_confirm_set_vice_set_host">Đặt làm trưởng đoàn</string>
     <string name="btn_dialog_set_member_confirm_set_vice_confirm_set_vice">Xác nhận</string>
+    <string name="btn_dialog_set_member_confirm_set_vice_confirm_set_host">Xác nhận</string>
     <string name="btn_dialog_set_member_confirm_set_vice_cancel_set_vice">Hủy</string>
+    <string name="btn_dialog_set_member_confirm_set_vice_cancel_set_host">Hủy</string>
     <!--fragment_create_group-->
     <string name="tv_fragment_create_group_groupCode">Mã nhóm</string>
     <string name="tv_fragment_create_group_groupName">Tên nhóm</string>

@@ -41,13 +41,17 @@ public class QueryFirebase {
     private FirebaseDatabase mFirebaseDatabase;
     private ArrayList<User> alUser;
     private ArrayList<Group> alGroup;
+    private ArrayList<GroupUser> alGroupUser;
     private String groupName;
+    private int sizeRadius;
 
     public QueryFirebase() {
         alUser = new ArrayList<>();
         alGroup = new ArrayList<>();
+        alGroupUser = new ArrayList<>();
         registerUser();
         registerGroup();
+        registerGroupUser();
     }
 
     public void registerGroup() {
@@ -70,6 +74,26 @@ public class QueryFirebase {
         });
     }
 
+    public void registerGroupUser() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase.getReference("groups-users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChildren()) {
+                    alGroupUser.clear();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        GroupUser u = ds.getValue(GroupUser.class);
+                        alGroupUser.add(u);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
     public String getGroupNameById(ArrayList<Group> al, String gID) {
         String name = "";
         for (int i = 0; i < al.size(); i++) {
@@ -79,6 +103,30 @@ public class QueryFirebase {
             }
         }
         return "group sapa";
+    }
+
+    public double getSizeByGroupUserId(ArrayList<GroupUser> al, String gID) {
+        double size = 1;
+        Log.d("getSizeByGroupUserId_0", gID + " ");
+        for (int i = 0; i < al.size(); i++) {
+            if (al.get(i).getGroupsUsersID().equals(gID) && al.get(i).isHost() == true) {
+                size = al.get(i).getSizeRadius();
+                Log.d("getSizeByGroupUserId_1", al.get(i).getUserId() + " ");
+                return size;
+            }
+        }
+        return 1;
+    }
+
+    public String getHostGroupUserByGroupId(ArrayList<GroupUser> al, String gID) {
+        String hostId = null;
+        for (int i = 0; i < al.size(); i++) {
+            if (al.get(i).getGroupId().equals(gID) && al.get(i).isHost() == true) {
+                hostId = al.get(i).getGroupsUsersID();
+                return hostId;
+            }
+        }
+        return "NA";
     }
 
     public User getUserById(ArrayList<User> al, String uId) {
@@ -119,5 +167,8 @@ public class QueryFirebase {
         return alGroup;
     }
 
+    public ArrayList<GroupUser> getAlGroupUser() {
+        return alGroupUser;
+    }
 }
 

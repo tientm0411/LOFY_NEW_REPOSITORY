@@ -29,6 +29,7 @@ import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
 import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
+import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 
 public class NotificationDisplayService extends Service {
 
@@ -49,13 +50,18 @@ public class NotificationDisplayService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notification data = (Notification) intent.getExtras().get("KEY_NOTI");
-        displayNotification(data);
+        User u = queryFirebase.getUserById(queryFirebase.getAlUser(),data.getUserID().toString());
+        userNameNoti = u.getUserName();
+        displayNotification(data,userNameNoti);
         stopSelf(); // Beendet den Service nach dem Ausführen des Codes (nachträglich ergänzt)
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void displayNotification(final Notification noti) {
+    private String userNameNoti;
+    private void displayNotification(final Notification noti,String name) {
         final int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+
+
         Intent notificationIntent = new Intent(this, StartActivity.class);
         notificationIntent.putExtra("KEY_INTENT", "GROUP");
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -71,8 +77,8 @@ public class NotificationDisplayService extends Service {
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext())
                         .setContentTitle(noti.getNotiName())
-                        .setContentText(noti.getMess())
-                        .setSmallIcon(R.drawable.ic_app_logo)
+                        .setContentText(name+" đã gửi cảnh báo: "+noti.getMess())
+                        .setSmallIcon(R.drawable.ic_logo_siple)
                         .setLargeIcon(bitmap)
                         .setColor(getResources().getColor(R.color.colorPrimary))
                         .setVibrate(new long[]{0, 300, 300, 300})
@@ -92,7 +98,6 @@ public class NotificationDisplayService extends Service {
             }
         }.execute(noti.getNoti_icon());
 
-        Log.d("TAG", "displayNotification: '" + bitmap);
 
     }
 

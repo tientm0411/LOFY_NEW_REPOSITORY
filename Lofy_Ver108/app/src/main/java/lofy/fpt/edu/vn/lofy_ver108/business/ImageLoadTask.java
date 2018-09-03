@@ -21,7 +21,9 @@ import android.os.AsyncTask;
 
 import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
 import lofy.fpt.edu.vn.lofy_ver108.controller.NotificationDisplayService;
+import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Notification;
+import lofy.fpt.edu.vn.lofy_ver108.entity.User;
 
 public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
 
@@ -30,6 +32,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     private Context context;
     private Notification mNoti;
     private Marker mMaker = null;
+    QueryFirebase queryFirebase = new QueryFirebase();
 
 
     public ImageLoadTask(Context context, GoogleMap map, Notification notification) {
@@ -64,7 +67,8 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        map.setInfoWindowAdapter(new InforNotiMaker(context, result, mNoti.getUserID()));
+        User u = queryFirebase.getUserById(queryFirebase.getAlUser(), mNoti.getUserID());
+        map.setInfoWindowAdapter(new InforNotiMaker(context, result, u.getUserName()));
         //new BitmapLoadTask(context,mNoti.getNoti_icon()).execute();
         MarkerOptions mMarkerOptions = new MarkerOptions()
                 .title(mNoti.getNotiName())

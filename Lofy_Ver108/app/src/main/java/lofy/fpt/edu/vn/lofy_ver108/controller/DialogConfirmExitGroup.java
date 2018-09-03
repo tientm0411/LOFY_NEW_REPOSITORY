@@ -138,14 +138,18 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
 //                }
 //                Toast.makeText(mContext, "ĐI", Toast.LENGTH_SHORT).show();
 
-                Activity activity = getOwnerActivity();
-                if (activity != null) {
-                    Intent intent;
-                    intent = new Intent(activity, StartActivity.class);
-                    intent.putExtra("groupId", groupID);
-                    activity.startActivity(intent);
-                }else{
-                    Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
+                try {
+                    Activity activity = getOwnerActivity();
+                    if (activity != null) {
+                        Intent intent;
+                        intent = new Intent(activity, StartActivity.class);
+                        intent.putExtra("groupId", groupID);
+                        activity.startActivity(intent);
+                    } else {
+                        Toast.makeText(activity, "null", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(mContext, "Không tải được nhóm hiện tại !", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_dialog_confirm_exit_group_quit_group:

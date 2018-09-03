@@ -15,6 +15,7 @@ import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -147,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     private String googlePlacesData;
     String url;
+    private boolean isAlertShow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -304,6 +306,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             @Override
             public void onClick(View v) {
                 isClicked = true;
+                isAlertShow = false;
                 sendRequest();
             }
         });
@@ -363,7 +366,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         String destination = mAutocompleteTextView2.getText().toString();
         String rest = mAutocompleteTextView3.getText().toString();
 
-        if (!rest.isEmpty()) {
+        if (!rest.isEmpty() && tenMarkers.size() < 10) {
             Geocoder geocoder = new Geocoder(MapsActivity.this);
             List<Address> addresses;
             try {
@@ -373,7 +376,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 LatLng latLng = new LatLng(latitude, longitude);
                 myMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
-                        .title("Rest"));
+                        .title("Vị trí không xác định"));
                 tenMarkers.add(myMarker);
                 listRest.add(myMarker.getPosition());
                 if (!groupID.toString().equals("NA")) {
@@ -389,6 +392,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             btnNearbyGastation.setVisibility(View.GONE);
             btnNearbyHospital.setVisibility(View.GONE);
             btnNearbyRestaurant.setVisibility(View.GONE);
+        } else {
+
         }
 
         if (destination.isEmpty()) {
@@ -534,21 +539,24 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     @Override
     public void onDirectionFinderStart() {
-
-        progressDialog = ProgressDialog.show(this, "Please wait.",
-                "Finding direction..!", true);
-
-        if (originMarkers != null) {
-            for (Marker marker : originMarkers) {
-                marker.remove();
+        progressDialog = new ProgressDialog(MapsActivity.this);
+        progressDialog.setTitle("Vui lòng đợi");
+        progressDialog.setMessage("Đang tìm hành trình...!");
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "HỦY", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
             }
-        }
+        });
+        progressDialog.show();
+        Runnable progressRunnable = () -> {
+            progressDialog.setTitle("Đã xảy ra lỗi");
+            progressDialog.setMessage("Vui lòng thử lại!");
+            return;
+        };
 
-        if (destinationMarkers != null) {
-            for (Marker marker : destinationMarkers) {
-                marker.remove();
-            }
-        }
+        Handler pdCanceller = new Handler();
+        pdCanceller.postDelayed(progressRunnable, 15000);
 
         if (polylinePaths != null) {
             isClicked = false;
@@ -569,8 +577,19 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     @Override
     public void onDirectionFinderSuccess(final List<Route> routes) {
-        this.routes = routes;
         progressDialog.dismiss();
+        this.routes = routes;
+        if (routes.size() == 0) {
+            if (isAlertShow == false) {
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setTitle("Đã xảy ra lỗi...")
+                        .setMessage("Vui lòng kiểm tra lại các vị trí không có đường trên bản đồ")
+                        .setPositiveButton("Xác nhận", null)
+                        .create().show();
+                isAlertShow = true;
+            }
+            return;
+        }
         polylinePaths = new ArrayList<>();
 
         int minDistanceIndex = 0;
@@ -684,12 +703,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     @Override
     public void onMapLongClick(LatLng latLng) {
         // First check if markers number is lower than 10
+        Log.d("markersize", tenMarkers.size() + "");
         if (tenMarkers.size() < 10) {
             // Marker was not set yet. Add marker:
             myMarker = mMap.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title("Thêm điểm dừng?")
-                    .snippet("Có phải bạn muốn thêm điểm dừng?"));
+                    .title("Địa điểm không xác định")
+                    .snippet("Có thể không tìm được đường ở vị trí này..."));
             tenMarkers.add(myMarker);
             listRest.add(myMarker.getPosition());
             if (!groupID.toString().equals("NA")) {
@@ -700,7 +720,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
         } else {
             // Number of markers is 10, just update the last one's position
-            Toast.makeText(this, "Số điểm dừng hiện tại đã là 10", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Số điểm dừng tối đa là 10", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -761,7 +781,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-        Toast.makeText(this, "" + listNearby.size(), Toast.LENGTH_SHORT).show();
+        // Handle Nearby list
         for (int i = 0; i < listNearby.size(); i++) {
             if (marker.getPosition().latitude == listNearby.get(i).getPosition().latitude) {
                 new AlertDialog.Builder(MapsActivity.this)
@@ -782,7 +802,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
 
                                         } else {
                                             // Number of markers is 10, just update the last one's position
-                                            Toast.makeText(MapsActivity.this, "Số điểm dừng hiện tại đã là 10", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MapsActivity.this, "Số điểm dừng tối đa là 10", Toast.LENGTH_SHORT).show();
                                         }
                                         for (int j = 0; j < listNearby.size(); j++) {
                                             myMarker = listNearby.get(j);
@@ -806,6 +826,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             }
         }
 
+        // Handle Rest markers
         Geocoder geocoder = new Geocoder(MapsActivity.this);
         String addresses;
         try {
@@ -864,29 +885,58 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                         )
                         .create().show();
             } else {
-                for (int i = 0; i < tenMarkers.size(); i++) {
-                    if (marker.getId().equals(tenMarkers.get(i).getId())) {
-                        marker.remove();
-                        myMarker.remove();
-                        for (int j = 0; j < tenMarkers.size(); j++) {
-                            if (marker.getPosition().latitude == tenMarkers.get(j).getPosition().latitude && marker.getPosition().longitude == tenMarkers.get(j).getPosition().longitude) {
-                                tenMarkers.remove(j);
-                            }
-                        }
-                        for (int j = 0; j < listRest.size(); j++) {
-                            if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
-                                listRest.remove(j);
-                                if (!groupID.toString().equals("NA")) {
-                                    DatabaseReference newRef = group.child(ciCode.toUpperCase());
-                                    newRef.child("restPoints").setValue(listRest);
-                                }
+                new AlertDialog.Builder(this)
+                        .setTitle(marker.getTitle().toString())
+                        .setPositiveButton("Xóa vị trí này?",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        // do something...
+                                        new AlertDialog.Builder(MapsActivity.this)
+                                                .setTitle("Bạn có chắc chắn muốn xóa?")
+                                                .setPositiveButton("Xác nhận",
+                                                        new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                                // do something...
+                                                                marker.remove();
+                                                                for (int i = 0; i < tenMarkers.size(); i++) {
+                                                                    if (marker.getPosition().latitude == tenMarkers.get(i).getPosition().latitude && marker.getPosition().longitude == tenMarkers.get(i).getPosition().longitude) {
+                                                                        tenMarkers.remove(i);
+                                                                    }
+                                                                }
+                                                                for (int j = 0; j < listRest.size(); j++) {
+                                                                    if (marker.getPosition().latitude == listRest.get(j).latitude && marker.getPosition().longitude == listRest.get(j).longitude) {
+                                                                        listRest.remove(j);
+                                                                        if (!groupID.toString().equals("NA")) {
+                                                                            DatabaseReference newRef = group.child(ciCode.toUpperCase());
+                                                                            newRef.child("restPoints").setValue(listRest);
+                                                                        }
 
-                            }
-                        }
-                        Log.d("markersize", tenMarkers.size() + "");
-                    }
-                }
-                return false;
+                                                                    }
+                                                                }
+                                                                Log.d("markersize", tenMarkers.size() + "");
+
+                                                            }
+                                                        }
+                                                )
+                                                .setNegativeButton("HỦY",
+                                                        new DialogInterface.OnClickListener() {
+                                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                                dialog.dismiss();
+                                                            }
+                                                        }
+                                                )
+                                                .create().show();
+                                    }
+                                }
+                        )
+                        .setNegativeButton("HỦY",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        dialog.dismiss();
+                                    }
+                                }
+                        )
+                        .create().show();
             }
 
         } catch (IOException e) {
@@ -934,6 +984,19 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         }
 
         private void showNearbyPlaces(List<HashMap<String, String>> nearbyPlaceList) {
+            for (int j = 0; j < listNearby.size(); j++) {
+                myMarker = listNearby.get(j);
+                myMarker.remove();
+            }
+            listNearby.clear();
+            if (nearbyPlaceList.size() == 0) {
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setTitle("Tìm kiếm không thành công")
+                        .setMessage("Vui lòng thử lại sau...")
+                        .setPositiveButton("Xác nhận", null)
+                        .create().show();
+                return;
+            }
             for (int i = 0; i < nearbyPlaceList.size(); i++) {
                 MarkerOptions markerOptions = new MarkerOptions();
                 HashMap<String, String> googlePlace = nearbyPlaceList.get(i);
@@ -1001,7 +1064,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                         LatLng latLng = new LatLng(latitude, longitude);
                         myMarker = mMap.addMarker(new MarkerOptions()
                                 .position(latLng)
-                                .title("Rest"));
+                                .title("Vị trí không xác định..."));
                         tenMarkers.add(myMarker);
                         listRest.add(myMarker.getPosition());
                         if (!groupID.toString().equals("NA")) {
@@ -1018,6 +1081,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     btnNearbyHospital.setVisibility(View.GONE);
                     btnNearbyRestaurant.setVisibility(View.GONE);
 
+                } else  if (tenMarkers.size() >= 10){
+                    Toast.makeText(this, "Số điểm dừng tối đa là 10", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.btn_main2_Reset:
@@ -1062,7 +1127,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 btnNearbyGastation.setVisibility(View.GONE);
                 btnNearbyHospital.setVisibility(View.GONE);
                 btnNearbyRestaurant.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Showing Nearby Gas Station", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Tìm kiếm các Trạm Xăng xung quanh đây", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_main2_nearbyHospital:
                 station = "hospital";
@@ -1075,7 +1140,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 btnNearbyGastation.setVisibility(View.GONE);
                 btnNearbyHospital.setVisibility(View.GONE);
                 btnNearbyRestaurant.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Showing Nearby Hospital", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Tìm kiếm các Bệnh Viện xung quanh đây", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_main2_nearbyRestaurant:
                 station = "restaurant";
@@ -1089,7 +1154,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                 btnNearbyHospital.setVisibility(View.GONE);
                 btnNearbyRestaurant.setVisibility(View.GONE);
                 Log.d("listNearby", listNearby.size() + "");
-                Toast.makeText(getApplicationContext(), "Showing Nearby Restaurant", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Tìm kiếm các Nhà Hàng xung quanh đây", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;

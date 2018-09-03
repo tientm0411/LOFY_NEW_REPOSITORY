@@ -17,6 +17,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,6 +66,7 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
 
     private FloatingActionButton btnStart;
     private FloatingActionButton btnQuit;
+    private FloatingActionButton btnHome;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference userRef;
     private DatabaseReference userRequestRef;
@@ -146,6 +148,14 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         groupUserRef.addValueEventListener(valueEventListenerHostGroupUser);
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        tvGroupName.setFocusable(true);
+        tvGroupName.setFocusableInTouchMode(true);
+        tvGroupName.requestFocus();
+    }
 
     // set listview vice
     private void registerVice() {
@@ -328,7 +338,6 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     if (i == KeyEvent.KEYCODE_BACK) {
-                        Toast.makeText(rootView.getContext(), "Clicked !", Toast.LENGTH_SHORT).show();
                         callParentMethod();
                         return true;
                     }
@@ -415,8 +424,10 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         lvVice = (ListView) rootView.findViewById(R.id.lv_join_vice);
         btnStart = (FloatingActionButton) rootView.findViewById(R.id.fab_join_start);
         btnQuit = (FloatingActionButton) rootView.findViewById(R.id.fab_join_quit_group);
+        btnHome = (FloatingActionButton) rootView.findViewById(R.id.fab_join_home);
         btnStart.setOnClickListener(this);
         btnQuit.setOnClickListener(this);
+        btnHome.setOnClickListener(this);
         lvVice.setOnItemClickListener(this);
         lvHost.setOnItemClickListener(this);
         lvAllMember.setOnItemClickListener(this);
@@ -454,6 +465,9 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
             case R.id.fab_join_quit_group:
                 joinAlertDialog();
                 break;
+            case R.id.fab_join_home:
+                intent = new Intent(rootView.getContext(), HomeActivity.class);
+                startActivity(intent);
             default:
                 break;
         }

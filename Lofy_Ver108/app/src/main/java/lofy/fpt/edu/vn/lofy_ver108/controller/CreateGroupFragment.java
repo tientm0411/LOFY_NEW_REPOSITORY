@@ -68,6 +68,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     private FloatingActionButton btnDeleteGroup;
     private FloatingActionButton btnStart;
     private FloatingActionButton btnQuit;
+    private FloatingActionButton btnHome;
 
     private MemberAdapter memberAdapter;
     private UserRequestAdapter userRequestAdapter;
@@ -289,7 +290,6 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                     if (i == KeyEvent.KEYCODE_BACK) {
-                        Toast.makeText(rootView.getContext(), "Clicked !", Toast.LENGTH_SHORT).show();
                         callParentMethod();
                         return true;
                     }
@@ -332,9 +332,11 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         btnSetTrack = (FloatingActionButton) rootView.findViewById(R.id.fab_create_set_track);
         btnStart = (FloatingActionButton) rootView.findViewById(R.id.fab_create_start);
         btnQuit = (FloatingActionButton) rootView.findViewById(R.id.fab_create_quit_group);
+        btnHome = (FloatingActionButton) rootView.findViewById(R.id.fab_create_home);
         btnSetTrack.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnQuit.setOnClickListener(this);
+        btnHome.setOnClickListener(this);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         userRef = mFirebaseDatabase.getReference("users");
@@ -518,6 +520,10 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                     quitAlertDialog();
                 }
                 break;
+            case R.id.fab_create_home:
+                intent = new Intent(rootView.getContext(), HomeActivity.class);
+                startActivity(intent);
+                break;
             default:
                 break;
         }
@@ -628,7 +634,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     public void onStop() {
         super.onStop();
 //        groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
-        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
+//        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
 //        groupUserRef.removeEventListener(valueEventListenerOnclickGroupUser);
         userRef.removeEventListener(valueEventListenerViceUserRef);
         userRef.removeEventListener(valueEventListenerMemberUserRef);

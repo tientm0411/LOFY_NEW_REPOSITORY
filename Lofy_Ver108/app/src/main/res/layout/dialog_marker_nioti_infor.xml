@@ -1,51 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@drawable/boder_noti_title"
     >
 
-    <ImageView
-        android:id="@+id/iv_dg_noti_infor_icon"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_app_logo"
-        />
+    <!--<ImageView-->
+    <!--android:id="@+id/iv_dg_noti_infor_icon"-->
+    <!--android:layout_width="100dp"-->
+    <!--android:layout_height="100dp"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:layout_margin="16dp"-->
+    <!--android:src="@drawable/ic_logo_siple"-->
+    <!--/>-->
 
     <TextView
         android:id="@+id/tv_dg_noti_infor_noti_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:text="Notification Name"
+        android:textColor="#FF7400"
         android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:layout_margin="16dp"
-        android:textColor="#05395c"
-        />
-    <TextView
-        android:id="@+id/tv_dg_noti_infor_noti_member"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Member"
-        android:textSize="14sp"
-        android:textStyle="bold|italic"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center"
-        android:layout_margin="16dp"
-        android:textColor="#05395c"
-        />
+        android:textStyle="bold" />
+
+
     <TextView
         android:id="@+id/tv_dg_noti_infor_noti_mess"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Notification Mess"
-        android:textSize="8sp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
-        android:layout_margin="16dp"
+        android:text="Notification Mess"
         android:textColor="#000000"
-        />
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tv_dg_noti_infor_noti_member"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="Member"
+        android:textColor="#05395c"
+        android:textSize="12sp"
+        android:textStyle="bold|italic" />
 </LinearLayout>

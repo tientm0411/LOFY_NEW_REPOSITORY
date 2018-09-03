@@ -7,42 +7,46 @@
     tools:context=".controller.welecomeActivity"
     android:orientation="vertical"
     android:background="@drawable/background">
+
     <LinearLayout
         android:id="@+id/l1"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <TextView
-            android:textColor="@color/lightorange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LOFY"
             android:layout_gravity="center"
             android:layout_marginTop="150dp"
+            android:text="LOFY"
+            android:textColor="@color/lightorange"
             android:textSize="60sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
+
         <TextView
-            android:textColor="@color/lightorangedark"
             android:layout_width="398dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="50dp"
             android:text="'To Travel is To Live'"
             android:textAlignment="center"
-            android:textSize="30sp"
-            android:layout_marginTop="50dp"/>
+            android:textColor="@color/lightorangedark"
+            android:textSize="30sp" />
+
         <ProgressBar
             android:id="@+id/loadingPanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminate="true"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:indeterminate="true" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/l2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/spaceullustration"
         android:orientation="vertical">
 

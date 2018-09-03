@@ -64,8 +64,6 @@ public class DialogSetMemberInCreateFragment extends Dialog implements View.OnCl
                 if (profileFragment == null) {
                     profileFragment = new ProfileFragment(substrUId);
                 }
-                Log.d("onClick", from + "");
-                Log.d("onClick", "mKeyUserRequest2: " + mKeyUserRequest2 + "");
                 if (from.equals("home")) {
                     ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
                             .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())

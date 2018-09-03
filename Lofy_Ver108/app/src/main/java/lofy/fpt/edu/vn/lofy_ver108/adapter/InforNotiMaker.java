@@ -37,8 +37,8 @@ public class InforNotiMaker implements GoogleMap.InfoWindowAdapter {
        View v= inflater.inflate(R.layout.dialog_marker_nioti_infor,null);
         // Getting the position from the marker
         LatLng latLng = marker.getPosition();
-
-        ImageView ivNoti = (ImageView) v.findViewById(R.id.iv_dg_noti_infor_icon);
+//
+//        ImageView ivNoti = (ImageView) v.findViewById(R.id.iv_dg_noti_infor_icon);
         TextView tvName = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_name);
         TextView tvMember = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_member);
         TextView tvMess = (TextView) v.findViewById(R.id.tv_dg_noti_infor_noti_mess);
@@ -46,7 +46,7 @@ public class InforNotiMaker implements GoogleMap.InfoWindowAdapter {
         tvName.setText(marker.getTitle());
         tvMess.setText(marker.getSnippet());
         tvMember.setText(memName);
-        ivNoti.setImageBitmap(btmp);
+//        ivNoti.setImageBitmap(btmp);
         return v;
     }
 }

@@ -2,6 +2,7 @@ package lofy.fpt.edu.vn.lofy_ver108.controller;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +50,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -145,19 +148,44 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 .findFragmentById(R.id.mapGroup_map_1);
         mapFragment.getMapAsync(this);
         initView();
-        askGrantLocationPermission(); // ask grant location permisstion
-        initGoogleAPIClient();//Init Google API Client
-        checkPermissions();//Check Permission
+        try {
+            askGrantLocationPermission(); // ask grant location permisstion
+            initGoogleAPIClient();//Init Google API Client
+            checkPermissions();//Check Permission
+        } catch (Exception e) {
 
-        Intent intent = new Intent(rootView.getContext(), GPS_Service.class);
-        rootView.getContext().startService(intent);
-        PowerManager mgr = (PowerManager) rootView.getContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
-        wakeLock.acquire();
+        }
 
-        setHasOptionsMenu(true);
+        try {
+            Intent intent = new Intent(rootView.getContext(), GPS_Service.class);
+            rootView.getContext().startService(intent);
+            PowerManager mgr = (PowerManager) rootView.getContext().getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+            wakeLock.acquire();
+
+            setHasOptionsMenu(true);
+            rootView.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                        if (i == KeyEvent.KEYCODE_BACK) {
+                            callParentMethod();
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+        } catch (Exception e) {
+
+        }
 
         return rootView;
+    }
+
+
+    public void callParentMethod() {
+        getActivity().onBackPressed();
     }
 
     private void initView() {
@@ -184,7 +212,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 //        ((AppCompatActivity)getActivity()).setSupportActionBar(mTopToolbar);
 //
 
-        // queryFirebase = new QueryFirebase();
+//       queryFirebase = new QueryFirebase();
     }
 
     private Toolbar mTopToolbar;
@@ -215,6 +243,20 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+//        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+//        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+//            @Override
+//            public boolean onMyLocationButtonClick() {
+//                Toast.makeText(rootView.getContext(), "Clicked !", Toast.LENGTH_SHORT).show();
+//                zoomToMyLocation(googleMap);
+//                return false;
+//            }
+//        });
         setUpMap(mMap);
         loadMarkerNoti(mMap);
         loadRoute(mMap);
@@ -287,19 +329,13 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 && ActivityCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        googleMap.setMyLocationEnabled(true);
+        ;
         googleMap.setTrafficEnabled(true);
         googleMap.setIndoorEnabled(true);
         googleMap.setBuildingsEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         zoomToMyLocation(googleMap);
-        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                zoomToMyLocation(googleMap);
-                return false;
-            }
-        });
+
         googleMap.setOnMarkerClickListener(this);
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnMarkerDragListener(this);
@@ -380,8 +416,16 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     // load marker member
     ArrayList<User> alUserOutRange;
+    private double mSizeRadius;
 
     private void loadMarkerMember() {
+        String hostId = queryFirebase.getHostGroupUserByGroupId(queryFirebase.getAlGroupUser(), groupID);
+        mSizeRadius = queryFirebase.getSizeByGroupUserId(queryFirebase.getAlGroupUser(), hostId);
+        Log.d("loadMarkerMember", mSizeRadius + " ");
+        if (mSizeRadius <= 0) {
+            mSizeRadius = 1;
+        }
+
         groupUserRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -414,7 +458,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                     User u = ds.getValue(User.class);
                                     for (int i = 0; i < alGroupUser.size(); i++) {
-                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser()==true) {
+                                        if (u.getUserId().equals(alGroupUser.get(i).getUserId()) && alGroupUser.get(i).isStatusUser() == true) {
                                             alUser.add(u);
                                         }
                                     }
@@ -437,7 +481,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                     } catch (Exception e) {
                                     }
                                     Log.d("distance", mResult[0] + " ");
-                                    if (mResult[0] >= 1000) {
+                                    if (mResult[0] >= mSizeRadius * 1000) {
                                         mCount++;
 //                                        alUserOutRange.add(alUser.get(k));
 //                                        Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
@@ -456,7 +500,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         }
                     });
                 }
-                Log.d("ping4", alMarkerMember.size() + "");
             }
 
             @Override
@@ -539,10 +582,21 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                         .anchor(0.5f, 1);
                 mMarkerMem = mMap.addMarker(mMarkerOptions);
                 alMarkerMember.add(mMarkerMem);
-                Log.d("ping1", alMarkerMember.size() + "");
             }
             if (groupUser.isHost() && groupUser.isStatusUser() == true) {
-                mapCircle = new MapMethod(rootView.getContext()).showCircleToGoogleMap(mMap, mapCircle, latLng, 1);
+                String gId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+                String hostId = queryFirebase.getHostGroupUserByGroupId(queryFirebase.getAlGroupUser(), gId);
+                double sizeRadius = queryFirebase.getSizeByGroupUserId(queryFirebase.getAlGroupUser(), hostId);
+
+                Log.d("onPostExecute_4", gId + "");
+                Log.d("onPostExecute_0", sizeRadius + "");
+                Log.d("onPostExecute_1", hostId + "");
+                Log.d("onPostExecute_2", queryFirebase.getAlGroupUser().size() + "");
+                if (sizeRadius <= 0) {
+                    sizeRadius = 1;
+                }
+                Log.d("onPostExecute_3", sizeRadius + "");
+                mapCircle = new MapMethod(rootView.getContext()).showCircleToGoogleMap(mMap, mapCircle, latLng, (float) sizeRadius);
             }
         }
     }
@@ -566,7 +620,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
                     .zoom(17)                   // Sets the zoom
-                    .bearing(90)                // Sets the orientation of the camera to east
 //                    .tilt(40)                   // Sets the tilt of the camera to 30 degrees
                     .build();                   // Creates a CameraPosition from the builder
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -739,7 +792,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     public void onResume() {
         super.onResume();
         rootView.getContext().registerReceiver(gpsLocationReceiver, new IntentFilter(BROADCAST_ACTION));//Register broadcast receiver to check the status of GPS
-
+        getView().setFocusable(true);
+        getView().setFocusableInTouchMode(true);
+        getView().requestFocus();
     }
 
     @Override
@@ -793,22 +848,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             LatLng camCover = new LatLng(route.startLocation.latitude, route.endLocation.longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camCover, 7));
 
-//            originMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-//                    .title(route.startAddress)
-//                    .position(route.startLocation)));
-//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-//                    .title(route.endAddress)
-//                    .position(route.endLocation)));
-//            PolylineOptions polylineOptions = new PolylineOptions().
-//                    geodesic(true).
-//                    color(Color.BLUE).
-//                    width(18);
-//            PolylineOptions polylineOptionsGray = new PolylineOptions().
-//                    geodesic(true).
-//                    color(Color.GRAY).
-//                    width(14);
             PolylineOptions polylineOptions = new PolylineOptions().geodesic(true);
 
             if (routes.indexOf(route) != minDistanceIndex) {
@@ -828,48 +867,10 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
             polyline.setClickable(true);
 
 
-//            mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
-//                @Override
-//                public void onPolylineClick(Polyline polyline) {
-//                    // make color
-////                    blueId[0] = polyline.getId();
-////                    for (int i = 0; i < polylinePaths.size(); i++) {
-////                        if (!blueId[0].equals(polylinePaths.get(i).getId())) {
-////                            polylinePaths.get(i).setColor(Color.GRAY);
-////                            polylinePaths.get(i).setZIndex(9);
-////                            polylinePaths.get(i).setWidth(14);
-////                        } else {
-////                            polyline.setColor(Color.BLUE);
-////                            polylinePaths.get(i).setZIndex(10);
-////                            polyline.setWidth(18);
-////                            Log.d("polyid", polyline.getId());
-////                        }
-////                    }
-//                    for (int i = 0; i < polylinePaths.size(); i++) {
-//                        if (polyline.getId().equals(polylinePaths.get(i).getId())) {
-//                            polyline.setColor(Color.BLUE);
-//                            polylinePaths.get(i).setWidth(18);
-//                            polylinePaths.get(i).setZIndex(10);
-//                        } else {
-//                            polylinePaths.get(i).setColor(Color.GRAY);
-//                            polylinePaths.get(i).setWidth(14);
-//                            polylinePaths.get(i).setZIndex(9);
-//
-//                        }
-//                    }
-//
-//                    Log.d("poliId", polyline.getId());
-//                }
-//            });
-//                final String[] polyId = {""};
             mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
                 @Override
                 public void onPolylineClick(Polyline polyline) {
                     // make color
-//                        polyId[0] = polyline.getId();
-//                    for (int u = 0; u < sumPaths.size(); u++) {
-//                        Log.d("sumpaths", sumPaths.size() + "");
-//                    }
                     String id = polyline.getId();
                     for (int u = 0; u < sumPaths.size(); u++) {
                         List<Polyline> containedOne = new ArrayList<>();
@@ -885,10 +886,6 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                 polyline.setZIndex(10);
                                 polyline.setWidth(18);
 
-//                                if (durations.containsKey(id) && distances.containsKey(id)) {
-//                                    ((TextView) findViewById(R.id.tv_map_duration)).setText(durations.get(id));
-//                                    ((TextView) findViewById(R.id.tv_map_distance)).setText(distances.get(id));
-//                                }
                             } else if (!id.equals(polylinePaths.get(i).getId()) && containedOne.equals(polylinePaths)) {
                                 polylinePaths.get(i).setColor(Color.GRAY);
                                 polylinePaths.get(i).setZIndex(9);

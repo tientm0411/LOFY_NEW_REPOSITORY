@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="#ededed"
+    android:orientation="vertical"
+    tools:context=".controller.ProfileFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="2dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iv_profile_ava"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@mipmap/ic_launcher"
+                android:background="@drawable/border_iv_ava"
+                />
+
+            <TextView
+                android:id="@+id/tv_profile_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="2dp"
+                android:gravity="center_horizontal"
+                android:text="Kylian Mbappé"
+                android:textColor="#4B1C1B"
+                android:textSize="10sp"
+                android:textStyle="bold |italic"
+
+                />
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:text="Số điện thoại"
+            android:textColor="@color/fontColor"
+            android:textSize="10dp"
+            android:textStyle="bold|italic" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edt_profile_user_phone"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="9"
+                android:hint="...."
+                android:inputType="phone"
+                android:paddingLeft="10dp" />
+            />
+
+            <Button
+                android:id="@+id/btn_profile_show_menu"
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/ic_repair"
+                android:descendantFocusability="blocksDescendants" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ln_profile_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+
+            >
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="0dp"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="Mã xác nhận"
+                android:textColor="#126d5b"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/edt_profile_code_confirm"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="5"
+                android:inputType="number"
+                android:textSize="8sp" />
+
+            <Button
+                android:id="@+id/btn_profile_code_confirm"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_weight="1"
+                android:background="@drawable/ic_accept"
+                android:descendantFocusability="blocksDescendants" />
+
+            <Button
+                android:id="@+id/btn_profile_code_cancel"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_weight="1"
+                android:background="@drawable/ic_deny"
+                android:descendantFocusability="blocksDescendants" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="0dp"
+            android:text="Danh sách nhóm đã tham gia"
+            android:textColor="@color/fontColor"
+            android:textSize="10sp"
+            android:textStyle="bold|italic" />
+
+        <ListView
+            android:id="@+id/lv_profile_list_old_group"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_margin="0dp"
+            android:layout_marginLeft="24dp"
+            android:background="#D2D2D2"
+            android:divider="#FFCC00"
+            android:padding="2dp"
+            android:scrollbars="vertical"
+            android:stackFromBottom="false"></ListView>
+
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btn_profile_logout"
+                android:layout_height="30dp"
+                android:layout_centerHorizontal="true"
+                android:background="#4267B2"
+                android:drawableLeft="@drawable/ic_fb_2"
+                android:fontFamily="sans-serif"
+                android:fontFeatureSettings=""
+                android:paddingLeft="8dp"
+                android:text="Đăng xuất"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="8sp"
+                android:textStyle="bold"
+                app:layout_marginTopPercent="40%"
+                app:layout_widthPercent="80%" />
+
+        </android.support.percent.PercentRelativeLayout>
+
+    </LinearLayout>
+</ScrollView>

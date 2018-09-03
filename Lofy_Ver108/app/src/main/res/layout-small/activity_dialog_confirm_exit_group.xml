@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:padding="20dp"
+    android:background="@drawable/custom_view_shadow"
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/tv_activity_dialog_confirm_exit_group_confirm"
+        android:textStyle="bold|italic"
+        android:textSize="10dp"
+        android:textColor="#05395c"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        />
+
+    <Button
+        android:id="@+id/btn_dialog_confirm_exit_group_go_current"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_activity_dialog_confirm_exit_group_go_current"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="10sp"
+        android:textStyle="normal" />
+
+    <Button
+        android:id="@+id/btn_dialog_confirm_exit_group_quit_group"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_activity_dialog_confirm_exit_group_quit_group"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="10sp"
+        android:textStyle="normal" />
+
+</LinearLayout>

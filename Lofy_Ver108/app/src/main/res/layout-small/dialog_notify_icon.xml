@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:padding="2dp"
+    android:layout_margin="2dp"
+    android:orientation="vertical"
+    android:background="@drawable/right_button_btn_line"
+    >
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:padding="1dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/boder_noti_title"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tv_dialog_notify_icon_warningTable"
+            android:textStyle="bold|italic"
+            android:textColor="#FF7400"
+            android:textSize="12dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <Button
+            android:id="@+id/btn_map_noti_police"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_police"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_police"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_accident"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_accident"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_accident"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_contruction_arena"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_construction_area"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_contructtion_arena"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_gas_station"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_gas_station"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_gas_station"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <Button
+            android:id="@+id/btn_map_noti_healthy"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_health"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_health"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_lost"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_lost"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_lost"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_mountan_road"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_mountain_road"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_mountant_road"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_land_scape"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_natural_landscape"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_natural_landscape"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <Button
+            android:id="@+id/btn_map_noti_repair"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_repair"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_repair"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_stop"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_stop"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_stop"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_stop_point"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_stop_point"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_stop_point"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_sum_up"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_sumup"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_sum_up"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <Button
+            android:id="@+id/btn_map_noti_traffic_jam"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_traffic_jam"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_traffic_jam"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_trains"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_train"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_train"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_weather"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_weather"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_weather"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+
+        <Button
+            android:id="@+id/btn_map_noti_animals"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/boder_noti"
+            android:drawableTop="@drawable/ic_wild_animals"
+            android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/btn_dialog_notify_icon_wild_animal"
+            android:textAllCaps="false"
+            android:textColor="#FF7400"
+            android:textSize="6sp" />
+    </LinearLayout>
+
+</LinearLayout>
+

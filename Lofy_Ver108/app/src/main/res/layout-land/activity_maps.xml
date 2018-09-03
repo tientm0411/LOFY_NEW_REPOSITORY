@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".controller.MapsActivity"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:drawableRight="@drawable/location"
+            android:hint="Vị Trí Của Tôi"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_heightPercent="9%"
+            app:layout_marginTopPercent="0%" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:drawableRight="@drawable/location"
+            android:hint="Điểm Đến"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_heightPercent="9%"
+            app:layout_marginTopPercent="10%" />
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompleteTextView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:drawableRight="@drawable/location"
+            android:hint="Điểm Dừng"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_heightPercent="9%"
+            app:layout_marginTopPercent="20%" />
+
+    </android.support.percent.PercentRelativeLayout>
+    <LinearLayout
+        android:background="@drawable/boder_noti_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        android:layout_gravity="center"
+        android:gravity="center"
+        >
+
+        <Button
+            android:id="@+id/btn_main2_saveTrack"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Lưu"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btn_main2_findPath"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="@string/btn_mapsActivity_findPath"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btn_main2_addRest"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Thêm điểm dừng"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btn_main2_Reset"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Đặt lại"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layoutNearBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/boder_noti_title"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/btn_main2_nearbyGasStation"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Trạm xăng"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btn_main2_nearbyHospital"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Bệnh viện"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/btn_main2_nearbyRestaurant"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="Nhà hàng"
+            android:textAllCaps="false"
+            android:textColor="#ffff"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/mapMain2"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        ></fragment>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#5fbf8c"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_distance" />
+
+        <TextView
+            android:id="@+id/tv_map_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/tv_mapsActivity_distance" />
+
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_clock" />
+
+        <TextView
+            android:id="@+id/tv_map_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/tv_mapsActivity_duration" />
+
+
+    </LinearLayout>
+</LinearLayout>

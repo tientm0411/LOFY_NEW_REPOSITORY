@@ -41,23 +41,23 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (twice == true) {
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(startMain);
-//            finish();
-//            System.exit(0);
-        }
-        twice = true;
-        Toast.makeText(this, "Nhấn trở lại một lần nữa để thoát !", Toast.LENGTH_SHORT).show();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                twice = false;
-            }
-        }, 3000);
-
+//        if (twice == true) {
+//            Intent startMain = new Intent(Intent.ACTION_MAIN);
+//            startMain.addCategory(Intent.CATEGORY_HOME);
+//            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(startMain);
+////            finish();
+////            System.exit(0);
+//        }
+//        twice = true;
+//        Toast.makeText(this, "Nhấn trở lại một lần nữa để thoát !", Toast.LENGTH_SHORT).show();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                twice = false;
+//            }
+//        }, 3000);
+//
 
     }
 

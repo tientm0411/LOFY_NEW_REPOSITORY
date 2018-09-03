@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:padding="20dp"
+    android:background="@drawable/custom_view_shadow"
+    >
+
+    <Button
+        android:id="@+id/btn_dialog_create_view_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_dialog_create_member_list_view_profile"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="30sp"
+        android:textStyle="normal" />
+
+    <Button
+        android:id="@+id/btn_dialog_create_remove"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_dialog_create_member_list_remove_member"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="30sp"
+        android:textStyle="normal" />
+
+    <Button
+        android:id="@+id/btn_dialog_create_set_vice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_dialog_create_member_list_set_vice"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="30sp"
+        android:textStyle="normal" />
+
+    <Button
+        android:id="@+id/btn_dialog_create_set_host"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:background="@drawable/button_home_shape"
+        android:text="@string/btn_dialog_create_member_list_set_host"
+        android:textAllCaps="false"
+        android:textColor="#05395c"
+        android:textSize="30sp"
+        android:textStyle="normal" />
+</LinearLayout>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EDEDED"
+    tools:context=".controller.HomeFragment">
+
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_centerHorizontal="true"
+            app:layout_heightPercent="15%"
+            app:layout_marginTopPercent="16%"
+            app:layout_widthPercent="60%"
+            app:srcCompat="@drawable/ic_logo_full_2" />
+
+        <!--<TextView-->
+            <!--android:id="@+id/editText2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@null"-->
+            <!--android:ems="10"-->
+            <!--android:gravity="center"-->
+            <!--android:inputType="textPersonName"-->
+            <!--android:text="@string/tv_fragment_home_appName"-->
+            <!--android:textColor="@color/fontColor"-->
+            <!--android:textSize="24sp"-->
+            <!--android:textStyle="bold"-->
+            <!--app:layout_marginTopPercent="25%" />-->
+
+        <Button
+            android:id="@+id/btn_home_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:text="@string/btn_fragment_home_profile"
+            android:textColor="#FFFFFF"
+            app:layout_marginTopPercent="40%"
+            app:layout_widthPercent="50%" />
+
+
+        <!--<Button-->
+            <!--android:id="@+id/btn_home_current"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@drawable/layout_btn"-->
+            <!--android:textAllCaps="false"-->
+            <!--android:text="@string/btn_fragment_home_current_group"-->
+            <!--android:textColor="#FFFFFF"-->
+            <!--app:layout_marginTopPercent="50%"-->
+            <!--app:layout_widthPercent="50%" />-->
+
+        <Button
+            android:id="@+id/btn_home_create"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:textAllCaps="false"
+            android:text="@string/btn_fragment_home_create"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            app:layout_marginTopPercent="52%"
+            app:layout_widthPercent="50%" />
+
+        <Button
+            android:id="@+id/btn_home_join"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:background="#5fbf8c"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:text="@string/btn_fragment_home_join"
+            android:textColor="#FFFFFF"
+            app:layout_marginTopPercent="64%"
+            app:layout_widthPercent="50%" />
+
+        <Button
+            android:id="@+id/btn_home_about"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:background="#5fbf8c"
+            android:textAllCaps="false"
+            android:text="@string/btn_fragment_home_about"
+            android:textColor="#FFFFFF"
+            app:layout_marginTopPercent="76%"
+            app:layout_widthPercent="50%" />
+
+        <!--<TextView-->
+            <!--android:id="@+id/editText3"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@null"-->
+            <!--android:ems="10"-->
+            <!--android:fontFamily="serif"-->
+            <!--android:gravity="center"-->
+            <!--android:inputType="textPersonName"-->
+            <!--android:text="@string/tv_fragment_home_slogan"-->
+            <!--android:textColor="@color/fontColor"-->
+            <!--android:textSize="14sp"-->
+            <!--android:textStyle="italic"-->
+            <!--app:layout_marginTopPercent="90%" />-->
+
+
+    </android.support.percent.PercentRelativeLayout>
+
+
+</LinearLayout>

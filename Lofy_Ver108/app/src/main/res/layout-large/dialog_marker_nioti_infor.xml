@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/boder_noti_title"
+    >
+
+    <!--<ImageView-->
+        <!--android:id="@+id/iv_dg_noti_infor_icon"-->
+        <!--android:layout_width="200dp"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_margin="16dp"-->
+        <!--android:src="@drawable/ic_logo_siple"-->
+        <!--/>-->
+
+    <TextView
+        android:id="@+id/tv_dg_noti_infor_noti_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notification Name"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_margin="16dp"
+        android:textColor="#FF7400"
+        />
+
+    <TextView
+        android:id="@+id/tv_dg_noti_infor_noti_mess"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notification Mess"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_margin="16dp"
+        android:textColor="#000000"
+        />
+    <TextView
+        android:id="@+id/tv_dg_noti_infor_noti_member"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Member"
+        android:textSize="25sp"
+        android:textStyle="bold|italic"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_margin="16dp"
+        android:textColor="#05395c"
+        />
+</LinearLayout>
