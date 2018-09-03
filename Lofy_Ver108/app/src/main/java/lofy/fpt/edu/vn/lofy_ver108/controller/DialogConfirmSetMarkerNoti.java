@@ -103,7 +103,11 @@ public class DialogConfirmSetMarkerNoti extends Dialog implements View.OnClickLi
                 dismiss();
                 break;
             case R.id.btn_dg_noti_confirm_send:
-                sendNoti();
+               try {
+                   sendNoti();
+               }catch (Exception e){
+
+               }
                 dismiss();
                 break;
             default:

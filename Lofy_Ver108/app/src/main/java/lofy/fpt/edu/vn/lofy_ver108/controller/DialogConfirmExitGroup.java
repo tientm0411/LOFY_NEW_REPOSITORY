@@ -153,7 +153,11 @@ public class DialogConfirmExitGroup extends Dialog implements View.OnClickListen
                 }
                 break;
             case R.id.btn_dialog_confirm_exit_group_quit_group:
-                createAlertDialog();
+                try {
+                    createAlertDialog();
+                }catch (Exception e){
+
+                }
                 break;
             default:
                 break;

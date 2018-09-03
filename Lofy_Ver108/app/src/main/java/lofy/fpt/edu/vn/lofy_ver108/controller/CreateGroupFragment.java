@@ -280,26 +280,31 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_create_group, container, false);
-        initView();
-        checkOldGroup();
-        LoadListAsynJoin loadListAsyn = new LoadListAsynJoin();
-        loadListAsyn.execute();
-        rootView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                    if (i == KeyEvent.KEYCODE_BACK) {
-                        callParentMethod();
-                        return true;
+        try {
+            rootView = inflater.inflate(R.layout.fragment_create_group, container, false);
+            initView();
+            checkOldGroup();
+            LoadListAsynJoin loadListAsyn = new LoadListAsynJoin();
+            loadListAsyn.execute();
+            rootView.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                        if (i == KeyEvent.KEYCODE_BACK) {
+                            callParentMethod();
+                            return true;
+                        }
                     }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        } catch (Exception e) {
+
+        }
         return rootView;
     }
-    public void callParentMethod(){
+
+    public void callParentMethod() {
         getActivity().onBackPressed();
     }
 
@@ -313,9 +318,13 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            registerUserRequest();
-            registerListMember();
-            registerVice();
+            try {
+                registerUserRequest();
+                registerListMember();
+                registerVice();
+            } catch (Exception e) {
+
+            }
         }
     }
 
@@ -472,57 +481,77 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         Intent intent;
         switch (v.getId()) {
             case R.id.createGroup_btn_create_group:
-                createGroup();
+                try {
+                    createGroup();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.fab_create_set_track:
-                intent = new Intent(rootView.getContext(), MapsActivity.class);
-                intent.putExtra("groupId", groupID);
-                startActivity(intent);
+                try {
+                    intent = new Intent(rootView.getContext(), MapsActivity.class);
+                    intent.putExtra("groupId", groupID);
+                    startActivity(intent);
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.fab_create_start:
-                final ArrayList<GroupUser> ge = new ArrayList<>();
-                valueEventListenerOnclickGroupUser = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.hasChildren()) {
-                            ge.clear();
-                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                GroupUser g = ds.getValue(GroupUser.class);
-                                if (g.getGroupId().equals(groupID) && g.isVice()) {
+                try {
+                    final ArrayList<GroupUser> ge = new ArrayList<>();
+                    valueEventListenerOnclickGroupUser = new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.hasChildren()) {
+                                ge.clear();
+                                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                    GroupUser g = ds.getValue(GroupUser.class);
+                                    if (g.getGroupId().equals(groupID) && g.isVice()) {
 
-                                    Activity activity = getActivity();
-                                    if (isAdded() && activity != null) {
-                                        Intent intent;
-                                        intent = new Intent(rootView.getContext(), StartActivity.class);
-                                        intent.putExtra("groupId", groupID);
-                                        startActivity(intent);
-                                        return;
+                                        Activity activity = getActivity();
+                                        if (isAdded() && activity != null) {
+                                            Intent intent;
+                                            intent = new Intent(rootView.getContext(), StartActivity.class);
+                                            intent.putExtra("groupId", groupID);
+                                            startActivity(intent);
+                                            return;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        mFirebaseDatabase.getReference("groups-users").removeEventListener(this);
+                            mFirebaseDatabase.getReference("groups-users").removeEventListener(this);
 //                        Toast.makeText(rootView.getContext(), "Bạn cần có phó đoàn để bắt đầu chuyến đi !", Toast.LENGTH_SHORT).show();
-                        startNoViceAlertDialog();
-                    }
+                            startNoViceAlertDialog();
+                        }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                };
-                groupUserRef.addValueEventListener(valueEventListenerOnclickGroupUser);
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    };
+                    groupUserRef.addValueEventListener(valueEventListenerOnclickGroupUser);
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.fab_create_quit_group:
-                String guId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-                if (guId.equals("NA")) {
-                    Toast.makeText(rootView.getContext(), "Bạn chưa tham gia vào nhóm nào !", Toast.LENGTH_SHORT).show();
-                } else {
-                    quitAlertDialog();
+                try {
+                    String guId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+                    if (guId.equals("NA")) {
+                        Toast.makeText(rootView.getContext(), "Bạn chưa tham gia vào nhóm nào !", Toast.LENGTH_SHORT).show();
+                    } else {
+                        quitAlertDialog();
+                    }
+                } catch (Exception e) {
+
                 }
                 break;
             case R.id.fab_create_home:
-                intent = new Intent(rootView.getContext(), HomeActivity.class);
-                startActivity(intent);
+                try {
+                    intent = new Intent(rootView.getContext(), HomeActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+
+                }
                 break;
             default:
                 break;
@@ -633,25 +662,34 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
     @Override
     public void onStop() {
         super.onStop();
-//        groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
+//
+        try {
+            groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
 //        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
 //        groupUserRef.removeEventListener(valueEventListenerOnclickGroupUser);
-        userRef.removeEventListener(valueEventListenerViceUserRef);
-        userRef.removeEventListener(valueEventListenerMemberUserRef);
-        userRef.removeEventListener(valueEventListenerRequestUser);
-        userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
+            userRef.removeEventListener(valueEventListenerViceUserRef);
+            userRef.removeEventListener(valueEventListenerMemberUserRef);
+            userRef.removeEventListener(valueEventListenerRequestUser);
+            userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
+        }catch (Exception e){
+
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        try {
+            mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
 //        groupUserRef.removeEventListener(valueEventListenerViceGroupUserRef);
-        groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
+            groupUserRef.removeEventListener(valueEventListenerMemberGroupUserRef);
 //        groupUserRef.removeEventListener(valueEventListenerOnclickGroupUser);
-        userRef.removeEventListener(valueEventListenerViceUserRef);
-        userRef.removeEventListener(valueEventListenerMemberUserRef);
-        userRef.removeEventListener(valueEventListenerRequestUser);
-        userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
+            userRef.removeEventListener(valueEventListenerViceUserRef);
+            userRef.removeEventListener(valueEventListenerMemberUserRef);
+            userRef.removeEventListener(valueEventListenerRequestUser);
+            userRequestRef.removeEventListener(valueEventListenerRequestUserRequest);
+        } catch (Exception e) {
+
+        }
     }
 }

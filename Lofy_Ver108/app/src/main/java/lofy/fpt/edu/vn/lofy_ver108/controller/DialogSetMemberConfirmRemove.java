@@ -45,7 +45,11 @@ public class DialogSetMemberConfirmRemove extends Dialog implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_create_confirm_delete:
-                doRemove();
+              try {
+                  doRemove();
+              }catch (Exception e){
+
+              }
                 dismiss();
                 break;
             case R.id.btn_create_confirm_cancel:
@@ -62,7 +66,5 @@ public class DialogSetMemberConfirmRemove extends Dialog implements View.OnClick
         GroupUser gu1 = new GroupUser(mKeyUserRequest2, substrUId, substrGId, false, false, "NA", 0.0, false);
         DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("groups-users");
         groupRef.child(mKeyUserRequest2).setValue(gu1);
-
-
     }
 }

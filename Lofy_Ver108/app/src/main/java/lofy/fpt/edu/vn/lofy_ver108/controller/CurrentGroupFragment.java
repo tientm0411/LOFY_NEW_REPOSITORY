@@ -38,7 +38,11 @@ public class CurrentGroupFragment extends Fragment implements SharedPreferences.
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_current_group, container, false);
-        initView();
+        try {
+            initView();
+        }catch (Exception e){
+
+        }
         return rootView;
     }
 

@@ -57,7 +57,11 @@ public class DialogSetMemberConfirmSetVice extends Dialog implements View.OnClic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_create_confirm_set_vice:
-                doSetVice();
+               try {
+                   doSetVice();
+               }catch (Exception e){
+
+               }
                 dismiss();
                 break;
             case R.id.btn_create_confirm_cancel_set_vice:

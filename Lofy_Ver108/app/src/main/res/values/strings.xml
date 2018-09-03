@@ -96,4 +96,17 @@
     <string name="tv_item_user_request_userName">Người dùng</string>
     <string name="title_home">Thông tin ứng dụng</string>
     <string name="title_dashboard">Hướng dẫn</string>
+    <string name="title">LOFY chào các bạn ^^
+
+LOFY được tạo ra với mục đích sẽ là một công cụ ứng dụng trong những chuyến đi du lịch nhằm giúp quản lý thành viên tốt hơn, du lịch an toàn và thuận tiện hơn
+
+Với những tính năng khác hẳn với những ứng dụng hiện có, LOFY tin rằng sẽ góp phần làm cho chuyến hành trình Phượt của bạn  thật đáng nhớ "
+    </string>
+    <string name="content1">1 - Tạo các nhóm với mỗi hành trình khác nhau và những bạn đường khác nhau</string>
+    <string name="content2">2 - Thiết lập lộ trình rõ ràng và dễ dàng bằng cách nhập điểm xuất phát, điểm kết thúc, điểm dừng chân trên hành trình, ...</string>
+    <string name="content3">3 - Các thành viên có thể theo dõi vị trí của mình cũng như các thành viên khác trong đoàn trên bản đồ"</string>
+    <string name="content4">4 - Gửi cảnh báo nhanh khi gặp những tình huống trên đường như lạc đường, tai nạn, hết xăng, ...</string>
+    <string name="content5">5 - Gửi cảnh báo nhanh khi gặp những tình huống trên đường như lạc đường, tai nạn, hết xăng, ...</string>
+    <string name="content6">6 - Các cảnh báo từ những người trong đoàn sẽ hiển thị trên bản đồ để mọi người theo dõi và chú ý </string>
+    <string name="content7">Hãy cài đặt và sử dụng LOFY để làm cho chuyến du lịch của bạn thật nhiều ý nghĩa và tiện ích </string>
 </resources>

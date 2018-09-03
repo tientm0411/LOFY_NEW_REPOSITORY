@@ -77,23 +77,23 @@ public class DialogNotifyIcon extends Dialog implements View.OnClickListener {
 //    public static final String IC_WEATHER = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_noti%2Fic_weather.png?alt=media&token=92b6ee15-4b2d-4fd5-b119-3cfe2a92b421";
 //    public static final String IC_ANIMAL = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_noti%2Fic_wild_animals.png?alt=media&token=7cd3ed54-e9b4-4267-9590-6a64cdbc4cbf";
 
-    public static final String IC_POLICE = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_cong_an.png?alt=media&token=93b2583e-d7c2-41c9-b387-86e00b754f5a";
-    public static final String IC_ACCIDENT = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tai_nan.png?alt=media&token=d106b34c-532d-4463-8693-3c31dd147b68";
-    public static final String IC_CONSTRUCTION_AREA = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_cong_truong.png?alt=media&token=1d58e03c-b4f0-432b-8ffb-05b9bf613edf";
-    public static final String IC_GAS_STATION = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tram_xang.png?alt=media&token=073e1182-a7bf-45ef-81ab-931d0fe6a6e3";
-    public static final String IC_HEALTHY = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_suc_khoe.png?alt=media&token=4c5c73aa-5c4e-4ca1-b2f1-4e71d05daba9";
-    public static final String IC_LOST = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_bi_lac.png?alt=media&token=1bbc260e-3dd1-430f-a30c-01ddef598cd8";
-    public static final String IC_MOUNTANT_ROAD = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_duong_nui.png?alt=media&token=33cf219a-2e7d-46d5-90b7-349f3c794be2";
-    public static final String IC_LAND_SCAPE = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_canh_dep.png?alt=media&token=8a85ce33-f7e6-4597-9a95-be06360fed33";
-    public static final String IC_REPAIR = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_sua_chua.png?alt=media&token=47282488-9d48-47f7-9d6c-740468f97ac8";
-    public static final String IC_STOP = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_d%E1%BB%ABng.png?alt=media&token=e7be84ea-4f04-4db2-a443-23d8922de54c";
-    public static final String IC_STOP_POINT = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_xin_dung.png?alt=media&token=afec414a-feb4-490a-9ce2-04f6bab4dad3";
-    public static final String IC_SUM_UP = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tap_trung.png?alt=media&token=13274050-e9c4-49a0-9239-1c62a170897e";
-    public static final String IC_TRAFFIC_JAM = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tai_nan.png?alt=media&token=d106b34c-532d-4463-8693-3c31dd147b68";
-    public static final String IC_TRAIN = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_co_tau_hoa.png?alt=media&token=3220cfeb-6d14-4e4a-ab65-c1bec4f7965e";
-    public static final String IC_WEATHER = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_thoi_tiet.png?alt=media&token=c3d53cb4-9da6-40f6-af9e-beb6b0150d21";
+    public static final String IC_POLICE = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_cong_an.png?alt=media&token=64660849-f49d-4893-8b93-5355e2c63c35";
+    public static final String IC_ACCIDENT = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tai_nan.png?alt=media&token=d038d2e3-90ae-4599-be1e-7a46faabe2f1";
+    public static final String IC_CONSTRUCTION_AREA = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_cong_truong.png?alt=media&token=e06640b5-d907-4c15-978c-d647164e6079";
+    public static final String IC_GAS_STATION = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tram_xang.png?alt=media&token=5500d4b3-a65d-4bd4-a90c-06b1fe76e55b";
+    public static final String IC_HEALTHY = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_suc_khoe.png?alt=media&token=57b1c84a-0f94-4d27-9529-bb644027e43a";
+    public static final String IC_LOST = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_bi_lac.png?alt=media&token=a9912f79-c49c-4d26-9762-963937957515";
+    public static final String IC_MOUNTANT_ROAD = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_duong_nui.png?alt=media&token=2de38a26-e1d8-42b8-b9c8-2d21fd130127";
+    public static final String IC_LAND_SCAPE = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_canh_dep.png?alt=media&token=35f497b6-f56f-4294-932f-74d459c9600d";
+    public static final String IC_REPAIR = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_sua_chua.png?alt=media&token=c31af0ac-2c0c-4d9b-bc90-3eeb5c9c1d68";
+    public static final String IC_STOP = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_dung.png?alt=media&token=b669cbf7-4231-43b1-865b-64a22469ff21";
+    public static final String IC_STOP_POINT = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_xin_dung.png?alt=media&token=bb847547-510f-4330-8dd0-e954797cef9b";
+    public static final String IC_SUM_UP = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tap_trung.png?alt=media&token=946178ff-6fb8-4c1d-8cf3-c35e385a9c93";
+    public static final String IC_TRAFFIC_JAM = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tac_duong.png?alt=media&token=035860a9-430b-4273-9312-b0acd0978696";
+    public static final String IC_TRAIN = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_tau_hoa.png?alt=media&token=952e204d-7f4f-42bb-891e-0ca07cfeea8f";
+    public static final String IC_WEATHER = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_thoi_tiet.png?alt=media&token=b030e0a1-5aa8-4ed2-8c2a-d5343d89fd71";
 //    public static final String IC_ANIMAL = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_dong_vat_hoang_da.png?alt=media&token=94b2abe9-6e6b-411b-b0d6-24896b5dafc3";
-    public static final String IC_ANIMAL = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_demo_2.png?alt=media&token=54d4370b-97ec-454b-a037-6e4398e264f3";
+    public static final String IC_ANIMAL = "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/ic_marker_noti%2Fic_dong_vat.png?alt=media&token=18615b6b-1fb1-4f1b-9f9d-c66fe90914c7";
 
 
 

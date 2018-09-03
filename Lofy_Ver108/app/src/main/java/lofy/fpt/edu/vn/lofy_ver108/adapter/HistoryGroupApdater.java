@@ -14,17 +14,20 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
+import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 
 public class HistoryGroupApdater extends BaseAdapter {
     ArrayList<Group> alGroup;
     private LayoutInflater inflater;
     Context mContext;
+    MapMethod mapMethod;
 
     public HistoryGroupApdater(Context context, ArrayList<Group> alGroup) {
         mContext = context;
         this.alGroup = alGroup;
         inflater = LayoutInflater.from(context);
+        mapMethod = new MapMethod(mContext);
     }
 
     @Override
@@ -62,11 +65,21 @@ public class HistoryGroupApdater extends BaseAdapter {
         } else {
             myViewHolder = (MyViewHolder) view.getTag();
         }
-        Group group = alGroup.get(i);
-        myViewHolder.tvName.setText(group.getGroupName());
-        myViewHolder.tvDate.setText(group.getStart_Date() + " - " + group.getEnd_Date());
-        myViewHolder.tvTrack.setText("(" + group.getStart_Lat() + group.getStart_Long() + ") -- ( " + group.getEnd_Lat() + group.getEnd_Long() + ")");
-        myViewHolder.ivDel.performClick();
+        try {
+            Group group = alGroup.get(i);
+            myViewHolder.tvName.setText(group.getGroupName());
+            myViewHolder.tvDate.setText(group.getStart_Date() + " - " + group.getEnd_Date());
+//           myViewHolder.tvTrack.setText("(" + group.getStart_Lat() + group.getStart_Long() + ") -- ( " + group.getEnd_Lat() + group.getEnd_Long() + ")");
+
+            String addressStart = mapMethod.getAddress(group.getStart_Lat(), group.getStart_Long(), mContext);
+            String addressEnd = mapMethod.getAddress(group.getEnd_Lat(), group.getEnd_Long(), mContext);
+            myViewHolder.tvTrack.setText(addressStart + " - " + addressEnd);
+            myViewHolder.ivDel.performClick();
+
+
+        } catch (Exception e) {
+
+        }
 
         return view;
     }

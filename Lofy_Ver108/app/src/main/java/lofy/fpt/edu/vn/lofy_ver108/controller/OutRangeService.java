@@ -37,8 +37,8 @@ public class OutRangeService extends Service {
 
         NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext())
                 .setContentTitle("Cảnh báo")
-                .setContentText(data+" đã ra khỏi vòng an toàn !")
-                .setSmallIcon(R.drawable.ic_app_logo)
+                .setContentText(data + " đã ra khỏi vòng an toàn !")
+                .setSmallIcon(R.drawable.ic_logo_siple)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_deny))
                 .setColor(getResources().getColor(R.color.colorPrimary))
                 .setVibrate(new long[]{0, 300, 300, 300})

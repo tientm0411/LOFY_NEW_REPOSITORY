@@ -35,6 +35,7 @@ public class GPS_Service extends Service implements SharedPreferences.OnSharedPr
 
     }
 
+
     private class LocationListener implements android.location.LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
         Location mLastLocation;
 

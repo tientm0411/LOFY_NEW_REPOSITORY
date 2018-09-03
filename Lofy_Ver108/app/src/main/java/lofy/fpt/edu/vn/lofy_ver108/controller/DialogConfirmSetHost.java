@@ -17,7 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.entity.GroupUser;
 
-public class DialogConfirmSetHost extends Dialog implements View.OnClickListener{
+public class DialogConfirmSetHost extends Dialog implements View.OnClickListener {
     private Context mContext;
     private String mKeyUserRequest2;
 
@@ -55,7 +55,11 @@ public class DialogConfirmSetHost extends Dialog implements View.OnClickListener
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_create_confirm_set_host:
-                doSetHost();
+                try {
+                    doSetHost();
+                } catch (Exception e) {
+
+                }
                 dismiss();
                 break;
             case R.id.btn_create_confirm_cancel_set_host:
@@ -67,8 +71,9 @@ public class DialogConfirmSetHost extends Dialog implements View.OnClickListener
     }
 
     private int mCount;
+
     private void doSetHost() {
-        mCount= 0;
+        mCount = 0;
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseDatabase.getReference("groups-users").addValueEventListener(new ValueEventListener() {
             @Override
@@ -82,12 +87,13 @@ public class DialogConfirmSetHost extends Dialog implements View.OnClickListener
                             mCount++;
                         }
                     }
-                    if(mCount==0){
+                    if (mCount == 0) {
                         mFirebaseDatabase.getReference("groups-users").child(mKeyUserRequest2).child("host").setValue(true);
                     }
                 }
                 mFirebaseDatabase.getReference("groups-users").removeEventListener(this);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }

@@ -59,39 +59,53 @@ public class DialogSetMemberInCreateFragment extends Dialog implements View.OnCl
         switch (view.getId()) {
             case R.id.btn_dialog_create_view_profile:
                 dismiss();
-                String substrGId = mKeyUserRequest2.substring(0, 6);
-                String substrUId = mKeyUserRequest2.substring(6, 21);
-                if (profileFragment == null) {
-                    profileFragment = new ProfileFragment(substrUId);
-                }
-                if (from.equals("home")) {
-                    ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
-                            .addToBackStack(null)
-                            .commit();
-                } else {
+                try {
+                    String substrGId = mKeyUserRequest2.substring(0, 6);
+                    String substrUId = mKeyUserRequest2.substring(6, 21);
+                    if (profileFragment == null) {
+                        profileFragment = new ProfileFragment(substrUId);
+                    }
+                    if (from.equals("home")) {
+                        ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
+                                .addToBackStack(null)
+                                .commit();
+                    } else {
 //                    ((AppCompatActivity) mContext).getSupportFragmentManager().beginTransaction()
 //                            .replace(R.id.ln_start, profileFragment, ProfileFragment.class.getName())
 //                            .addToBackStack(null)
 //                            .commit();
-                    Intent intent = new Intent(mContext,StartActivity.class);
-                    intent.putExtra("from", "start");
-                    intent.putExtra("USERID", substrUId);
-                    mContext.startActivity(intent);
+                        Intent intent = new Intent(mContext, StartActivity.class);
+                        intent.putExtra("from", "start");
+                        intent.putExtra("USERID", substrUId);
+                        mContext.startActivity(intent);
+                    }
+                } catch (Exception e) {
+
                 }
                 break;
             case R.id.btn_dialog_create_remove:
                 dismiss();
-                dialogSetMemberConfirmRemove = new DialogSetMemberConfirmRemove(mContext, mKeyUserRequest2);
-                dialogSetMemberConfirmRemove.show();
+                try {
+                    dialogSetMemberConfirmRemove = new DialogSetMemberConfirmRemove(mContext, mKeyUserRequest2);
+                    dialogSetMemberConfirmRemove.show();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.btn_dialog_create_set_vice:
                 dismiss();
-                dialogSetMemberConfirmSetVice = new DialogSetMemberConfirmSetVice(mContext, mKeyUserRequest2);
-                dialogSetMemberConfirmSetVice.show();
+                try {
+                    dialogSetMemberConfirmSetVice = new DialogSetMemberConfirmSetVice(mContext, mKeyUserRequest2);
+                    dialogSetMemberConfirmSetVice.show();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.btn_dialog_create_set_host:
-                Toast.makeText(mContext, "Set host", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(mContext, "Set host", Toast.LENGTH_SHORT).show();
+                DialogConfirmSetHost dialogConfirmSetHost = new DialogConfirmSetHost(mContext, mKeyUserRequest2);
+                dialogConfirmSetHost.create();
                 break;
             default:
                 break;

@@ -329,22 +329,27 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_join_group, container, false);
-        initView();
-        checkOldGroup();
-        LoadListAsync loadListAsync = new LoadListAsync();
-        loadListAsync.execute();
-        rootView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                    if (i == KeyEvent.KEYCODE_BACK) {
-                        callParentMethod();
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+       try {
+           initView();
+           checkOldGroup();
+           LoadListAsync loadListAsync = new LoadListAsync();
+           loadListAsync.execute();
+           rootView.setOnKeyListener(new View.OnKeyListener() {
+               @Override
+               public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                   if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                       if (i == KeyEvent.KEYCODE_BACK) {
+                           callParentMethod();
+                           return true;
+                       }
+                   }
+                   return false;
+               }
+           });
+       }catch (Exception e){
+
+       }
+
         return rootView;
     }
 
@@ -362,9 +367,13 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            registerListMember();
-            registerHost();
-            registerVice();
+          try {
+              registerListMember();
+              registerHost();
+              registerVice();
+          }catch (Exception e){
+
+          }
         }
     }
 
@@ -456,18 +465,34 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
         Intent intent;
         switch (view.getId()) {
             case R.id.join_btn_join_send_request:
-                joinGroup();
+               try {
+                   joinGroup();
+               }catch (Exception e){
+
+               }
                 break;
             case R.id.fab_join_start:
-                intent = new Intent(rootView.getContext(), StartActivity.class);
-                startActivity(intent);
+                try {
+                    intent = new Intent(rootView.getContext(), StartActivity.class);
+                    startActivity(intent);
+                }catch (Exception e){
+
+                }
                 break;
             case R.id.fab_join_quit_group:
-                joinAlertDialog();
+               try {
+                   joinAlertDialog();
+               }catch ( Exception e){
+
+               }
                 break;
             case R.id.fab_join_home:
-                intent = new Intent(rootView.getContext(), HomeActivity.class);
-                startActivity(intent);
+                try {
+                    intent = new Intent(rootView.getContext(), HomeActivity.class);
+                    startActivity(intent);
+                }catch (Exception e){
+
+                }
             default:
                 break;
         }
@@ -604,15 +629,39 @@ public class JoinGroupFragment extends Fragment implements SharedPreferences.OnS
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
     }
 
+    // create a dialog
+    public void profileAlertDialog(User u) {
+        AlertDialog alertDialog = new AlertDialog.Builder(rootView.getContext()).create();
+        alertDialog.setTitle("Xem trang cá nhân");
+        alertDialog.setMessage("Đi tới trang cá nhân");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Xem", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (profileFragment == null) {
+                    profileFragment = new ProfileFragment(u.getUserId());
+                }
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
+                        .addToBackStack(null)
+                        .commit();
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                alertDialog.dismiss();
+                return;
+            }
+        });
+        alertDialog.show();
+
+    }
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         final User u = (User) adapterView.getItemAtPosition(i);
-        if (profileFragment == null) {
-            profileFragment = new ProfileFragment(u.getUserId());
-        }
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
-                .addToBackStack(null)
-                .commit();
+        profileAlertDialog(u);
     }
 }

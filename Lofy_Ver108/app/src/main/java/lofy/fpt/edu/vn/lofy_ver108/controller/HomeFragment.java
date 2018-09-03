@@ -79,21 +79,30 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
 
     @Override
     public void onClick(View v) {
-        currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
-        currentGroupUserId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
-        String userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
-        Log.d("onClick", currentGroupId + " ");
-        Log.d("onClick2", currentGroupUserId + " ");
-        Log.d("onClick3", userId+"");
+        String userId = null;
+        try {
+            currentGroupId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+            currentGroupUserId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_USER_ID, "NA");
+            userId = mSharedPreferences.getString(IntroApplicationActivity.USER_ID, "NA");
+            Log.d("onClick", currentGroupId + " ");
+            Log.d("onClick2", currentGroupUserId + " ");
+            Log.d("onClick3", userId + "");
+        } catch (Exception e) {
+
+        }
         switch (v.getId()) {
             case R.id.btn_home_profile:
-                if (profileFragment == null) {
-                    profileFragment = new ProfileFragment(userId);
-                }
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
-                        .addToBackStack(null)
-                        .commit();
+              try {
+                  if (profileFragment == null) {
+                      profileFragment = new ProfileFragment(userId);
+                  }
+                  getActivity().getSupportFragmentManager().beginTransaction()
+                          .replace(R.id.ln_main, profileFragment, ProfileFragment.class.getName())
+                          .addToBackStack(null)
+                          .commit();
+              }catch (Exception e){
+
+              }
                 break;
 //            case R.id.btn_home_current:
 //                if (currentGroupFragment == null) {
@@ -105,35 +114,47 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Shar
 //                        .commit();
 //                break;
             case R.id.btn_home_create:
-                if (currentGroupId.equals("NA")) {
-                    if (createGroupFragment == null) {
-                        createGroupFragment = new CreateGroupFragment("home");
-                    }
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.ln_main, createGroupFragment, CreateGroupFragment.class.getName())
-                            .addToBackStack(null)
-                            .commit();
-                } else {
-                    new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
-                }
+              try {
+                  if (currentGroupId.equals("NA")) {
+                      if (createGroupFragment == null) {
+                          createGroupFragment = new CreateGroupFragment("home");
+                      }
+                      getActivity().getSupportFragmentManager().beginTransaction()
+                              .replace(R.id.ln_main, createGroupFragment, CreateGroupFragment.class.getName())
+                              .addToBackStack(null)
+                              .commit();
+                  } else {
+                      new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
+                  }
+              }catch (Exception e){
+
+              }
                 break;
             case R.id.btn_home_join:
-                if (currentGroupId.equals("NA")) {
-                    if (joinGroupFragment == null) {
-                        joinGroupFragment = new JoinGroupFragment("home");
-                    }
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.ln_main, joinGroupFragment, JoinGroupFragment.class.getName())
-                            .addToBackStack(null)
-                            .commit();
-                } else {
+                try {
+                    if (currentGroupId.equals("NA")) {
+                        if (joinGroupFragment == null) {
+                            joinGroupFragment = new JoinGroupFragment("home");
+                        }
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.ln_main, joinGroupFragment, JoinGroupFragment.class.getName())
+                                .addToBackStack(null)
+                                .commit();
+                    } else {
 
-                    new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
+                        new DialogConfirmExitGroup(rootView.getContext(), currentGroupUserId).show();
+                    }
+                }catch (Exception e){
+
                 }
                 break;
             case R.id.btn_home_about:
-                Intent intent=new Intent(rootView.getContext(),InformationAppActivity.class);
-                rootView.getContext().startActivity(intent);
+               try {
+                   Intent intent = new Intent(rootView.getContext(), InformationAppActivity.class);
+                   rootView.getContext().startActivity(intent);
+               }catch (Exception e){
+
+               }
                 break;
             default:
                 break;

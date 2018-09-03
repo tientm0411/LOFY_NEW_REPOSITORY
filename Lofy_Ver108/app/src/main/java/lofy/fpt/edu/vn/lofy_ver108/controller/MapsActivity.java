@@ -149,6 +149,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     private String googlePlacesData;
     String url;
     private boolean isAlertShow = false;
+    private int routesCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,19 +159,24 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapMain2);
         mapFragment.getMapAsync(this);
-        askGrantLocationPermission(); // ask grant location permisstion
-        initGoogleAPIClient();//Init Google API Client
-        checkPermissions();//Check Permission
-        Bundle bundle = getIntent().getExtras();
-        ciCode = bundle.getString("groupId");
-        Log.d("cCode:", ciCode);
-        initView();
+        try {
+            askGrantLocationPermission(); // ask grant location permisstion
+            initGoogleAPIClient();//Init Google API Client
+            checkPermissions();//Check Permission
+            Bundle bundle = getIntent().getExtras();
+            ciCode = bundle.getString("groupId");
+            Log.d("cCode:", ciCode);
+            initView();
+        } catch (Exception e) {
+
+        }
     }
 
     private PermissionManager permissionManager;
     private static final int REQUEST_CHECK_SETTINGS = 0x1;
     private static final int ACCESS_FINE_LOCATION_INTENT_ID = 3;
     private static final String BROADCAST_ACTION = "android.location.PROVIDERS_CHANGED";
+
     // ask grant lccation permisstion
     private void askGrantLocationPermission() {
         permissionManager = new PermissionManager() {
@@ -199,6 +205,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             showSettingDialog();
 
     }
+
     /* Show Location Access Dialog */
     private void showSettingDialog() {
         LocationRequest locationRequest = LocationRequest.create();
@@ -257,6 +264,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                     ACCESS_FINE_LOCATION_INTENT_ID);
         }
     }
+
     private void initView() {
         btnFindPath = (Button) findViewById(R.id.btn_main2_findPath);
         mAutocompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
@@ -443,13 +451,17 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMapLongClickListener(this);
-        mMap.setOnMarkerClickListener(this);
-        mMap.setOnInfoWindowClickListener(this);
-        mMap.setOnInfoWindowLongClickListener(this);
-        autoHideKeyboard();
-        initView2();
+        try {
+            mMap.setMyLocationEnabled(true);
+            mMap.setOnMapLongClickListener(this);
+            mMap.setOnMarkerClickListener(this);
+            mMap.setOnInfoWindowClickListener(this);
+            mMap.setOnInfoWindowLongClickListener(this);
+            autoHideKeyboard();
+            initView2();
+        } catch (Exception e) {
+
+        }
     }
 
     private void autoHideKeyboard() {
@@ -540,8 +552,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
     @Override
     public void onDirectionFinderStart() {
         progressDialog = new ProgressDialog(MapsActivity.this);
-        progressDialog.setTitle("Vui lòng đợi");
-        progressDialog.setMessage("Đang tìm hành trình...!");
+        progressDialog.setTitle("Đang tìm hành trình!");
+        progressDialog.setMessage("Vui lòng đợi");
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "HỦY", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -550,13 +562,24 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         });
         progressDialog.show();
         Runnable progressRunnable = () -> {
-            progressDialog.setTitle("Đã xảy ra lỗi");
-            progressDialog.setMessage("Vui lòng thử lại!");
+            progressDialog.setMessage("Vui lòng chờ đợi trong giây lát!");
             return;
         };
 
         Handler pdCanceller = new Handler();
         pdCanceller.postDelayed(progressRunnable, 15000);
+
+        if (originMarkers != null) {
+            for (Marker marker : originMarkers) {
+                marker.remove();
+            }
+        }
+
+        if (destinationMarkers != null) {
+            for (Marker marker : destinationMarkers) {
+                marker.remove();
+            }
+        }
 
         if (polylinePaths != null) {
             isClicked = false;
@@ -606,9 +629,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         durations.clear();
         distances.clear();
 
+
         for (final Route route : routes) {
             LatLng camCover = new LatLng(route.startLocation.latitude, route.endLocation.longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camCover, 7));
+
+            if (routesCount == 0) {
+                originMarkers.add(mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_start_point))
+                        .title(route.startAddress)
+                        .position(route.startLocation)));
+                routesCount += 1;
+            }
 
             PolylineOptions polylineOptions = new PolylineOptions().geodesic(true);
 
@@ -681,6 +713,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         }
 
         sumRoutes.add(routes);
+        if (destinationMarkers != null) {
+            for (Marker marker : destinationMarkers) {
+                marker.remove();
+            }
+        }
+        destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_end_point))
+                .title(routes.get(routes.size() - 1).endAddress)
+                .position(routes.get(routes.size() - 1).endLocation)));
         sumPaths.add(polylinePaths);
 
     }
@@ -822,6 +863,16 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
                                 }
                         )
                         .create().show();
+                return true;
+            }
+        }
+        for (int i = 0; i < originMarkers.size(); i++) {
+            if (marker.getPosition().latitude == originMarkers.get(i).getPosition().latitude) {
+                return true;
+            }
+        }
+        for (int i = 0; i < destinationMarkers.size(); i++) {
+            if (marker.getPosition().latitude == destinationMarkers.get(i).getPosition().latitude) {
                 return true;
             }
         }
@@ -1025,136 +1076,160 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         DatabaseReference newRef = group.child(ciCode.toUpperCase());
         switch (v.getId()) {
             case R.id.btn_main2_saveTrack:
-                listArc.clear();
-                for (int u = 0; u < sumRoutes.size(); u++) {
-                    for (int i = 0; i < sumRoutes.get(u).size(); i++) {
-                        Route routeArc = (Route) sumRoutes.get(u).get(i);
-                        Polyline polyArc = (Polyline) sumPaths.get(u).get(i);
-                        if (polyArc.getColor() == Color.BLUE && polyArc != null) {
-                            listArc.add(routeArc);
+                try {
+                    listArc.clear();
+                    for (int u = 0; u < sumRoutes.size(); u++) {
+                        for (int i = 0; i < sumRoutes.get(u).size(); i++) {
+                            Route routeArc = (Route) sumRoutes.get(u).get(i);
+                            Polyline polyArc = (Polyline) sumPaths.get(u).get(i);
+                            if (polyArc.getColor() == Color.BLUE && polyArc != null) {
+                                listArc.add(routeArc);
 
-                            Date currentTime = Calendar.getInstance().getTime();
-                            newRef.child("start_Date").setValue(currentTime.toString());
-                            newRef.child("start_Lat").setValue(routeArc.startLocation.latitude);
-                            newRef.child("start_Long").setValue(routeArc.startLocation.longitude);
-                            newRef.child("end_Lat").setValue(routeArc.endLocation.latitude);
-                            newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
-                            newRef.child("paths").setValue(listArc);
-                            newRef.child("restPoints").setValue(listRest);
-                            newRef.child("origin").setValue(mAutocompleteTextView.getText().toString());
-                            newRef.child("destination").setValue(mAutocompleteTextView2.getText().toString());
+                                Date currentTime = Calendar.getInstance().getTime();
+                                newRef.child("start_Date").setValue(currentTime.toString());
+                                newRef.child("start_Lat").setValue(routeArc.startLocation.latitude);
+                                newRef.child("start_Long").setValue(routeArc.startLocation.longitude);
+                                newRef.child("end_Lat").setValue(routeArc.endLocation.latitude);
+                                newRef.child("end_Long").setValue(routeArc.endLocation.longitude);
+                                newRef.child("paths").setValue(listArc);
+                                newRef.child("restPoints").setValue(listRest);
+                                newRef.child("origin").setValue(mAutocompleteTextView.getText().toString());
+                                newRef.child("destination").setValue(mAutocompleteTextView2.getText().toString());
+                            }
                         }
                     }
+                    Toast.makeText(this, "Đã lưu hành trình!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
                 }
-                Toast.makeText(this, "Đã lưu hành trình!", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_main2_addRest:
-                if (mAutocompleteTextView3.getVisibility() == View.GONE) {
-                    mAutocompleteTextView3.setVisibility(View.VISIBLE);
-                    btnNearbyGastation.setVisibility(View.VISIBLE);
-                    btnNearbyHospital.setVisibility(View.VISIBLE);
-                    btnNearbyRestaurant.setVisibility(View.VISIBLE);
-                } else if (!mAutocompleteTextView3.equals("")) {
-                    Geocoder geocoder = new Geocoder(MapsActivity.this);
-                    List<Address> addresses;
-                    try {
-                        addresses = geocoder.getFromLocationName(mAutocompleteTextView3.getText().toString(), 1);
-                        double latitude = addresses.get(0).getLatitude();
-                        double longitude = addresses.get(0).getLongitude();
-                        LatLng latLng = new LatLng(latitude, longitude);
-                        myMarker = mMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title("Vị trí không xác định..."));
-                        tenMarkers.add(myMarker);
-                        listRest.add(myMarker.getPosition());
-                        if (!groupID.toString().equals("NA")) {
-                            newRef.child("restPoints").setValue(listRest);
+                try {
+                    if (mAutocompleteTextView3.getVisibility() == View.GONE) {
+                        mAutocompleteTextView3.setVisibility(View.VISIBLE);
+                        btnNearbyGastation.setVisibility(View.VISIBLE);
+                        btnNearbyHospital.setVisibility(View.VISIBLE);
+                        btnNearbyRestaurant.setVisibility(View.VISIBLE);
+                    } else if (!mAutocompleteTextView3.equals("")) {
+                        Geocoder geocoder = new Geocoder(MapsActivity.this);
+                        List<Address> addresses;
+                        try {
+                            addresses = geocoder.getFromLocationName(mAutocompleteTextView3.getText().toString(), 1);
+                            double latitude = addresses.get(0).getLatitude();
+                            double longitude = addresses.get(0).getLongitude();
+                            LatLng latLng = new LatLng(latitude, longitude);
+                            myMarker = mMap.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title("Vị trí không xác định..."));
+                            tenMarkers.add(myMarker);
+                            listRest.add(myMarker.getPosition());
+                            if (!groupID.toString().equals("NA")) {
+                                newRef.child("restPoints").setValue(listRest);
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        mAutocompleteTextView3.setText("");
+                        mAutocompleteTextView3.setVisibility(View.GONE);
+                        btnNearbyGastation.setVisibility(View.GONE);
+                        btnNearbyHospital.setVisibility(View.GONE);
+                        btnNearbyRestaurant.setVisibility(View.GONE);
 
+                    } else if (tenMarkers.size() >= 10) {
+                        Toast.makeText(this, "Số điểm dừng tối đa là 10", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+
+                }
+                break;
+            case R.id.btn_main2_Reset:
+                try {
+                    mMap.clear();
+                    mAutocompleteTextView.setText("");
+                    mAutocompleteTextView2.setText("");
+                    listNearby.clear();
+                    listArc.clear();
+                    listRest.clear();
+                    sumDistance = 0;
+                    sumDuration = 0;
+                    sumPaths.clear();
+                    sumRoutes.clear();
+                    tenMarkers.clear();
+                    ((TextView) findViewById(R.id.tv_map_duration)).setText("0 min");
+                    ((TextView) findViewById(R.id.tv_map_distance)).setText("0 km");
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(mapMethod.getMyLocation()));
                     mAutocompleteTextView3.setText("");
                     mAutocompleteTextView3.setVisibility(View.GONE);
                     btnNearbyGastation.setVisibility(View.GONE);
                     btnNearbyHospital.setVisibility(View.GONE);
                     btnNearbyRestaurant.setVisibility(View.GONE);
 
-                } else  if (tenMarkers.size() >= 10){
-                    Toast.makeText(this, "Số điểm dừng tối đa là 10", Toast.LENGTH_SHORT).show();
+                    newRef.child("start_Date").removeValue();
+                    newRef.child("start_Lat").removeValue();
+                    newRef.child("start_Long").removeValue();
+                    newRef.child("end_Lat").removeValue();
+                    newRef.child("end_Long").removeValue();
+                    newRef.child("paths").removeValue();
+                    newRef.child("restPoints").removeValue();
+                    newRef.child("origin").removeValue();
+                    newRef.child("destination").removeValue();
+                } catch (Exception e) {
+
                 }
                 break;
-            case R.id.btn_main2_Reset:
-                mMap.clear();
-                mAutocompleteTextView.setText("");
-                mAutocompleteTextView2.setText("");
-                listNearby.clear();
-                listArc.clear();
-                listRest.clear();
-                sumDistance = 0;
-                sumDuration = 0;
-                sumPaths.clear();
-                sumRoutes.clear();
-                tenMarkers.clear();
-                ((TextView) findViewById(R.id.tv_map_duration)).setText("0 min");
-                ((TextView) findViewById(R.id.tv_map_distance)).setText("0 km");
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(mapMethod.getMyLocation()));
-                mAutocompleteTextView3.setText("");
-                mAutocompleteTextView3.setVisibility(View.GONE);
-                btnNearbyGastation.setVisibility(View.GONE);
-                btnNearbyHospital.setVisibility(View.GONE);
-                btnNearbyRestaurant.setVisibility(View.GONE);
-
-                newRef.child("start_Date").removeValue();
-                newRef.child("start_Lat").removeValue();
-                newRef.child("start_Long").removeValue();
-                newRef.child("end_Lat").removeValue();
-                newRef.child("end_Long").removeValue();
-                newRef.child("paths").removeValue();
-                newRef.child("restPoints").removeValue();
-                newRef.child("origin").removeValue();
-                newRef.child("destination").removeValue();
-                break;
             case R.id.btn_main2_nearbyGasStation:
-                station = "gas_station";
-                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
-                dataTransfer[0] = mMap;
-                dataTransfer[1] = url;
-                getNearbyPlacesData.execute(dataTransfer);
-                mAutocompleteTextView3.setText("");
-                mAutocompleteTextView3.setVisibility(View.GONE);
-                btnNearbyGastation.setVisibility(View.GONE);
-                btnNearbyHospital.setVisibility(View.GONE);
-                btnNearbyRestaurant.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Tìm kiếm các Trạm Xăng xung quanh đây", Toast.LENGTH_SHORT).show();
+                try {
+                    station = "gas_station";
+                    url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                    dataTransfer[0] = mMap;
+                    dataTransfer[1] = url;
+                    getNearbyPlacesData.execute(dataTransfer);
+                    mAutocompleteTextView3.setText("");
+                    mAutocompleteTextView3.setVisibility(View.GONE);
+                    btnNearbyGastation.setVisibility(View.GONE);
+                    btnNearbyHospital.setVisibility(View.GONE);
+                    btnNearbyRestaurant.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), "Tìm kiếm các Trạm Xăng xung quanh đây", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.btn_main2_nearbyHospital:
-                station = "hospital";
-                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
-                dataTransfer[0] = mMap;
-                dataTransfer[1] = url;
-                getNearbyPlacesData.execute(dataTransfer);
-                mAutocompleteTextView3.setText("");
-                mAutocompleteTextView3.setVisibility(View.GONE);
-                btnNearbyGastation.setVisibility(View.GONE);
-                btnNearbyHospital.setVisibility(View.GONE);
-                btnNearbyRestaurant.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "Tìm kiếm các Bệnh Viện xung quanh đây", Toast.LENGTH_SHORT).show();
+                try {
+                    station = "hospital";
+                    url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                    dataTransfer[0] = mMap;
+                    dataTransfer[1] = url;
+                    getNearbyPlacesData.execute(dataTransfer);
+                    mAutocompleteTextView3.setText("");
+                    mAutocompleteTextView3.setVisibility(View.GONE);
+                    btnNearbyGastation.setVisibility(View.GONE);
+                    btnNearbyHospital.setVisibility(View.GONE);
+                    btnNearbyRestaurant.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(), "Tìm kiếm các Bệnh Viện xung quanh đây", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.btn_main2_nearbyRestaurant:
-                station = "restaurant";
-                url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
-                dataTransfer[0] = mMap;
-                dataTransfer[1] = url;
-                getNearbyPlacesData.execute(dataTransfer);
-                mAutocompleteTextView3.setText("");
-                mAutocompleteTextView3.setVisibility(View.GONE);
-                btnNearbyGastation.setVisibility(View.GONE);
-                btnNearbyHospital.setVisibility(View.GONE);
-                btnNearbyRestaurant.setVisibility(View.GONE);
-                Log.d("listNearby", listNearby.size() + "");
-                Toast.makeText(getApplicationContext(), "Tìm kiếm các Nhà Hàng xung quanh đây", Toast.LENGTH_SHORT).show();
+                try {
+                    station = "restaurant";
+                    url = mapMethod.getUrl(mapMethod.getMyLocation().latitude, mapMethod.getMyLocation().longitude, station);
+                    dataTransfer[0] = mMap;
+                    dataTransfer[1] = url;
+                    getNearbyPlacesData.execute(dataTransfer);
+                    mAutocompleteTextView3.setText("");
+                    mAutocompleteTextView3.setVisibility(View.GONE);
+                    btnNearbyGastation.setVisibility(View.GONE);
+                    btnNearbyHospital.setVisibility(View.GONE);
+                    btnNearbyRestaurant.setVisibility(View.GONE);
+                    Log.d("listNearby", listNearby.size() + "");
+                    Toast.makeText(getApplicationContext(), "Tìm kiếm các Nhà Hàng xung quanh đây", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
                 break;
             default:
                 break;

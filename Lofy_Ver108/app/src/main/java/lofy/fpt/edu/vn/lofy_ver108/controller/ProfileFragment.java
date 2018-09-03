@@ -7,6 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -52,14 +57,18 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import lofy.fpt.edu.vn.lofy_ver108.R;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.HistoryGroupApdater;
 import lofy.fpt.edu.vn.lofy_ver108.adapter.MemberAdapter;
+import lofy.fpt.edu.vn.lofy_ver108.business.MapMethod;
 import lofy.fpt.edu.vn.lofy_ver108.business.ResizeListview;
 import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
@@ -114,10 +123,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         mAuth = FirebaseAuth.getInstance();
-        initView();
+        try {
+            initView();
 //        showHistoryGroup();
-        showHistoryAsyn showHistoryAsyn = new showHistoryAsyn();
-        showHistoryAsyn.execute();
+            showHistoryAsyn showHistoryAsyn = new showHistoryAsyn();
+            showHistoryAsyn.execute();
+        } catch (Exception e) {
+        }
+
+//        MapMethod mapMethod = new MapMethod(rootView.getContext());
+//        String s = mapMethod.getAddress(21.0133712,105.5261999, rootView.getContext());
+//        Log.d("onCreateView", s + " ");
+
         return rootView;
     }
 
@@ -434,11 +451,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
                             }
                         }
                     }
-                    historyGroupApdater = new HistoryGroupApdater(rootView.getContext(), alGroups);
-                    lvHistoryGroups.setAdapter(historyGroupApdater);
-                    lvHistoryGroups.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
-                    ResizeListview.setListViewHeightBasedOnChildren(lvHistoryGroups);
-                    historyGroupApdater.notifyDataSetChanged();
+                   try {
+                       historyGroupApdater = new HistoryGroupApdater(rootView.getContext(), alGroups);
+                       lvHistoryGroups.setAdapter(historyGroupApdater);
+                       lvHistoryGroups.setDescendantFocusability(ListView.FOCUS_BLOCK_DESCENDANTS);
+                       ResizeListview.setListViewHeightBasedOnChildren(lvHistoryGroups);
+                       historyGroupApdater.notifyDataSetChanged();
+                   }catch (Exception e){
+
+                   }
                 }
             }
 
@@ -523,10 +544,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         super.onDestroy();
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.getReference("groups").removeEventListener(valueEventListenerShowGroup);
+//        mFirebaseDatabase.getReference("groups").removeEventListener(valueEventListenerShowGroup);
         mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerShowGroupUser);
 //        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerDelGroupUser);
     }
+
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
@@ -535,13 +557,22 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
 //
 //                break;
             case R.id.menu_profile_delete:
-                lnConfirmCode.setVisibility(View.GONE);
-                delPhoneNumber();
+                try {
+                    lnConfirmCode.setVisibility(View.GONE);
+                    delPhoneNumber();
+                } catch (Exception e) {
+
+                }
                 break;
             case R.id.menu_profile_update:
-                sendVerificationCode();
+                try {
+                    sendVerificationCode();
+                } catch (Exception e) {
+
+                }
                 break;
         }
         return false;
     }
+
 }

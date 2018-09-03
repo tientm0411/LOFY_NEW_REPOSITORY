@@ -7,4 +7,9 @@
     <color name="black">#000000</color>
     <color name="lightorange">#fdf2df</color>
     <color name="lightorangedark">#ebd6ab</color>
+    <color name="app1">#F0E2C7</color>
+    <color name="app2">#ffffff</color>
+    <color name="app3">#ffffff</color>
+    <color name="app4">#99A01E</color>
+    <color name="fontText">#000000</color>
 </resources>

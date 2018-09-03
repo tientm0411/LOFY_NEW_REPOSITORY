@@ -37,26 +37,38 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        navigationView.postDelayed(() -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.navigation_home) {
-                startActivity(new Intent(this, InformationAppActivity.class));
-            } else if (itemId == R.id.navigation_dashboard) {
-                    startActivity(new Intent(this, GuidesActivity.class));
-            }
-            finish();
-        }, 300);
-        return true;
+       try {
+           navigationView.postDelayed(() -> {
+               int itemId = item.getItemId();
+               if (itemId == R.id.navigation_home) {
+                   startActivity(new Intent(this, InformationAppActivity.class));
+               } else if (itemId == R.id.navigation_dashboard) {
+                   startActivity(new Intent(this, GuidesActivity.class));
+               }
+               finish();
+           }, 300);
+           return true;
+       }catch (Exception e){
+           return false;
+       }
     }
 
-    private void updateNavigationBarState(){
-        int actionId = getNavigationMenuItemId();
-        selectBottomNavigationBarItem(actionId);
+    private void updateNavigationBarState() {
+        try{
+            int actionId = getNavigationMenuItemId();
+            selectBottomNavigationBarItem(actionId);
+        }catch (Exception e){
+
+        }
     }
 
     void selectBottomNavigationBarItem(int itemId) {
-        MenuItem item = navigationView.getMenu().findItem(itemId);
-        item.setChecked(true);
+       try{
+           MenuItem item = navigationView.getMenu().findItem(itemId);
+           item.setChecked(true);
+       }catch (Exception e){
+
+       }
     }
 
     abstract int getContentViewId();

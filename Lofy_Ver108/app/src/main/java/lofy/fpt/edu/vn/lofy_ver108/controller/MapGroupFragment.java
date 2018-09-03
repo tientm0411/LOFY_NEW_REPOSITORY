@@ -111,6 +111,8 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     private SharedPreferences mSharedPreferences;
     private String groupID = "";
     private List<Marker> tenMarkers = new ArrayList<>();
+    private List<Marker> originMarkers = new ArrayList<>();
+    private List<Marker> destinationMarkers = new ArrayList<>();
     private String userID = "";
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference notiRef;
@@ -228,10 +230,15 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.it_menu_set_radius:
-//                Toast.makeText(rootView.getContext(), "Đặt bán kính !", Toast.LENGTH_SHORT).show();
-                DialogSetRadius dialogSetRadius = new DialogSetRadius(rootView.getContext());
-                dialogSetRadius.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-                dialogSetRadius.show();
+//
+                try {
+                    Toast.makeText(rootView.getContext(), "Đặt bán kính !", Toast.LENGTH_SHORT).show();
+                    DialogSetRadius dialogSetRadius = new DialogSetRadius(rootView.getContext());
+                    dialogSetRadius.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                    dialogSetRadius.show();
+                } catch (Exception e) {
+
+                }
             default:
                 break;
 
@@ -247,7 +254,8 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 && ActivityCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        mMap.setMyLocationEnabled(true);
+        try {
+            mMap.setMyLocationEnabled(true);
 //        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 //        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
 //            @Override
@@ -257,10 +265,13 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 //                return false;
 //            }
 //        });
-        setUpMap(mMap);
-        loadMarkerNoti(mMap);
-        loadRoute(mMap);
-        loadMarkerMember();
+            setUpMap(mMap);
+            loadMarkerNoti(mMap);
+            loadRoute(mMap);
+            loadMarkerMember();
+        } catch (Exception e) {
+
+        }
 
 //        int iadsa = queryFirebase.getAlUser().size();
 //        Log.d("onMapReady_3", iadsa+" ");
@@ -291,6 +302,16 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     double longitude = Double.parseDouble(latlong[1].trim().substring(0, latlong[1].length() - 2));
                     LatLng point = new LatLng(latitude, longitude);
                     polylineOptions.add(point).color(Color.BLUE).zIndex(10).width(20);
+                    if (i == 0) {
+                        originMarkers.add(mMap.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_start_point))
+                                .position(point)));
+                    }
+                    if (i == listLatLng.size() - 1) {
+                        destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_end_point))
+                                .position(point)));
+                    }
                 }
                 Polyline polyline = googleMap.addPolyline(polylineOptions);
                 polylinePaths.add(polyline);
@@ -329,7 +350,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 && ActivityCompat.checkSelfPermission(rootView.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        ;
+        googleMap.setPadding(5, 80, 10, 10);
         googleMap.setTrafficEnabled(true);
         googleMap.setIndoorEnabled(true);
         googleMap.setBuildingsEnabled(true);
@@ -791,10 +812,14 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     @Override
     public void onResume() {
         super.onResume();
-        rootView.getContext().registerReceiver(gpsLocationReceiver, new IntentFilter(BROADCAST_ACTION));//Register broadcast receiver to check the status of GPS
-        getView().setFocusable(true);
-        getView().setFocusableInTouchMode(true);
-        getView().requestFocus();
+        try {
+            rootView.getContext().registerReceiver(gpsLocationReceiver, new IntentFilter(BROADCAST_ACTION));//Register broadcast receiver to check the status of GPS
+            getView().setFocusable(true);
+            getView().setFocusableInTouchMode(true);
+            getView().requestFocus();
+        } catch (Exception e) {
+
+        }
     }
 
     @Override
@@ -826,7 +851,17 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     @Override
     public void onDirectionFinderStart() {
+        if (originMarkers != null) {
+            for (Marker marker : originMarkers) {
+                marker.remove();
+            }
+        }
 
+        if (destinationMarkers != null) {
+            for (Marker marker : destinationMarkers) {
+                marker.remove();
+            }
+        }
     }
 
     @Override
@@ -845,6 +880,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         Log.d("123", minDistance + "");
 
         for (final Route route : routes) {
+
             LatLng camCover = new LatLng(route.startLocation.latitude, route.endLocation.longitude);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(camCover, 7));
 
@@ -903,7 +939,11 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_noti:
-                showDialogNoti();
+                try {
+                    showDialogNoti();
+                } catch (Exception e) {
+
+                }
                 break;
             default:
                 break;
@@ -912,7 +952,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        return false;
+        return true;
     }
 
     @Override
