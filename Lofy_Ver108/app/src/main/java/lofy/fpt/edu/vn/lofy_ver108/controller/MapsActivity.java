@@ -159,6 +159,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.On
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapMain2);
         mapFragment.getMapAsync(this);
+
         try {
             askGrantLocationPermission(); // ask grant location permisstion
             initGoogleAPIClient();//Init Google API Client

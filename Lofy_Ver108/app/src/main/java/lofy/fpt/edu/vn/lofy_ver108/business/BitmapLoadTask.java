@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import lofy.fpt.edu.vn.lofy_ver108.adapter.InforNotiMaker;
 
 public class BitmapLoadTask extends AsyncTask<Void, Void, Bitmap> {
 

@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -83,6 +84,7 @@ import java.util.TimerTask;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinder;
 import lofy.fpt.edu.vn.lofy_ver108.Modules.DirectionFinderListener;
 import lofy.fpt.edu.vn.lofy_ver108.dbo.QueryFirebase;
+import lofy.fpt.edu.vn.lofy_ver108.entity.BitmapUser;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Group;
 import lofy.fpt.edu.vn.lofy_ver108.entity.Route;
 import lofy.fpt.edu.vn.lofy_ver108.R;
@@ -101,7 +103,8 @@ import static android.content.Context.LOCATION_SERVICE;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapGroupFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener, DirectionFinderListener {
+public class MapGroupFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener, GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerDragListener, DirectionFinderListener, LocationListener, GoogleMap.OnMyLocationChangeListener {
     private View rootView;
     private GoogleMap mMap;
     private Circle mapCircle;
@@ -171,7 +174,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                 public boolean onKey(View view, int i, KeyEvent keyEvent) {
                     if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                         if (i == KeyEvent.KEYCODE_BACK) {
-                            callParentMethod();
+//                            callParentMethod();
                             return true;
                         }
                     }
@@ -186,9 +189,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
     }
 
 
-    public void callParentMethod() {
-        getActivity().onBackPressed();
-    }
+//    public void callParentMethod() {
+//        getActivity().onBackPressed();
+//    }
 
     private void initView() {
         fabNoti = (FloatingActionButton) rootView.findViewById(R.id.fab_noti);
@@ -207,8 +210,12 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         alMarkerNoti = new ArrayList<>();
 
         alMarkerMember = new ArrayList<>();
+        alBitMap = new ArrayList<>();
         alGroupUser = new ArrayList<>();
         alUser = new ArrayList<>();
+
+        loadMarkerMember();
+
 
 //        mTopToolbar = (Toolbar) rootView.findViewById(R.id.my_toolbar);
 //        ((AppCompatActivity)getActivity()).setSupportActionBar(mTopToolbar);
@@ -266,9 +273,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 //            }
 //        });
             setUpMap(mMap);
-            loadMarkerNoti(mMap);
             loadRoute(mMap);
             loadMarkerMember();
+            loadMarkerNoti(mMap);
         } catch (Exception e) {
 
         }
@@ -276,6 +283,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 //        int iadsa = queryFirebase.getAlUser().size();
 //        Log.d("onMapReady_3", iadsa+" ");
     }
+
 
     private void loadRoute(final GoogleMap googleMap) {
         final DatabaseReference newRef = groupRef.child(groupID);
@@ -360,6 +368,7 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         googleMap.setOnMarkerClickListener(this);
         googleMap.setOnInfoWindowClickListener(this);
         googleMap.setOnMarkerDragListener(this);
+        googleMap.setOnMyLocationChangeListener(this);
     }
 
     private ArrayList<Notification> alNoti; // list noti
@@ -463,8 +472,11 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                     userRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
+//                            Thread mythread  = new Thread(new MyThread());
+//                            mythread.start();
                             alUser.clear();
                             alUserOutRange.clear();
+//                            alGroupUser.clear();
                             LatLng lng = null;
                             if (!alMarkerMember.isEmpty() || alMarkerMember.size() > 0) {
                                 for (Marker marker : alMarkerMember) {
@@ -488,26 +500,28 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
                                 for (int i = 0; i < alUser.size(); i++) {
                                     if (alGroupUser.get(i).isHost() && alGroupUser.get(i).isStatusUser()) {
                                         hostLng = new LatLng(alUser.get(i).getUserLati(), alUser.get(i).getUserLongti());
+
+                                        String gId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
+                                        String hostId = queryFirebase.getHostGroupUserByGroupId(queryFirebase.getAlGroupUser(), gId);
+
                                         break;
                                     }
                                 }
                                 for (int k = 0; k < alUser.size(); k++) {
                                     lng = new LatLng(alUser.get(k).getUserLati(), alUser.get(k).getUserLongti());
+                                    if (alUser.get(k).getUserId().equals("2242847769064109")) {
+                                        Log.d("ppppppp_5___1", alUser.get(k).getUserName() + ": " + lng);
+                                    }
                                     LoaddMarkerMemberAsyntask loaddMarkerMemberAsyntask = new LoaddMarkerMemberAsyntask(alUser.get(k), alGroupUser.get(k), lng);
                                     loaddMarkerMemberAsyntask.execute();
                                     mResult = new float[10];
                                     try {
-
                                         Location.distanceBetween(hostLng.latitude, hostLng.longitude, alUser.get(k).getUserLati(), alUser.get(k).getUserLongti(), mResult);
                                     } catch (Exception e) {
                                     }
                                     Log.d("distance", mResult[0] + " ");
                                     if (mResult[0] >= mSizeRadius * 1000) {
                                         mCount++;
-//                                        alUserOutRange.add(alUser.get(k));
-//                                        Intent intent = new Intent(rootView.getContext(), OutRangeService.class);
-//                                        intent.putExtra("KEY_NOTI", alUser.get(k));
-//                                        rootView.getContext().startService(intent);
                                         groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).setValue(alUser.get(k).getUserName().toString());
                                     } else {
                                         groupRef.child(alGroupUser.get(k).getGroupId()).child("members-out-range").child(alUser.get(k).getUserName().toString()).removeValue();
@@ -559,6 +573,22 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         });
     }
 
+    public class MyThread implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    ArrayList<BitmapUser> alBitMap;
+
     // load marker member asyn
     public class LoaddMarkerMemberAsyntask extends AsyncTask<Void, Void, Bitmap> {
         private User user;
@@ -573,22 +603,35 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
         @Override
         protected Bitmap doInBackground(Void... params) {
-            try {
-//                 "https://firebasestorage.googleapis.com/v0/b/lofyversion106.appspot.com/o/test_image%2Ftest_image.PNG?alt=media&token=cf2ddd69-9809-49b0-9697-abb507796378"
-//                 "https://graph.facebook.com/692839717728567/picture?with=250&height=250"
-                URL urlConnection = new URL(user.getUrlAvatar());
-                HttpURLConnection connection = (HttpURLConnection) urlConnection
-                        .openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(input);
-                if (myBitmap == null)
-                    return null;
-                return myBitmap;
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (alGroupUser.size() != alBitMap.size()) {
+                Log.d("testdata_1", alGroupUser.size()+" ");
+                Log.d("testdata_2", alBitMap.size()+" ");
+                try {
+                    URL urlConnection = new URL(user.getUrlAvatar());
+                    HttpURLConnection connection = (HttpURLConnection) urlConnection
+                            .openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                    BitmapUser bitmapUser = new BitmapUser(user.getUserId(), myBitmap);
+                    alBitMap.add(bitmapUser);
+                    if (myBitmap == null)
+                        return null;
+                    return myBitmap;
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.d("testdata_3", alBitMap.size()+" ");
+                for (int i = 0; i < alBitMap.size(); i++) {
+                    if (user.getUserId().equals(alBitMap.get(i).getUserId())) {
+                        return alBitMap.get(i).getBitmap();
+                    }
+                }
             }
+
             return null;
         }
 
@@ -596,27 +639,30 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         protected void onPostExecute(final Bitmap result) {
             super.onPostExecute(result);
             if (!user.getUserId().equals(userID)) {
-                MarkerOptions mMarkerOptions = new MarkerOptions()
+                mMarkerMem = mMap.addMarker(new MarkerOptions()
                         .title(user.getUserName())
-                        .position(new LatLng(user.getUserLati(), user.getUserLongti()))
+                        .position(latLng)
                         .icon(BitmapDescriptorFactory.fromBitmap(appFunctions.getRoundedCornerBitmap(result, 68)))
-                        .anchor(0.5f, 1);
-                mMarkerMem = mMap.addMarker(mMarkerOptions);
+//                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .anchor(0.5f, 1));
                 alMarkerMember.add(mMarkerMem);
+
+
+                Log.d("ppppppp_1", alMarkerMember.size() + "");
+                Log.d("ppppppp_2", user.getUserName() + ": " + new LatLng(user.getUserLati(), user.getUserLongti()) + "");
+                Log.d("ppppppp_3", user.getUserName() + ": " + mMarkerMem.getId());
+                Log.d("ppppppp_4", user.getUserName() + ": " + mMarkerMem.getPosition());
+                if (user.getUserId().equals("2242847769064109")) {
+                    Log.d("ppppppp_5", user.getUserName() + ": " + latLng);
+                }
             }
             if (groupUser.isHost() && groupUser.isStatusUser() == true) {
                 String gId = mSharedPreferences.getString(IntroApplicationActivity.GROUP_ID, "NA");
                 String hostId = queryFirebase.getHostGroupUserByGroupId(queryFirebase.getAlGroupUser(), gId);
                 double sizeRadius = queryFirebase.getSizeByGroupUserId(queryFirebase.getAlGroupUser(), hostId);
-
-                Log.d("onPostExecute_4", gId + "");
-                Log.d("onPostExecute_0", sizeRadius + "");
-                Log.d("onPostExecute_1", hostId + "");
-                Log.d("onPostExecute_2", queryFirebase.getAlGroupUser().size() + "");
                 if (sizeRadius <= 0) {
                     sizeRadius = 1;
                 }
-                Log.d("onPostExecute_3", sizeRadius + "");
                 mapCircle = new MapMethod(rootView.getContext()).showCircleToGoogleMap(mMap, mapCircle, latLng, (float) sizeRadius);
             }
         }
@@ -631,6 +677,32 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
         myLocation.setLongitude((mapMethod.getMyLocation().longitude));
         new DialogNotifyIcon(rootView.getContext(), myLocation).show();
 
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+
+    @Override
+    public void onMyLocationChange(Location location) {
+//        loadRoute(mMap);
+//        loadMarkerMember();
     }
 
     // zoom camera to my location
@@ -952,7 +1024,9 @@ public class MapGroupFragment extends Fragment implements OnMapReadyCallback, Vi
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        return true;
+
+        marker.showInfoWindow();
+        return false;
     }
 
     @Override

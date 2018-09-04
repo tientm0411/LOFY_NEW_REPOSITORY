@@ -291,7 +291,7 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
                 public boolean onKey(View view, int i, KeyEvent keyEvent) {
                     if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
                         if (i == KeyEvent.KEYCODE_BACK) {
-                            callParentMethod();
+//                            callParentMethod();
                             return true;
                         }
                     }
@@ -304,9 +304,9 @@ public class CreateGroupFragment extends Fragment implements SharedPreferences.O
         return rootView;
     }
 
-    public void callParentMethod() {
-        getActivity().onBackPressed();
-    }
+//    public void callParentMethod() {
+//        getActivity().onBackPressed();
+//    }
 
     public class LoadListAsynJoin extends AsyncTask<Void, Void, Void> {
 

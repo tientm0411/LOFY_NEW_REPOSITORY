@@ -141,10 +141,14 @@ public class GPS_Service extends Service implements SharedPreferences.OnSharedPr
     }
 
     private void updateLocation(Location location, String userID) {
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = mFirebaseDatabase.getReference("users").child(userID);
-        myRef.child("userLati").setValue(location.getLatitude());
-        myRef.child("userLongti").setValue(location.getLongitude());
+       try {
+           FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+           DatabaseReference myRef = mFirebaseDatabase.getReference("users").child(userID);
+           myRef.child("userLati").setValue(location.getLatitude());
+           myRef.child("userLongti").setValue(location.getLongitude());
+       }catch (Exception e){
+
+       }
     }
 
     private void initializeLocationManager() {

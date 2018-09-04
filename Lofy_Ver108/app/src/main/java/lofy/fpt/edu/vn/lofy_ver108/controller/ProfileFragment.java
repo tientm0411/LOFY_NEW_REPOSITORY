@@ -545,7 +545,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener, P
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
 //        mFirebaseDatabase.getReference("groups").removeEventListener(valueEventListenerShowGroup);
-        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerShowGroupUser);
+//        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerShowGroupUser);
 //        mFirebaseDatabase.getReference("groups-users").removeEventListener(valueEventListenerDelGroupUser);
     }
 

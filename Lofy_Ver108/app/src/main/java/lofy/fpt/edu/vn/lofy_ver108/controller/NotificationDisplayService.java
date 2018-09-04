@@ -77,7 +77,7 @@ public class NotificationDisplayService extends Service {
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(getApplicationContext())
                         .setContentTitle(noti.getNotiName())
-                        .setContentText(name+" đã gửi cảnh báo: "+noti.getMess())
+                        .setContentText(noti.getMess())
                         .setSmallIcon(R.drawable.ic_logo_siple)
                         .setLargeIcon(bitmap)
                         .setColor(getResources().getColor(R.color.colorPrimary))

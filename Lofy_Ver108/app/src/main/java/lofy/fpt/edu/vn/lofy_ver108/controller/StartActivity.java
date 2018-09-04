@@ -30,9 +30,9 @@ public class StartActivity extends AppCompatActivity implements SharedPreference
     ActionBar actionBar;
 
     private int[] tabIcons = {
-            R.drawable.ic_filter_1_white_24dp,
-            R.drawable.ic_filter_2_white_24dp,
-            R.drawable.ic_filter_3_white_24dp
+            R.drawable.ic_map_group,
+            R.drawable.ic_group_group,
+            R.drawable.ic_profile_group
     };
 
     private ProfileFragment profileFragment;
